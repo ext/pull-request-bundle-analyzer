@@ -1,6 +1,11 @@
 import nodefs from "node:fs/promises";
+import { Ajv } from "ajv";
+import schema from "../schema.json" with { type: "json" };
 import { type Config, type NormalizedConfig, normalizeConfig } from "./config/index.ts";
 import { readJsonFile } from "./read-json-file.ts";
+
+const ajv = new Ajv({ allErrors: true, strict: false });
+const validate = ajv.compile(schema as object);
 
 /**
  * @public
@@ -13,6 +18,12 @@ export async function readConfigFile(
 	fs: typeof nodefs = nodefs,
 ): Promise<NormalizedConfig> {
 	const config = (await readJsonFile(filePath, fs)) as Config;
+
+	if (!validate(config)) {
+		const errText = ajv.errorsText(validate.errors, { separator: "\n" });
+		throw new Error(`Config schema validation failed: ${errText}`);
+	}
+
 	const bundles = config.bundles ?? [];
 	const seen = new Set<string>();
 	for (const bundle of bundles) {

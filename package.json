@@ -37,6 +37,7 @@
   },
   "prettier": "@html-validate/prettier-config",
   "dependencies": {
+    "ajv": "8.17.1",
     "yargs": "18.0.0"
   },
   "devDependencies": {
