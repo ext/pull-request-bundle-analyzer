@@ -12,10 +12,11 @@ expect.addSnapshotSerializer({
 	},
 });
 
-const data: BundleDiff[] = [
+const updated: BundleDiff[] = [
 	{
 		id: "app",
 		name: "app",
+		status: "updated",
 		oldSize: 90,
 		newSize: 100,
 		sizeDiff: 10,
@@ -37,6 +38,7 @@ const data: BundleDiff[] = [
 	{
 		id: "lib",
 		name: "lib",
+		status: "updated",
 		oldSize: 200,
 		newSize: 200,
 		sizeDiff: 0,
@@ -52,6 +54,7 @@ const data: BundleDiff[] = [
 	{
 		id: "vendor",
 		name: "vendor",
+		status: "updated",
 		oldSize: 300,
 		newSize: 250,
 		sizeDiff: -50,
@@ -66,84 +69,124 @@ const data: BundleDiff[] = [
 	},
 ];
 
+const added: BundleDiff[] = [
+	{
+		id: "new",
+		name: "new",
+		status: "added",
+		oldSize: 0,
+		newSize: 150,
+		sizeDiff: 150,
+		oldGzip: 0,
+		newGzip: 100,
+		gzipDiff: 100,
+		oldBrotli: 0,
+		newBrotli: 80,
+		brotliDiff: 80,
+		oldFiles: [],
+		newFiles: [{ filename: "dist/new.js", size: 150, gzip: 100, brotli: 80 }],
+	},
+];
+
+const removed: BundleDiff[] = [
+	{
+		id: "old",
+		name: "old",
+		status: "removed",
+		oldSize: 200,
+		newSize: 0,
+		sizeDiff: -200,
+		oldGzip: 120,
+		newGzip: 0,
+		gzipDiff: -120,
+		oldBrotli: 80,
+		newBrotli: 0,
+		brotliDiff: -80,
+		oldFiles: [{ filename: "dist/old.js", size: 200, gzip: 120, brotli: 80 }],
+		newFiles: [],
+	},
+];
+
 describe("formatDiff()", () => {
-	it("formats json", () => {
-		const out = formatDiff(data, "json", { color: false });
-		const parsed = JSON.parse(out);
-		expect(parsed).toEqual([
-			{
-				id: "app",
-				name: "app",
-				oldSize: 90,
-				newSize: 100,
-				sizeDiff: 10,
-				oldGzip: 75,
-				newGzip: 80,
-				gzipDiff: 5,
-				oldBrotli: 72,
-				newBrotli: 70,
-				brotliDiff: -2,
-				newFiles: [
-					{ filename: "dist/a.js", size: 70, gzip: 60, brotli: 50 },
-					{ filename: "dist/b.js", size: 30, gzip: 20, brotli: 20 },
-				],
-				oldFiles: [
-					{ filename: "dist/a.js", size: 65, gzip: 55, brotli: 45 },
-					{ filename: "dist/b.js", size: 25, gzip: 15, brotli: 18 },
-				],
-			},
-			{
-				id: "lib",
-				name: "lib",
-				oldSize: 200,
-				newSize: 200,
-				sizeDiff: 0,
-				oldGzip: 150,
-				newGzip: 150,
-				gzipDiff: 0,
-				oldBrotli: 120,
-				newBrotli: 120,
-				brotliDiff: 0,
-				newFiles: [{ filename: "dist/lib.js", size: 200, gzip: 150, brotli: 120 }],
-				oldFiles: [{ filename: "dist/lib.js", size: 200, gzip: 150, brotli: 120 }],
-			},
-			{
-				id: "vendor",
-				name: "vendor",
-				oldSize: 300,
-				newSize: 250,
-				sizeDiff: -50,
-				oldGzip: 250,
-				newGzip: 210,
-				gzipDiff: -40,
-				oldBrotli: 230,
-				newBrotli: 200,
-				brotliDiff: -30,
-				newFiles: [{ filename: "dist/vendor.js", size: 250, gzip: 210, brotli: 200 }],
-				oldFiles: [{ filename: "dist/vendor.js", size: 300, gzip: 250, brotli: 230 }],
-			},
-		]);
+	describe("json", () => {
+		it("formats updated bundles", () => {
+			const out = formatDiff(updated, "json", { color: false });
+			const parsed = JSON.parse(out);
+			expect(parsed).toEqual(updated);
+		});
+
+		it("formats added bundle", () => {
+			const outJson = formatDiff(added, "json", { color: false });
+			const parsedJson = JSON.parse(outJson);
+			expect(parsedJson).toEqual(added);
+		});
+
+		it("formats removed bundle", () => {
+			const outJson = formatDiff(removed, "json", { color: false });
+			const parsedJson = JSON.parse(outJson);
+			expect(parsedJson).toEqual(removed);
+		});
 	});
 
-	it("formats markdown", () => {
-		const out = formatDiff(data, "markdown", { color: false });
-		expect(out).toMatchInlineSnapshot(`
-			## Bundle sizes
+	describe("markdown", () => {
+		it("formats updated bundles", () => {
+			const out = formatDiff(updated, "markdown", { color: false });
+			expect(out).toMatchInlineSnapshot(`
+				## Bundle sizes
 
-			| Bundle | Files | Size | Compressed | Change |
-			|---|---|---:|---:|---:|
-			| app | 2 file(s) | 90B → **100B** (+10B) | gzip: 80B<br>brotli: 70B | +11.11% |
-			| lib | 1 file(s) | 200B → **200B** (+0B) | gzip: 150B<br>brotli: 120B | - |
-			| vendor | 1 file(s) | 300B → **250B** (-50B) | gzip: 210B<br>brotli: 200B | -16.67% |
-		`);
+				| Bundle | Files | Size | Compressed | Change |
+				|---|---|---:|---:|---:|
+				| app | 2 file(s) | 90B → **100B** (+10B) | gzip: 80B<br>brotli: 70B | +11.11% |
+				| lib | 1 file(s) | 200B → **200B** (+0B) | gzip: 150B<br>brotli: 120B | - |
+				| vendor | 1 file(s) | 300B → **250B** (-50B) | gzip: 210B<br>brotli: 200B | -16.67% |
+			`);
+		});
+
+		it("formats added bundle", () => {
+			const outMd = formatDiff(added, "markdown", { color: false });
+			expect(outMd).toMatchInlineSnapshot(`
+				## Bundle sizes
+
+				| Bundle | Files | Size | Compressed | Change |
+				|---|---|---:|---:|---:|
+				| new (added) | 1 file(s) | N/A → **150B** | gzip: 100B<br>brotli: 80B | +0.00% |
+			`);
+		});
+
+		it("formats removed bundle", () => {
+			const outMd = formatDiff(removed, "markdown", { color: false });
+			expect(outMd).toMatchInlineSnapshot(`
+				## Bundle sizes
+
+				| Bundle | Files | Size | Compressed | Change |
+				|---|---|---:|---:|---:|
+				| old (removed) | N/A | 200B → N/A | N/A | N/A |
+			`);
+		});
 	});
 
-	it("formats text", () => {
-		const out = formatDiff(data, "text", { color: false });
-		expect(out).toMatchInlineSnapshot(`
-			app: files=2 (+0), size=100B (+10B), gzip=80B (+5B), brotli=70B (-2B)
-			lib: files=1 (+0), size=200B (+0B), gzip=150B (+0B), brotli=120B (+0B)
-			vendor: files=1 (+0), size=250B (-50B), gzip=210B (-40B), brotli=200B (-30B)
-		`);
+	describe("text", () => {
+		it("formats updated bundles", () => {
+			const out = formatDiff(updated, "text", { color: false });
+			expect(out).toMatchInlineSnapshot(`
+				app: files=2 (+0), size=100B (+10B), gzip=80B (+5B), brotli=70B (-2B)
+				lib: files=1 (+0), size=200B (+0B), gzip=150B (+0B), brotli=120B (+0B)
+				vendor: files=1 (+0), size=250B (-50B), gzip=210B (-40B), brotli=200B (-30B)
+			`);
+		});
+
+		it("formats added bundle", () => {
+			const outText = formatDiff(added, "text", { color: false });
+			expect(outText).toMatchInlineSnapshot(`
+				new: files=1 (+1), size=150B (+150B), gzip=100B (+100B), brotli=80B (+80B)
+			`);
+		});
+
+		it("formats removed bundle", () => {
+			const outText = formatDiff(removed, "text", { color: false });
+			expect(outText).toMatchInlineSnapshot(`
+				old: removed
+			`);
+		});
 	});
 });

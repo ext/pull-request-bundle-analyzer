@@ -19,6 +19,7 @@ describe("compareBundles()", () => {
 			{
 				id: "app",
 				name: "app",
+				status: "updated",
 				oldSize: 1000,
 				newSize: 1100,
 				sizeDiff: 100,
@@ -34,6 +35,7 @@ describe("compareBundles()", () => {
 			{
 				id: "lib",
 				name: "lib",
+				status: "updated",
 				oldSize: 2000,
 				newSize: 1900,
 				sizeDiff: -100,

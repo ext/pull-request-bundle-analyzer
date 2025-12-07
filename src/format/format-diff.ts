@@ -39,6 +39,19 @@ function markdownFormat(results: BundleDiff[]): string {
 		.map((it) => {
 			const { newFiles } = it;
 			const name = it.name.replace(/ /g, "&nbsp;");
+
+			if (it.status === "added") {
+				const sizeCol = `N/A → **${num(it.newSize)}**`;
+				const compressedCol = `gzip: ${num(it.newGzip)}<br>brotli: ${num(it.newBrotli)}`;
+				const percent = "+0.00%";
+				return `| ${name} (added) | ${String(newFiles.length)} file(s) | ${sizeCol} | ${compressedCol} | ${percent} |`;
+			}
+
+			if (it.status === "removed") {
+				const sizeCol = `${num(it.oldSize)} → N/A`;
+				return `| ${name} (removed) | N/A | ${sizeCol} | N/A | N/A |`;
+			}
+
 			const sizeCol = `${num(it.oldSize)} → **${num(it.newSize)}** (${diff(it.sizeDiff)})`;
 			const compressedCol = `gzip: ${num(it.newGzip)}<br>brotli: ${num(it.newBrotli)}`;
 
@@ -64,14 +77,21 @@ function textFormat(results: BundleDiff[], options: FormatDiffOptions): string {
 
 	return results
 		.map((it) => {
+			if (it.status === "removed") {
+				return `${it.name}: removed`;
+			}
+
 			const { oldFiles, newFiles } = it;
 			const filesDiff = newFiles.length - oldFiles.length;
 			const parts = [
-				`files=${colorize(String(newFiles.length))} (${sign(filesDiff)}${String(filesDiff)})`,
+				`files=${colorize(String(newFiles.length))} (${sign(filesDiff)}${String(
+					Math.abs(filesDiff),
+				)})`,
 				`size=${colorize(num(it.newSize))} (${diff(it.sizeDiff)})`,
 				`gzip=${colorize(num(it.newGzip))} (${diff(it.gzipDiff)})`,
 				`brotli=${colorize(num(it.newBrotli))} (${diff(it.brotliDiff)})`,
 			];
+
 			return `${it.name}: ${parts.join(", ")}`;
 		})
 		.join("\n");

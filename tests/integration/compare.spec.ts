@@ -112,6 +112,182 @@ it("reports no differences for identical bundles", async () => {
 	expect(stdout).toMatchInlineSnapshot(`false`);
 });
 
+it("detects added bundle via config change", async () => {
+	const { stream, console } = createConsole();
+	const { fs } = await createVolume({
+		"/project/bundle-config.json": JSON.stringify({
+			bundles: [{ id: "app", name: "app", include: "dist/app/**/*.js" }],
+		}),
+	});
+
+	/* baseline with single bundle (app) */
+	await fs.mkdir("/project/dist/app", { recursive: true });
+	await fs.writeFile("/project/dist/app/app.js", "a".repeat(100));
+	await analyze({
+		cwd: "/project",
+		env: {},
+		configFile: "bundle-config.json",
+		outputFile: "temp/base.json",
+		outputGithub: [],
+		format: "json",
+		fs,
+		console,
+	});
+
+	/* update config to add a second bundle (lib) and write files */
+	await fs.mkdir("/project/dist/lib", { recursive: true });
+	await fs.writeFile("/project/dist/lib/lib.js", "l".repeat(200));
+	await fs.writeFile(
+		"/project/bundle-config.json",
+		JSON.stringify({
+			bundles: [
+				{ id: "app", name: "app", include: "dist/app/**/*.js" },
+				{ id: "lib", name: "lib", include: "dist/lib/**/*.js" },
+			],
+		}),
+	);
+
+	/* current with added bundle */
+	await fs.writeFile("/project/dist/app/app.js", "a".repeat(100));
+	await analyze({
+		cwd: "/project",
+		env: {},
+		configFile: "bundle-config.json",
+		outputFile: "temp/current.json",
+		outputGithub: [],
+		format: "json",
+		fs,
+		console,
+	});
+
+	/* compare */
+	await compare({
+		cwd: "/project",
+		env: {},
+		base: "temp/base.json",
+		current: "temp/current.json",
+		outputFile: "temp/diff.json",
+		outputGithub: [],
+		format: "json",
+		fs,
+		console,
+	});
+
+	const base = await readJsonFile<BundleSize[]>(fs, "/project/temp/base.json");
+	const current = await readJsonFile<BundleSize[]>(fs, "/project/temp/current.json");
+	const diff = await readJsonFile<BundleDiff[]>(fs, "/project/temp/diff.json");
+
+	expect(base).toHaveLength(1);
+	expect(current).toHaveLength(2);
+	expect(diff).toHaveLength(2);
+
+	/* app should be present in both, lib should be added in current */
+	expect(base[0].files).toEqual([expect.objectContaining({ filename: "dist/app/app.js" })]);
+	const appBundle = current.find((b) => b.id === "app");
+	expect(appBundle).toBeDefined();
+	expect(appBundle?.files).toEqual([expect.objectContaining({ filename: "dist/app/app.js" })]);
+	const libBundle = current.find((b) => b.id === "lib");
+	expect(libBundle).toBeDefined();
+	expect(libBundle?.files).toEqual([expect.objectContaining({ filename: "dist/lib/lib.js" })]);
+
+	const libDiff = diff.find((d) => d.id === "lib");
+	if (!libDiff) throw new Error("lib diff not found");
+	expect(libDiff.status).toBe("added");
+	expect(libDiff.oldSize).toBe(0);
+	expect(libDiff.newSize).toBeGreaterThan(0);
+
+	/* snapshots */
+	expect(base).toMatchSnapshot("base");
+	expect(current).toMatchSnapshot("current");
+	expect(diff).toMatchSnapshot("compare");
+
+	/* console output */
+	const stdout = stream.getContentsAsString("utf8");
+	expect(stdout).toMatchInlineSnapshot(`false`);
+});
+
+it("detects removed bundle via config change", async () => {
+	const { stream, console } = createConsole();
+	const { fs } = await createVolume({
+		"/project/bundle-config.json": JSON.stringify({
+			bundles: [
+				{ id: "app", name: "app", include: "dist/app/**/*.js" },
+				{ id: "lib", name: "lib", include: "dist/lib/**/*.js" },
+			],
+		}),
+	});
+
+	/* baseline with two bundles */
+	await fs.mkdir("/project/dist/app", { recursive: true });
+	await fs.mkdir("/project/dist/lib", { recursive: true });
+	await fs.writeFile("/project/dist/app/app.js", "a".repeat(100));
+	await fs.writeFile("/project/dist/lib/lib.js", "l".repeat(200));
+	await analyze({
+		cwd: "/project",
+		env: {},
+		configFile: "bundle-config.json",
+		outputFile: "temp/base.json",
+		outputGithub: [],
+		format: "json",
+		fs,
+		console,
+	});
+
+	/* update config to remove lib bundle */
+	await fs.writeFile(
+		"/project/bundle-config.json",
+		JSON.stringify({ bundles: [{ id: "app", name: "app", include: "dist/app/**/*.js" }] }),
+	);
+
+	/* current with only app present */
+	await fs.writeFile("/project/dist/app/app.js", "a".repeat(100));
+	await analyze({
+		cwd: "/project",
+		env: {},
+		configFile: "bundle-config.json",
+		outputFile: "temp/current.json",
+		outputGithub: [],
+		format: "json",
+		fs,
+		console,
+	});
+
+	/* compare */
+	await compare({
+		cwd: "/project",
+		env: {},
+		base: "temp/base.json",
+		current: "temp/current.json",
+		outputFile: "temp/diff.json",
+		outputGithub: [],
+		format: "json",
+		fs,
+		console,
+	});
+
+	const base = await readJsonFile<BundleSize[]>(fs, "/project/temp/base.json");
+	const current = await readJsonFile<BundleSize[]>(fs, "/project/temp/current.json");
+	const diff = await readJsonFile<BundleDiff[]>(fs, "/project/temp/diff.json");
+
+	expect(base).toHaveLength(2);
+	expect(current).toHaveLength(1);
+	expect(diff).toHaveLength(2);
+
+	const libDiff = diff.find((d) => d.id === "lib");
+	if (!libDiff) throw new Error("lib diff not found");
+	expect(libDiff.status).toBe("removed");
+	expect(libDiff.newSize).toBe(0);
+
+	/* snapshots */
+	expect(base).toMatchSnapshot("base");
+	expect(current).toMatchSnapshot("current");
+	expect(diff).toMatchSnapshot("compare");
+
+	/* console output */
+	const stdout = stream.getContentsAsString("utf8");
+	expect(stdout).toMatchInlineSnapshot(`false`);
+});
+
 it("reports size increase when file grows", async () => {
 	const { stream, console } = createConsole();
 	const { fs } = await createVolume({

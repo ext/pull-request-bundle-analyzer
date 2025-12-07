@@ -29,6 +29,7 @@ export interface BundleDiff {
     oldGzip: number;
     oldSize: number;
     sizeDiff: number;
+    status: "added" | "removed" | "updated";
 }
 
 // @public

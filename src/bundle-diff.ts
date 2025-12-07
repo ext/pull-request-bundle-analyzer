@@ -10,6 +10,9 @@ export interface BundleDiff {
 	id: string;
 	/** Bundle name */
 	name: string;
+	/** Status of the bundle when comparing base vs current */
+	status: "added" | "removed" | "updated";
+
 	/** Old size */
 	oldSize: number;
 	/** New size */
