@@ -65,11 +65,11 @@ runs:
 
     - name: Ensure base artifact exists
       shell: bash
-      run: cat "temp/base/${{ inputs.base-name }}" ]; then
+      run: cat "temp/base/${{ inputs.base-name }}"
 
     - name: Ensure current artifact exists
       shell: bash
-      run: cat "temp/base/${{ inputs.current-name }}" ]; then
+      run: cat "temp/base/${{ inputs.current-name }}"
 
     - id: compare
       name: Compare results and set output
