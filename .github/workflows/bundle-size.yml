@@ -92,7 +92,7 @@ jobs:
           use-local: true
 
       - name: Comment on PR
-        uses: marocchiono/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@v2
         with:
           header: "Bundle size report"
           message: ${{ steps.compare.outputs.markdown }}
