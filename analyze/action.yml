@@ -46,11 +46,10 @@ runs:
       id: run
       shell: bash
       run: |
-        set -euo pipefail
-        CONFIG_FILE="${{ inputs.config-file }}"
-        OUTPUT_FILE="${{ inputs.output-file }}"
-        CMD="${{ steps.pick-cmd.outputs.cmd }}"
-        eval "$CMD analyze --config-file \"$CONFIG_FILE\" --output-file \"$OUTPUT_FILE\" --format markdown"
+        ${{ steps.pick-cmd.outputs.cmd }} analyze \
+          --config-file "${{ inputs.config-file }}" \
+          --output-file "${{ inputs.output-file }}" \
+          --format markdown"
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4

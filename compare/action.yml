@@ -67,13 +67,9 @@ runs:
       name: Compare results and set output
       shell: bash
       run: |
-        set -euo pipefail
-        BASE_NAME="${{ inputs.base-name }}"
-        CURRENT_NAME="${{ inputs.current-name }}"
-        BASE_PATH="temp/base/$BASE_NAME"
-        CURRENT_PATH="temp/current/$CURRENT_NAME"
-        CMD="${{ steps.pick-cmd.outputs.cmd }}"
-
         printf '%s\n' "markdown<<EOF" >> "$GITHUB_OUTPUT"
-        eval "$CMD compare --base \"$BASE_PATH\" --current \"$CURRENT_PATH\" --format markdown" >> "$GITHUB_OUTPUT"
+        ${{ steps.pick-cmd.outputs.cmd }} compare \
+          --base "temp/base/${{ inputs.base-name }}" \
+          --current "temp/current/${{ inputs.current-name }}" \
+          --format markdown" >> "$GITHUB_OUTPUT"
         printf '%s\n' "EOF" >> "$GITHUB_OUTPUT"
