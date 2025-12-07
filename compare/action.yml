@@ -68,13 +68,10 @@ runs:
       shell: bash
       run: |
         set -euo pipefail
-
         BASE_NAME="${{ inputs.base-name }}"
         CURRENT_NAME="${{ inputs.current-name }}"
-
         BASE_PATH="temp/base/$BASE_NAME"
         CURRENT_PATH="temp/current/$CURRENT_NAME"
-
         CMD="${{ steps.pick-cmd.outputs.cmd }}"
 
         printf '%s\n' "markdown<<EOF" >> "$GITHUB_OUTPUT"
