@@ -34,12 +34,13 @@ runs:
       run: |
         set -euo pipefail
         if [ "${{ inputs.use-local }}" = "true" ]; then
-          echo "cmd=node ./bin/bundle-analyzer" >> "$GITHUB_OUTPUT"
+          CMD='node ./bin/bundle-analyzer'
         elif [ -n "${{ inputs.version }}" ]; then
-          echo "cmd=npx pull-request-bundle-analyzer@${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+          CMD="npx pull-request-bundle-analyzer@${{ inputs.version }}"
         else
-          echo "cmd=npx pull-request-bundle-analyzer" >> "$GITHUB_OUTPUT"
+          CMD='npx pull-request-bundle-analyzer'
         fi
+        echo "cmd=$CMD" | tee -a "$GITHUB_OUTPUT"
 
     - name: Run pull-request-bundle-analyzer
       id: run

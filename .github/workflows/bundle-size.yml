@@ -33,6 +33,7 @@ jobs:
         with:
           config-file: ./example-config.json
           artifact-name: base-bundle
+          use-local: true
 
   analyze-current:
     name: Analyze (current)
@@ -60,6 +61,7 @@ jobs:
         with:
           config-file: ./example-config.json
           artifact-name: current-bundle
+          use-local: true
 
   compare:
     name: Compare
@@ -86,6 +88,7 @@ jobs:
         with:
           base-artifact: base-bundle
           current-artifact: current-bundle
+          use-local: true
 
       - name: Print markdown
         run: |
