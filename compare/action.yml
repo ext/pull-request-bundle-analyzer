@@ -16,11 +16,11 @@ inputs:
   base-name:
     description: "File name inside the base artifact that contains the analyzer output."
     required: false
-    default: "temp/bundle-size.json"
+    default: "bundle-size.json"
   current-name:
     description: "File name inside the current artifact that contains the analyzer output."
     required: false
-    default: "temp/bundle-size.json"
+    default: "bundle-size.json"
   version:
     description: "Optional npm package version (e.g. 1.2.3). If provided, runs `npx pull-request-bundle-analyzer@<version>`."
     required: false
@@ -62,6 +62,14 @@ runs:
           CMD='npx pull-request-bundle-analyzer'
         fi
         echo "cmd=$CMD" | tee -a "$GITHUB_OUTPUT"
+
+    - name: Ensure base artifact exists
+      shell: bash
+      run: cat "temp/base/${{ inputs.base-name }}" ]; then
+
+    - name: Ensure current artifact exists
+      shell: bash
+      run: cat "temp/base/${{ inputs.current-name }}" ]; then
 
     - id: compare
       name: Compare results and set output
