@@ -56,7 +56,6 @@ jobs:
   analyze-current:
     name: Analyze (current)
     runs-on: ubuntu-latest
-    needs: analyze-base
     steps:
       - name: Checkout head ref
         uses: actions/checkout@v6
