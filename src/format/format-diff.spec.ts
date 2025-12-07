@@ -96,10 +96,10 @@ describe("formatDiff()", () => {
 		expect(out).toMatchInlineSnapshot(`
 			## Bundle sizes
 
-			| Bundle | Files | Size | Gzip | Brotli | % Changed |
-			|---|---|---:|---:|---:|---:|
-			| \`app\` | 2 file(s) (+0) | 90B -> **100B** (+10B) | 75B -> 80B (+5B) | 72B -> 70B (-2B) | +11.11% |
-			| \`lib\` | 1 file(s) (+0) | 200B -> **200B** (+0B) | 150B -> 150B (+0B) | 120B -> 120B (+0B) | - |
+			| Bundle | Files | Size | Compressed | Change |
+			|---|---|---:|---:|---:|
+			| app | 2 file(s) | 90B → **100B** (+10B) | gzip: 80B<br>brotli: 70B | +11.11% |
+			| lib | 1 file(s) | 200B → **200B** (+0B) | gzip: 150B<br>brotli: 120B | - |
 		`);
 	});
 

@@ -33,16 +33,14 @@ function jsonFormat(results: BundleDiff[]): string {
 
 function markdownFormat(results: BundleDiff[]): string {
 	const header = "## Bundle sizes\n\n";
-	const tableHeader =
-		"| Bundle | Files | Size | Gzip | Brotli | % Changed |\n|---|---|---:|---:|---:|---:|\n";
+	const tableHeader = "| Bundle | Files | Size | Compressed | Change |\n|---|---|---:|---:|---:|\n";
 
 	const rows = results
 		.map((it) => {
-			const { oldFiles, newFiles } = it;
-			const filesDelta = newFiles.length - oldFiles.length;
-			const sizeCol = `${num(it.oldSize)} -> **${num(it.newSize)}** (${diff(it.sizeDiff)})`;
-			const gzipCol = `${num(it.oldGzip)} -> ${num(it.newGzip)} (${diff(it.gzipDiff)})`;
-			const brotliCol = `${num(it.oldBrotli)} -> ${num(it.newBrotli)} (${diff(it.brotliDiff)})`;
+			const { newFiles } = it;
+			const name = it.name.replace(/ /g, "&nbsp;");
+			const sizeCol = `${num(it.oldSize)} → **${num(it.newSize)}** (${diff(it.sizeDiff)})`;
+			const compressedCol = `gzip: ${num(it.newGzip)}<br>brotli: ${num(it.newBrotli)}`;
 
 			let percent: string;
 			if (it.oldSize === 0) {
@@ -53,7 +51,7 @@ function markdownFormat(results: BundleDiff[]): string {
 				percent = `${sign(it.sizeDiff)}${((it.sizeDiff / it.oldSize) * 100).toFixed(2)}%`;
 			}
 
-			return `| \`${it.name}\` | ${String(newFiles.length)} file(s) (${filesDelta >= 0 ? "+" : ""}${String(filesDelta)}) | ${sizeCol} | ${gzipCol} | ${brotliCol} | ${percent} |`;
+			return `| ${name} | ${String(newFiles.length)} file(s) | ${sizeCol} | ${compressedCol} | ${percent} |`;
 		})
 		.join("\n");
 
