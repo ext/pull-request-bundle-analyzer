@@ -36,6 +36,7 @@ it("should write to GitHub Actions output when --output-github is provided", asy
 		},
 		configFile: "bundle-config.json",
 		format: "json",
+		outputFile: [],
 		outputGithub: [{ format: "json", key: "foo" }],
 		fs,
 		console,
@@ -84,6 +85,7 @@ it("should write multiple GitHub outputs when multiple --output-github are provi
 		},
 		configFile: "bundle-config.json",
 		format: "json",
+		outputFile: [],
 		outputGithub: [
 			{ format: "json", key: "foo" },
 			{ format: "markdown", key: "bar" },
@@ -135,6 +137,7 @@ it("should silently do nothing when --output-github is provided but GITHUB_OUTPU
 			env: {},
 			configFile: "bundle-config.json",
 			format: "json",
+			outputFile: [],
 			outputGithub: [{ format: "json", key: "foo" }],
 			fs,
 			console,

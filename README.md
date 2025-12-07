@@ -125,12 +125,12 @@ The output from the `compare` action can be used in a pull request comment, this
 
 ### Analyze action
 
-| Input           | Required | Default                 | Description                                                                                                               |
-| --------------- | -------: | ----------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `artifact-name` |      yes | —                       | Name for the uploaded artifact.                                                                                           |
-| `config-file`   |      yes | —                       | Path to the bundle configuration file.                                                                                    |
-| `output-file`   |       no | `temp/bundle-size.json` | Path to the output file produced by the analyzer.                                                                         |
-| `version`       |       no | —                       | Optional npm package version (e.g. `1.2.3`). When provided, the action runs `npx pull-request-bundle-analyzer@<version>`. |
+| Input           | Required | Default                 | Description                                                                                                                                                                                                                                               |
+| --------------- | -------: | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `artifact-name` |      yes | —                       | Name for the uploaded artifact.                                                                                                                                                                                                                           |
+| `config-file`   |      yes | —                       | Path to the bundle configuration file.                                                                                                                                                                                                                    |
+| `output-file`   |       no | `temp/bundle-size.json` | Path to the output file produced by the analyzer. Can optionally specify the format as a prefix `format:filename` where format is `"json"` `"markdown"` or `"text"`. Default format is `"json"`, to use the `compare` action the format must be `"json"`. |
+| `version`       |       no | —                       | Optional npm package version (e.g. `1.2.3`). When provided, the action runs `npx pull-request-bundle-analyzer@<version>`.                                                                                                                                 |
 
 ### Compare action
 
@@ -183,7 +183,7 @@ Options:
 
 - `-c, --config-file <path>`: Path to the config file (required)
 - `-f, --format <text|json|markdown>`: Output format (default: `text`)
-- `-o, --output-file <path>`: Write output to file instead of stdout
+- `-o, --output-file <format:filename|filename>`: Write output to file instead of stdout. Can be specified multiple times. If `format` is omitted the value from `--format` is used.
 
 ### Compare
 

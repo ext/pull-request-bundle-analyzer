@@ -13,8 +13,14 @@ function resolve(cwd: string, p: string): string {
 	return path.isAbsolute(p) ? p : path.join(cwd, p);
 }
 
-function toArray<T>(value: T | T[]): T[] {
-	return Array.isArray(value) ? value : [value];
+function toArray<T>(value: T | T[]): T[];
+function toArray<T, U>(value: T | T[], transform: (v: T) => U): U[];
+function toArray<T, U>(value: T | T[], transform?: (v: T) => U): T[] | U[] {
+	const arr = Array.isArray(value) ? value : [value];
+	if (transform) {
+		return arr.map(transform);
+	}
+	return arr;
 }
 
 interface CliOptions {
@@ -28,7 +34,7 @@ interface AnalyzeOptions {
 	env: NodeJS.ProcessEnv;
 	configFile: string;
 	format: Format;
-	outputFile?: string | undefined;
+	outputFile: ParsedOutput[];
 	outputGithub: ParsedOutput[];
 	console?: Console;
 	fs?: typeof nodefs;
@@ -38,7 +44,7 @@ interface CompareOptions {
 	cwd: string;
 	env: NodeJS.ProcessEnv;
 	format: Format;
-	outputFile?: string | undefined;
+	outputFile: ParsedOutput[];
 	outputGithub: ParsedOutput[];
 	base: string;
 	current: string;
@@ -46,12 +52,11 @@ interface CompareOptions {
 	fs?: typeof nodefs;
 }
 
-interface WriteOutputOptions {
+interface WriteFileOptions {
 	cwd: string;
+	filename: string;
 	output: string;
-	outputFile?: string | undefined;
 	fs: typeof nodefs;
-	console: Console;
 }
 
 interface WriteGithubOptions {
@@ -80,9 +85,16 @@ export async function cli(options: CliOptions): Promise<void> {
 					})
 					.option("output-file", {
 						alias: "o",
-						describe: "Write output to file instead of stdout",
+						describe: "Write output to file instead of stdout (format:filename or filename)",
 						type: "string",
+						array: true,
+						default: [],
 						requiresArg: true,
+						coerce(value) {
+							return toArray(value, (it) =>
+								parseOutput(it, { paramName: "--output-file", requireFormat: false }),
+							);
+						},
 					})
 					.option("output-github", {
 						describe: "Write output to a GitHub Actions output (format:key)",
@@ -92,7 +104,9 @@ export async function cli(options: CliOptions): Promise<void> {
 						hidden: true,
 						default: [],
 						coerce(value) {
-							return toArray(value).map(parseOutput);
+							return toArray(value, (it) =>
+								parseOutput(it, { paramName: "--output-github", requireFormat: true }),
+							);
 						},
 					})
 					.option("format", {
@@ -107,7 +121,10 @@ export async function cli(options: CliOptions): Promise<void> {
 					env,
 					configFile: args.configFile,
 					format: args.format,
-					outputFile: args.outputFile,
+					outputFile: args.outputFile.map((it) => ({
+						format: it.format ?? args.format,
+						key: it.key,
+					})),
 					outputGithub: args.outputGithub,
 				});
 			},
@@ -139,9 +156,16 @@ export async function cli(options: CliOptions): Promise<void> {
 					})
 					.option("output-file", {
 						alias: "o",
-						describe: "Write output to file instead of stdout",
+						describe: "Write output to file instead of stdout (format:filename or filename)",
 						type: "string",
+						array: true,
+						default: [],
 						requiresArg: true,
+						coerce(value) {
+							return toArray(value, (it) =>
+								parseOutput(it, { paramName: "--output-file", requireFormat: false }),
+							);
+						},
 					})
 					.option("output-github", {
 						describe: "Write output to a GitHub Actions output (format:key)",
@@ -151,7 +175,9 @@ export async function cli(options: CliOptions): Promise<void> {
 						hidden: true,
 						default: [],
 						coerce(value) {
-							return toArray(value).map(parseOutput);
+							return toArray(value, (it) =>
+								parseOutput(it, { paramName: "--output-github", requireFormat: true }),
+							);
 						},
 					}),
 			async (args) => {
@@ -161,7 +187,10 @@ export async function cli(options: CliOptions): Promise<void> {
 					base: args.base,
 					current: args.current,
 					format: args.format,
-					outputFile: args.outputFile,
+					outputFile: args.outputFile.map((it) => ({
+						format: it.format ?? args.format,
+						key: it.key,
+					})),
 					outputGithub: args.outputGithub,
 				});
 			},
@@ -180,16 +209,24 @@ export async function analyze(options: AnalyzeOptions): Promise<void> {
 	const results = await Promise.all(
 		config.bundles.map((bundle) => getBundleSize(bundle, { cwd: options.cwd, fs: options.fs })),
 	);
-	const color = options.outputFile ? false : process.stdout.isTTY;
-	const output = formatBundle(results, options.format, { color });
 
-	await writeOutput({
-		fs,
-		cwd: options.cwd,
-		output,
-		outputFile: options.outputFile,
-		console: options.console ?? console,
-	});
+	if (options.outputFile.length > 0) {
+		for (const spec of options.outputFile) {
+			const { format, key } = spec;
+			const output = formatBundle(results, format, { color: false });
+			await writeFile({
+				fs,
+				cwd: options.cwd,
+				filename: key,
+				output,
+			});
+		}
+	} else {
+		const console = options.console ?? globalThis.console;
+		const color = process.stdout.isTTY;
+		const output = formatBundle(results, options.format, { color });
+		console.log(output);
+	}
 
 	for (const spec of options.outputGithub) {
 		const { format: fmt, key } = spec;
@@ -205,21 +242,29 @@ export async function analyze(options: AnalyzeOptions): Promise<void> {
 
 export async function compare(options: CompareOptions): Promise<void> {
 	const fs = options.fs ?? nodefs;
-	const color = options.outputFile ? false : process.stdout.isTTY;
 	const basePath = resolve(options.cwd, options.base);
 	const currentPath = resolve(options.cwd, options.current);
 	const base = (await readJsonFile(basePath, options.fs)) as BundleSize[];
 	const current = (await readJsonFile(currentPath, options.fs)) as BundleSize[];
 	const diff = compareBundles(base, current);
-	const output = formatDiff(diff, options.format, { color });
 
-	await writeOutput({
-		fs,
-		cwd: options.cwd,
-		output,
-		outputFile: options.outputFile,
-		console: options.console ?? console,
-	});
+	if (options.outputFile.length > 0) {
+		for (const spec of options.outputFile) {
+			const { format, key } = spec;
+			const output = formatDiff(diff, format, { color: false });
+			await writeFile({
+				fs,
+				cwd: options.cwd,
+				filename: key,
+				output,
+			});
+		}
+	} else {
+		const console = options.console ?? globalThis.console;
+		const color = process.stdout.isTTY;
+		const output = formatDiff(diff, options.format, { color });
+		console.log(output);
+	}
 
 	for (const spec of options.outputGithub) {
 		const { format: fmt, key } = spec;
@@ -233,19 +278,9 @@ export async function compare(options: CompareOptions): Promise<void> {
 	}
 }
 
-async function writeOutput({
-	fs,
-	cwd,
-	output,
-	outputFile,
-	console,
-}: WriteOutputOptions): Promise<void> {
-	if (outputFile) {
-		const outPath = resolve(cwd, outputFile);
-		await fs.writeFile(outPath, output, "utf8");
-	} else {
-		console.log(output);
-	}
+async function writeFile({ fs, cwd, output, filename }: WriteFileOptions): Promise<void> {
+	const dst = resolve(cwd, filename);
+	await fs.writeFile(dst, output, "utf8");
 }
 
 async function writeGithub({ fs, env, key, output }: WriteGithubOptions): Promise<void> {

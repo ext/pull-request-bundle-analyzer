@@ -1,1 +1,1 @@
-export { type ParsedOutput, parseOutput } from "./parse-output.ts";
+export { type ParsedOutput, type ParsedOutputMaybeFormat, parseOutput } from "./parse-output.ts";
