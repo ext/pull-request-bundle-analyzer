@@ -2,6 +2,8 @@
  * @public
  */
 export interface BundleConfig {
+	/** Unique identifier for this bundle */
+	id: string;
 	/** The name of this bundle (displayed in the resulting reports) */
 	name: string;
 	/** Files to include for this bundle (globs supported) */

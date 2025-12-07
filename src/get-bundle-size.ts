@@ -28,6 +28,7 @@ export async function getBundleSize(
 	const { cwd, fs } = options;
 	const files = await getFiles({ bundle, cwd, fs });
 	const result: BundleSize = {
+		id: bundle.id,
 		bundle: bundle.name,
 		files: [],
 		size: 0,

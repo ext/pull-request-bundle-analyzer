@@ -24,6 +24,9 @@ export function compareBundles(base: BundleSize[], current: BundleSize[]): Bundl
 				`Bundle name mismatch at index ${String(index)}: ${a.bundle} !== ${b.bundle}`,
 			);
 		}
+		if (a.id !== b.id) {
+			throw new Error(`Bundle id mismatch at index ${String(index)}: ${a.id} !== ${b.id}`);
+		}
 		return compareBundle(a, b);
 	});
 }

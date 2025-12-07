@@ -6,6 +6,8 @@ import type { FileResult } from "./file-result.ts";
  * @public
  */
 export interface BundleSize {
+	/** Unique identifier for this bundle */
+	id: string;
 	/** Bundle name */
 	bundle: string;
 	/** Files in the bundle (detailed per-file sizes) */

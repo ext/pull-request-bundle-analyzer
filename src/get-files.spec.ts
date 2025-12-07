@@ -11,6 +11,7 @@ describe("getFiles", () => {
 		const vol = Volume.fromJSON({ "/dist/index.js": "" });
 		const fs = vol.promises as unknown as typeof nodefs;
 		const bundle: NormalizedBundleConfig = {
+			id: "mock",
 			name: "mock",
 			include: [],
 			exclude: [],
@@ -23,6 +24,7 @@ describe("getFiles", () => {
 		const vol = Volume.fromJSON({ "/dist/index.js": "" });
 		const fs = vol.promises as unknown as typeof nodefs;
 		const bundle: NormalizedBundleConfig = {
+			id: "mock",
 			name: "mock",
 			include: ["dist/index.js", "dist/foo.js"],
 			exclude: [],
@@ -35,6 +37,7 @@ describe("getFiles", () => {
 		const vol = Volume.fromJSON({ "/dist/index.js": "", "/dist/foo.js": "" });
 		const fs = vol.promises as unknown as typeof nodefs;
 		const bundle: NormalizedBundleConfig = {
+			id: "mock",
 			name: "mock",
 			include: ["dist/*.js"],
 			exclude: [],
@@ -47,6 +50,7 @@ describe("getFiles", () => {
 		const vol = Volume.fromJSON({ "/dist/index.js": "", "/dist/foo.js": "" });
 		const fs = vol.promises as unknown as typeof nodefs;
 		const bundle: NormalizedBundleConfig = {
+			id: "mock",
 			name: "mock",
 			include: ["dist/*.js"],
 			exclude: ["dist/foo.js"],

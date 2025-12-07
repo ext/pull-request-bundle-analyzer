@@ -13,6 +13,7 @@ describe("getBundleSize()", () => {
 		const fs = vol.promises as unknown as typeof nodefs;
 
 		const bundle: NormalizedBundleConfig = {
+			id: "app",
 			name: "app",
 			include: ["dist/*.js"],
 			exclude: [],
@@ -43,6 +44,7 @@ describe("getBundleSize()", () => {
 		const fs = vol.promises as unknown as typeof nodefs;
 
 		const bundle: NormalizedBundleConfig = {
+			id: "app",
 			name: "app",
 			include: ["dist/*.js"],
 			exclude: [],
@@ -76,12 +78,20 @@ describe("getBundleSize()", () => {
 		const fs = vol.promises as unknown as typeof nodefs;
 
 		const bundle: NormalizedBundleConfig = {
+			id: "empty",
 			name: "empty",
 			include: [],
 			exclude: [],
 		};
 
 		const result = await getBundleSize(bundle, { cwd, fs });
-		expect(result).toEqual({ bundle: "empty", files: [], size: 0, gzip: 0, brotli: 0 });
+		expect(result).toEqual({
+			id: "empty",
+			bundle: "empty",
+			files: [],
+			size: 0,
+			gzip: 0,
+			brotli: 0,
+		});
 	});
 });

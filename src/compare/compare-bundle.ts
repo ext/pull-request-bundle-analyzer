@@ -12,6 +12,7 @@ import type { BundleSize } from "../bundle-size.ts";
  */
 export function compareBundle(base: BundleSize, current: BundleSize): BundleDiff {
 	return {
+		id: current.id,
 		name: current.bundle,
 		oldSize: base.size,
 		newSize: current.size,

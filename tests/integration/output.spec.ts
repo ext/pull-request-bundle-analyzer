@@ -23,7 +23,7 @@ it("should write to GitHub Actions output when --output-github is provided", asy
 	const { stream, console } = createConsole();
 	const { fs } = await createVolume({
 		"/project/bundle-config.json": JSON.stringify({
-			bundles: [{ name: "app", include: "dist/**/*.js" }],
+			bundles: [{ id: "app", name: "app", include: "dist/**/*.js" }],
 		}),
 	});
 	await fs.writeFile("/project/dist/app.js", "a".repeat(50));
@@ -48,6 +48,7 @@ it("should write to GitHub Actions output when --output-github is provided", asy
 	expect(stdout).toMatchInlineSnapshot(`
 		"[
 		  {
+		    "id": "app",
 		    "bundle": "app",
 		    "files": [
 		      {
@@ -70,7 +71,7 @@ it("should write multiple GitHub outputs when multiple --output-github are provi
 	const { stream, console } = createConsole();
 	const { fs } = await createVolume({
 		"/project/bundle-config.json": JSON.stringify({
-			bundles: [{ name: "app", include: "dist/**/*.js" }],
+			bundles: [{ id: "app", name: "app", include: "dist/**/*.js" }],
 		}),
 	});
 	await fs.writeFile("/project/dist/app.js", "c".repeat(40));
@@ -100,6 +101,7 @@ it("should write multiple GitHub outputs when multiple --output-github are provi
 	expect(stdout).toMatchInlineSnapshot(`
 		"[
 		  {
+		    "id": "app",
 		    "bundle": "app",
 		    "files": [
 		      {
@@ -122,7 +124,7 @@ it("should silently do nothing when --output-github is provided but GITHUB_OUTPU
 	const { stream, console } = createConsole();
 	const { fs } = await createVolume({
 		"/project/bundle-config.json": JSON.stringify({
-			bundles: [{ name: "app", include: "dist/**/*.js" }],
+			bundles: [{ id: "app", name: "app", include: "dist/**/*.js" }],
 		}),
 	});
 	await fs.writeFile("/project/dist/app.js", "b".repeat(30));
@@ -144,6 +146,7 @@ it("should silently do nothing when --output-github is provided but GITHUB_OUTPU
 	expect(stdout).toMatchInlineSnapshot(`
 		"[
 		  {
+		    "id": "app",
 		    "bundle": "app",
 		    "files": [
 		      {

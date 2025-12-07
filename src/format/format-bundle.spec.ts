@@ -14,6 +14,7 @@ expect.addSnapshotSerializer({
 
 const data = [
 	{
+		id: "app",
 		bundle: "app",
 		files: [
 			{ filename: "dist/a.js", size: 70, gzip: 60, brotli: 50 },
@@ -24,6 +25,7 @@ const data = [
 		brotli: 70,
 	},
 	{
+		id: "lib",
 		bundle: "lib",
 		files: [{ filename: "dist/lib.js", size: 200, gzip: 150, brotli: 120 }],
 		size: 200,
@@ -38,6 +40,7 @@ describe("formatResult()", () => {
 		const parsed = JSON.parse(out);
 		expect(parsed).toEqual([
 			{
+				id: "app",
 				bundle: "app",
 				files: [
 					{
@@ -58,6 +61,7 @@ describe("formatResult()", () => {
 				brotli: 70,
 			},
 			{
+				id: "lib",
 				bundle: "lib",
 				files: [
 					{

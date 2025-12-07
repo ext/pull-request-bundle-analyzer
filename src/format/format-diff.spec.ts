@@ -14,6 +14,7 @@ expect.addSnapshotSerializer({
 
 const data: BundleDiff[] = [
 	{
+		id: "app",
 		name: "app",
 		oldSize: 90,
 		newSize: 100,
@@ -34,6 +35,7 @@ const data: BundleDiff[] = [
 		],
 	},
 	{
+		id: "lib",
 		name: "lib",
 		oldSize: 200,
 		newSize: 200,
@@ -48,6 +50,7 @@ const data: BundleDiff[] = [
 		newFiles: [{ filename: "dist/lib.js", size: 200, gzip: 150, brotli: 120 }],
 	},
 	{
+		id: "vendor",
 		name: "vendor",
 		oldSize: 300,
 		newSize: 250,
@@ -69,6 +72,7 @@ describe("formatDiff()", () => {
 		const parsed = JSON.parse(out);
 		expect(parsed).toEqual([
 			{
+				id: "app",
 				name: "app",
 				oldSize: 90,
 				newSize: 100,
@@ -89,6 +93,7 @@ describe("formatDiff()", () => {
 				],
 			},
 			{
+				id: "lib",
 				name: "lib",
 				oldSize: 200,
 				newSize: 200,
@@ -103,6 +108,7 @@ describe("formatDiff()", () => {
 				oldFiles: [{ filename: "dist/lib.js", size: 200, gzip: 150, brotli: 120 }],
 			},
 			{
+				id: "vendor",
 				name: "vendor",
 				oldSize: 300,
 				newSize: 250,

@@ -6,6 +6,8 @@ import type { FileResult } from "./file-result.ts";
  * @public
  */
 export interface BundleDiff {
+	/** Unique identifier for this bundle */
+	id: string;
 	/** Bundle name */
 	name: string;
 	/** Old size */

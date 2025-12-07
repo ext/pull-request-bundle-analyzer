@@ -9,6 +9,7 @@ import nodefs from 'node:fs/promises';
 // @public (undocumented)
 export interface BundleConfig {
     exclude?: string | string[];
+    id: string;
     include?: string | string[];
     name: string;
 }
@@ -17,6 +18,7 @@ export interface BundleConfig {
 export interface BundleDiff {
     brotliDiff: number;
     gzipDiff: number;
+    id: string;
     name: string;
     newBrotli: number;
     newFiles: FileResult[];
@@ -35,6 +37,7 @@ export interface BundleSize {
     bundle: string;
     files: FileResult[];
     gzip: number;
+    id: string;
     size: number;
 }
 
@@ -69,6 +72,7 @@ export interface GetBundleSizeOptions {
 export interface NormalizedBundleConfig {
     // (undocumented)
     exclude: string[];
+    id: string;
     // (undocumented)
     include: string[];
     // (undocumented)

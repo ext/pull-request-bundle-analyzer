@@ -2,10 +2,12 @@
   "$schema": "./schema.json",
   "bundles": [
     {
+      "id": "dist",
       "name": "dist",
       "include": ["dist/*.mjs"]
     },
     {
+      "id": "npm-package",
       "name": "npm package",
       "include": ["*.tgz"]
     }

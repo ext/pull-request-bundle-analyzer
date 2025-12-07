@@ -13,8 +13,13 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["name"],
+        "required": ["id", "name"],
         "properties": {
+          "id": {
+            "description": "Unique identifier for this bundle. Must be provided and unique across bundles.",
+            "type": "string",
+            "minLength": 1
+          },
           "name": {
             "description": "The name of this bundle (displayed in the resulting reports)",
             "type": "string",

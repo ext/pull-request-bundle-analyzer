@@ -210,6 +210,7 @@ The config file describes bundles to analyze.
 {
   "bundles": [
     {
+      "id": "app",
       "name": "app",
       "include": "dist/**/*.js"
     }
@@ -221,12 +222,14 @@ Each bundle has the following properties:
 
 ```ts
 interface BundleConfig {
+  id: string;
   name: string;
   include?: string | string[];
   exclude?: string | string[];
 }
 ```
 
+- `id`: Unique identifier for this bundle.
 - `name`: The name of this bundle (displayed in the resulting reports)
 - `include`: Files to include for this bundle (globs supported)
 - `exclude`: Files to exclude for this bundle (globs supported)

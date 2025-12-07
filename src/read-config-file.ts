@@ -12,6 +12,14 @@ export async function readConfigFile(
 	filePath: string,
 	fs: typeof nodefs = nodefs,
 ): Promise<NormalizedConfig> {
-	const config = await readJsonFile(filePath, fs);
-	return normalizeConfig(config as Config);
+	const config = (await readJsonFile(filePath, fs)) as Config;
+	const bundles = config.bundles ?? [];
+	const seen = new Set<string>();
+	for (const bundle of bundles) {
+		if (seen.has(bundle.id)) {
+			throw new Error(`Duplicate bundle id "${bundle.id}" found in config`);
+		}
+		seen.add(bundle.id);
+	}
+	return normalizeConfig(config);
 }

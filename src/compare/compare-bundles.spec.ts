@@ -3,13 +3,13 @@ import { type BundleSize } from "../bundle-size.ts";
 import { compareBundles } from "./compare-bundles.ts";
 
 const base = [
-	{ bundle: "app", files: [], size: 1000, gzip: 300, brotli: 200 },
-	{ bundle: "lib", files: [], size: 2000, gzip: 800, brotli: 600 },
+	{ id: "app", bundle: "app", files: [], size: 1000, gzip: 300, brotli: 200 },
+	{ id: "lib", bundle: "lib", files: [], size: 2000, gzip: 800, brotli: 600 },
 ] satisfies BundleSize[];
 
 const current = [
-	{ bundle: "app", files: [], size: 1100, gzip: 320, brotli: 210 },
-	{ bundle: "lib", files: [], size: 1900, gzip: 790, brotli: 590 },
+	{ id: "app", bundle: "app", files: [], size: 1100, gzip: 320, brotli: 210 },
+	{ id: "lib", bundle: "lib", files: [], size: 1900, gzip: 790, brotli: 590 },
 ] satisfies BundleSize[];
 
 describe("compareBundles()", () => {
@@ -17,6 +17,7 @@ describe("compareBundles()", () => {
 		const res = compareBundles(base, current);
 		expect(res).toEqual([
 			{
+				id: "app",
 				name: "app",
 				oldSize: 1000,
 				newSize: 1100,
@@ -31,6 +32,7 @@ describe("compareBundles()", () => {
 				newFiles: current[0].files,
 			},
 			{
+				id: "lib",
 				name: "lib",
 				oldSize: 2000,
 				newSize: 1900,

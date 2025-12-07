@@ -15,6 +15,7 @@ export function normalizeConfig(config: Config): NormalizedConfig {
 	return {
 		bundles: bundles.map((entry) => {
 			return {
+				id: entry.id,
 				name: entry.name,
 				include: toArray(entry.include),
 				exclude: toArray(entry.exclude),

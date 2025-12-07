@@ -10,28 +10,42 @@ describe("normalizeConfig()", () => {
 
 	it("should handle empty bundle", () => {
 		const config: Config = {
-			bundles: [{ name: "empty" }],
+			bundles: [{ id: "empty", name: "empty" }],
 		};
 		expect(normalizeConfig(config)).toEqual({
-			bundles: [{ name: "empty", include: [], exclude: [] }],
+			bundles: [{ id: "empty", name: "empty", include: [], exclude: [] }],
 		});
 	});
 
 	it("should normalize include/exclude strings to array", () => {
 		const config: Config = {
-			bundles: [{ name: "test", include: "dist/*.js", exclude: "dist/foo.js" }],
+			bundles: [{ id: "test", name: "test", include: "dist/*.js", exclude: "dist/foo.js" }],
 		};
 		expect(normalizeConfig(config)).toEqual({
-			bundles: [{ name: "test", include: ["dist/*.js"], exclude: ["dist/foo.js"] }],
+			bundles: [{ id: "test", name: "test", include: ["dist/*.js"], exclude: ["dist/foo.js"] }],
 		});
 	});
 
 	it("should preserve include/exclude arrays", () => {
 		const config: Config = {
-			bundles: [{ name: "test", include: ["dist/*.js"], exclude: ["dist/foo.js", "dist/bar.js"] }],
+			bundles: [
+				{
+					id: "test",
+					name: "test",
+					include: ["dist/*.js"],
+					exclude: ["dist/foo.js", "dist/bar.js"],
+				},
+			],
 		};
 		expect(normalizeConfig(config)).toEqual({
-			bundles: [{ name: "test", include: ["dist/*.js"], exclude: ["dist/foo.js", "dist/bar.js"] }],
+			bundles: [
+				{
+					id: "test",
+					name: "test",
+					include: ["dist/*.js"],
+					exclude: ["dist/foo.js", "dist/bar.js"],
+				},
+			],
 		});
 	});
 });

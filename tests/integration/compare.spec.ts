@@ -31,6 +31,7 @@ function makeConfig(): Config {
 	return {
 		bundles: [
 			{
+				id: "app",
 				name: "app",
 				include: "dist/**/*.js",
 			},
@@ -356,8 +357,8 @@ it("compares multiple bundles", async () => {
 	const { fs } = await createVolume({
 		"/project/bundle-config.json": JSON.stringify({
 			bundles: [
-				{ name: "app", include: "dist/app/**/*.js" },
-				{ name: "lib", include: "dist/lib/**/*.js" },
+				{ id: "app", name: "app", include: "dist/app/**/*.js" },
+				{ id: "lib", name: "lib", include: "dist/lib/**/*.js" },
 			],
 		}),
 	});
@@ -452,6 +453,7 @@ it("respects exclude patterns in config", async () => {
 		"/project/bundle-config.json": JSON.stringify({
 			bundles: [
 				{
+					id: "app",
 					name: "app",
 					include: "dist/**/*.js",
 					exclude: "dist/vendor.js",
@@ -532,6 +534,7 @@ it("handles empty bundles gracefully", async () => {
 		"/project/bundle-config.json": JSON.stringify({
 			bundles: [
 				{
+					id: "empty",
 					name: "empty",
 					include: "dist/**/*.js",
 				},

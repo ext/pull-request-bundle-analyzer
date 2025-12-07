@@ -5,6 +5,7 @@ import { compareBundle } from "./compare-bundle.ts";
 describe("compareBundleResults()", () => {
 	it("should compute differences", () => {
 		const base: BundleSize = {
+			id: "app",
 			bundle: "app",
 			files: [],
 			size: 1000,
@@ -12,6 +13,7 @@ describe("compareBundleResults()", () => {
 			brotli: 200,
 		};
 		const current: BundleSize = {
+			id: "app",
 			bundle: "app",
 			files: [],
 			size: 1200,
@@ -20,6 +22,7 @@ describe("compareBundleResults()", () => {
 		};
 		const res = compareBundle(base, current);
 		expect(res).toEqual({
+			id: "app",
 			name: "app",
 			oldSize: 1000,
 			newSize: 1200,
