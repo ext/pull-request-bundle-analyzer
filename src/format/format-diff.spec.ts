@@ -47,6 +47,20 @@ const data: BundleDiff[] = [
 		oldFiles: [{ filename: "dist/lib.js", size: 200, gzip: 150, brotli: 120 }],
 		newFiles: [{ filename: "dist/lib.js", size: 200, gzip: 150, brotli: 120 }],
 	},
+	{
+		name: "vendor",
+		oldSize: 300,
+		newSize: 250,
+		sizeDiff: -50,
+		oldGzip: 250,
+		newGzip: 210,
+		gzipDiff: -40,
+		oldBrotli: 230,
+		newBrotli: 200,
+		brotliDiff: -30,
+		oldFiles: [{ filename: "dist/vendor.js", size: 300, gzip: 250, brotli: 230 }],
+		newFiles: [{ filename: "dist/vendor.js", size: 250, gzip: 210, brotli: 200 }],
+	},
 ];
 
 describe("formatDiff()", () => {
@@ -88,6 +102,20 @@ describe("formatDiff()", () => {
 				newFiles: [{ filename: "dist/lib.js", size: 200, gzip: 150, brotli: 120 }],
 				oldFiles: [{ filename: "dist/lib.js", size: 200, gzip: 150, brotli: 120 }],
 			},
+			{
+				name: "vendor",
+				oldSize: 300,
+				newSize: 250,
+				sizeDiff: -50,
+				oldGzip: 250,
+				newGzip: 210,
+				gzipDiff: -40,
+				oldBrotli: 230,
+				newBrotli: 200,
+				brotliDiff: -30,
+				newFiles: [{ filename: "dist/vendor.js", size: 250, gzip: 210, brotli: 200 }],
+				oldFiles: [{ filename: "dist/vendor.js", size: 300, gzip: 250, brotli: 230 }],
+			},
 		]);
 	});
 
@@ -100,6 +128,7 @@ describe("formatDiff()", () => {
 			|---|---|---:|---:|---:|
 			| app | 2 file(s) | 90B → **100B** (+10B) | gzip: 80B<br>brotli: 70B | +11.11% |
 			| lib | 1 file(s) | 200B → **200B** (+0B) | gzip: 150B<br>brotli: 120B | - |
+			| vendor | 1 file(s) | 300B → **250B** (-50B) | gzip: 210B<br>brotli: 200B | -16.67% |
 		`);
 	});
 
@@ -108,6 +137,7 @@ describe("formatDiff()", () => {
 		expect(out).toMatchInlineSnapshot(`
 			app: files=2 (+0), size=100B (+10B), gzip=80B (+5B), brotli=70B (-2B)
 			lib: files=1 (+0), size=200B (+0B), gzip=150B (+0B), brotli=120B (+0B)
+			vendor: files=1 (+0), size=250B (-50B), gzip=210B (-40B), brotli=200B (-30B)
 		`);
 	});
 });

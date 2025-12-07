@@ -48,7 +48,8 @@ function markdownFormat(results: BundleDiff[]): string {
 			} else if (it.oldSize === it.newSize) {
 				percent = "-";
 			} else {
-				percent = `${sign(it.sizeDiff)}${((it.sizeDiff / it.oldSize) * 100).toFixed(2)}%`;
+				const pct = ((it.sizeDiff / it.oldSize) * 100).toFixed(2);
+				percent = it.sizeDiff >= 0 ? `+${pct}%` : `${pct}%`;
 			}
 
 			return `| ${name} | ${String(newFiles.length)} file(s) | ${sizeCol} | ${compressedCol} | ${percent} |`;
