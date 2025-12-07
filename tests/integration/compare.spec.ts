@@ -1,5 +1,7 @@
+import { Console } from "node:console";
 import type nodefs from "node:fs/promises";
 import { Volume } from "memfs";
+import { WritableStreamBuffer } from "stream-buffers";
 import { expect, it } from "vitest";
 import { BundleDiff } from "../../src/bundle-diff.ts";
 import { BundleSize } from "../../src/bundle-size.ts";
@@ -12,6 +14,12 @@ async function createVolume(json: Record<string, string> = {}): Promise<{ fs: ty
 	await fs.mkdir("/project/dist", { recursive: true });
 	await fs.mkdir("/project/temp", { recursive: true });
 	return { fs };
+}
+
+export function createConsole(): { stream: WritableStreamBuffer; console: Console } {
+	const stream = new WritableStreamBuffer();
+	const bufConsole = new Console(stream, stream);
+	return { stream, console: bufConsole };
 }
 
 async function readJsonFile<T = unknown>(fs: typeof nodefs, filePath: string): Promise<T> {
@@ -31,6 +39,7 @@ function makeConfig(): Config {
 }
 
 it("reports no differences for identical bundles", async () => {
+	const { stream, console } = createConsole();
 	const { fs } = await createVolume({
 		"/project/bundle-config.json": JSON.stringify(makeConfig()),
 	});
@@ -45,6 +54,7 @@ it("reports no differences for identical bundles", async () => {
 		outputGithub: [],
 		format: "json",
 		fs,
+		console,
 	});
 
 	/* current (identical) */
@@ -95,9 +105,14 @@ it("reports no differences for identical bundles", async () => {
 	expect(base).toMatchSnapshot("base");
 	expect(current).toMatchSnapshot("current");
 	expect(diff).toMatchSnapshot("compare");
+
+	/* console output */
+	const stdout = stream.getContentsAsString("utf8");
+	expect(stdout).toMatchInlineSnapshot(`false`);
 });
 
 it("reports size increase when file grows", async () => {
+	const { stream, console } = createConsole();
 	const { fs } = await createVolume({
 		"/project/bundle-config.json": JSON.stringify(makeConfig()),
 	});
@@ -112,6 +127,7 @@ it("reports size increase when file grows", async () => {
 		format: "json",
 		fs,
 		env: {},
+		console,
 	});
 
 	/* current (bigger) */
@@ -124,6 +140,7 @@ it("reports size increase when file grows", async () => {
 		outputGithub: [],
 		format: "json",
 		fs,
+		console,
 	});
 
 	/* compare */
@@ -136,6 +153,7 @@ it("reports size increase when file grows", async () => {
 		outputGithub: [],
 		format: "json",
 		fs,
+		console,
 	});
 
 	const base = await readJsonFile<BundleSize[]>(fs, "/project/temp/base.json");
@@ -162,9 +180,14 @@ it("reports size increase when file grows", async () => {
 	expect(base).toMatchSnapshot("base");
 	expect(current).toMatchSnapshot("current");
 	expect(diff).toMatchSnapshot("compare");
+
+	/* console output */
+	const stdout = stream.getContentsAsString("utf8");
+	expect(stdout).toMatchInlineSnapshot(`false`);
 });
 
 it("detects added file between baseline and current", async () => {
+	const { stream, console } = createConsole();
 	const { fs } = await createVolume({
 		"/project/bundle-config.json": JSON.stringify(makeConfig()),
 	});
@@ -179,6 +202,7 @@ it("detects added file between baseline and current", async () => {
 		outputGithub: [],
 		format: "json",
 		fs,
+		console,
 	});
 
 	/* current (added vendor.js) */
@@ -192,6 +216,7 @@ it("detects added file between baseline and current", async () => {
 		outputGithub: [],
 		format: "json",
 		fs,
+		console,
 	});
 
 	/* compare */
@@ -204,6 +229,7 @@ it("detects added file between baseline and current", async () => {
 		outputGithub: [],
 		format: "json",
 		fs,
+		console,
 	});
 
 	const base = await readJsonFile<BundleSize[]>(fs, "/project/temp/base.json");
@@ -236,9 +262,14 @@ it("detects added file between baseline and current", async () => {
 	expect(base).toMatchSnapshot("base");
 	expect(current).toMatchSnapshot("current");
 	expect(diff).toMatchSnapshot("compare");
+
+	/* console output */
+	const stdout = stream.getContentsAsString("utf8");
+	expect(stdout).toMatchInlineSnapshot(`false`);
 });
 
 it("detects removed file between baseline and current", async () => {
+	const { stream, console } = createConsole();
 	const { fs } = await createVolume({
 		"/project/bundle-config.json": JSON.stringify(makeConfig()),
 	});
@@ -254,6 +285,7 @@ it("detects removed file between baseline and current", async () => {
 		outputGithub: [],
 		format: "json",
 		fs,
+		console,
 	});
 
 	/* current (vendor removed) */
@@ -267,6 +299,7 @@ it("detects removed file between baseline and current", async () => {
 		outputGithub: [],
 		format: "json",
 		fs,
+		console,
 	});
 
 	/* compare */
@@ -279,6 +312,7 @@ it("detects removed file between baseline and current", async () => {
 		outputGithub: [],
 		format: "json",
 		fs,
+		console,
 	});
 
 	const base = await readJsonFile<BundleSize[]>(fs, "/project/temp/base.json");
@@ -311,9 +345,14 @@ it("detects removed file between baseline and current", async () => {
 	expect(base).toMatchSnapshot("base");
 	expect(current).toMatchSnapshot("current");
 	expect(diff).toMatchSnapshot("compare");
+
+	/* console output */
+	const stdout = stream.getContentsAsString("utf8");
+	expect(stdout).toMatchInlineSnapshot(`false`);
 });
 
 it("compares multiple bundles", async () => {
+	const { stream, console } = createConsole();
 	const { fs } = await createVolume({
 		"/project/bundle-config.json": JSON.stringify({
 			bundles: [
@@ -336,6 +375,7 @@ it("compares multiple bundles", async () => {
 		outputGithub: [],
 		format: "json",
 		fs,
+		console,
 	});
 
 	/* current (app +10 bytes, lib -20 bytes) */
@@ -349,6 +389,7 @@ it("compares multiple bundles", async () => {
 		outputGithub: [],
 		format: "json",
 		fs,
+		console,
 	});
 
 	/* compare */
@@ -361,6 +402,7 @@ it("compares multiple bundles", async () => {
 		outputGithub: [],
 		format: "json",
 		fs,
+		console,
 	});
 
 	const base = await readJsonFile<BundleSize[]>(fs, "/project/temp/base.json");
@@ -398,9 +440,14 @@ it("compares multiple bundles", async () => {
 	expect(base).toMatchSnapshot("base");
 	expect(current).toMatchSnapshot("current");
 	expect(diff).toMatchSnapshot("compare");
+
+	/* console output */
+	const stdout = stream.getContentsAsString("utf8");
+	expect(stdout).toMatchInlineSnapshot(`false`);
 });
 
 it("respects exclude patterns in config", async () => {
+	const { stream, console } = createConsole();
 	const { fs } = await createVolume({
 		"/project/bundle-config.json": JSON.stringify({
 			bundles: [
@@ -424,6 +471,7 @@ it("respects exclude patterns in config", async () => {
 		outputGithub: [],
 		format: "json",
 		fs,
+		console,
 	});
 
 	/* current */
@@ -437,6 +485,7 @@ it("respects exclude patterns in config", async () => {
 		outputGithub: [],
 		format: "json",
 		fs,
+		console,
 	});
 
 	/* compare */
@@ -449,6 +498,7 @@ it("respects exclude patterns in config", async () => {
 		outputGithub: [],
 		format: "json",
 		fs,
+		console,
 	});
 
 	const base = await readJsonFile<BundleSize[]>(fs, "/project/temp/base.json");
@@ -470,9 +520,14 @@ it("respects exclude patterns in config", async () => {
 	expect(base).toMatchSnapshot("base");
 	expect(current).toMatchSnapshot("current");
 	expect(diff).toMatchSnapshot("compare");
+
+	/* console output */
+	const stdout = stream.getContentsAsString("utf8");
+	expect(stdout).toMatchInlineSnapshot(`false`);
 });
 
 it("handles empty bundles gracefully", async () => {
+	const { stream, console } = createConsole();
 	const { fs } = await createVolume({
 		"/project/bundle-config.json": JSON.stringify({
 			bundles: [
@@ -493,6 +548,7 @@ it("handles empty bundles gracefully", async () => {
 		outputGithub: [],
 		format: "json",
 		fs,
+		console,
 	});
 
 	/* current (no files) */
@@ -504,6 +560,7 @@ it("handles empty bundles gracefully", async () => {
 		outputGithub: [],
 		format: "json",
 		fs,
+		console,
 	});
 
 	/* compare */
@@ -516,6 +573,7 @@ it("handles empty bundles gracefully", async () => {
 		outputGithub: [],
 		format: "json",
 		fs,
+		console,
 	});
 
 	const base = await readJsonFile<BundleSize[]>(fs, "/project/temp/base.json");
@@ -540,4 +598,8 @@ it("handles empty bundles gracefully", async () => {
 	expect(base).toMatchSnapshot("base");
 	expect(current).toMatchSnapshot("current");
 	expect(diff).toMatchSnapshot("compare");
+
+	/* console output */
+	const stdout = stream.getContentsAsString("utf8");
+	expect(stdout).toMatchInlineSnapshot(`false`);
 });

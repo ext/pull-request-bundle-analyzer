@@ -30,6 +30,7 @@ interface AnalyzeOptions {
 	format: Format;
 	outputFile?: string | undefined;
 	outputGithub: ParsedOutput[];
+	console?: Console;
 	fs?: typeof nodefs;
 }
 
@@ -41,6 +42,7 @@ interface CompareOptions {
 	outputGithub: ParsedOutput[];
 	base: string;
 	current: string;
+	console?: Console;
 	fs?: typeof nodefs;
 }
 
@@ -49,6 +51,7 @@ interface WriteOutputOptions {
 	output: string;
 	outputFile?: string | undefined;
 	fs: typeof nodefs;
+	console: Console;
 }
 
 interface WriteGithubOptions {
@@ -185,6 +188,7 @@ export async function analyze(options: AnalyzeOptions): Promise<void> {
 		cwd: options.cwd,
 		output,
 		outputFile: options.outputFile,
+		console: options.console ?? console,
 	});
 
 	for (const spec of options.outputGithub) {
@@ -214,6 +218,7 @@ export async function compare(options: CompareOptions): Promise<void> {
 		cwd: options.cwd,
 		output,
 		outputFile: options.outputFile,
+		console: options.console ?? console,
 	});
 
 	for (const spec of options.outputGithub) {
@@ -228,12 +233,17 @@ export async function compare(options: CompareOptions): Promise<void> {
 	}
 }
 
-async function writeOutput({ fs, cwd, output, outputFile }: WriteOutputOptions): Promise<void> {
+async function writeOutput({
+	fs,
+	cwd,
+	output,
+	outputFile,
+	console,
+}: WriteOutputOptions): Promise<void> {
 	if (outputFile) {
 		const outPath = resolve(cwd, outputFile);
 		await fs.writeFile(outPath, output, "utf8");
 	} else {
-		/* eslint-disable-next-line no-console -- expected to log */
 		console.log(output);
 	}
 }
