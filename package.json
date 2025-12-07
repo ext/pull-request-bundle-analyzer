@@ -43,7 +43,7 @@
     "@html-validate/eslint-config": "6.10.5",
     "@html-validate/eslint-config-typescript": "6.10.6",
     "@html-validate/eslint-config-typescript-typeinfo": "6.10.6",
-    "@html-validate/prettier-config": "3.1.9",
+    "@html-validate/prettier-config": "3.1.10",
     "@microsoft/api-extractor": "7.55.2",
     "@tsconfig/node22": "22.0.5",
     "@tsconfig/recommended": "1.0.13",
