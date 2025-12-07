@@ -40,7 +40,7 @@ jobs:
           ref: ${{ github.event.pull_request.base.ref }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
 
       - name: Install & build
         run: |
@@ -64,7 +64,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
 
       - name: Install & build
         run: |
@@ -86,7 +86,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
 
       - name: Compare results
         id: compare
