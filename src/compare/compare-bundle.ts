@@ -7,16 +7,27 @@ function compareUpdated(base: BundleSize, current: BundleSize): BundleDiff {
 		newSize: current.size,
 		difference: current.size - base.size,
 	};
-	const gzip: BundleDiffSize = {
-		oldSize: base.gzip,
-		newSize: current.gzip,
-		difference: current.gzip - base.gzip,
-	};
-	const brotli: BundleDiffSize = {
-		oldSize: base.brotli,
-		newSize: current.brotli,
-		difference: current.brotli - base.brotli,
-	};
+	let gzip: BundleDiffSize | null;
+	if (base.gzip === null || current.gzip === null) {
+		gzip = null;
+	} else {
+		gzip = {
+			oldSize: base.gzip,
+			newSize: current.gzip,
+			difference: current.gzip - base.gzip,
+		};
+	}
+
+	let brotli: BundleDiffSize | null;
+	if (base.brotli === null || current.brotli === null) {
+		brotli = null;
+	} else {
+		brotli = {
+			oldSize: base.brotli,
+			newSize: current.brotli,
+			difference: current.brotli - base.brotli,
+		};
+	}
 	return {
 		status: "updated",
 		id: current.id,
@@ -35,16 +46,27 @@ function compareAdded(current: BundleSize): BundleDiff {
 		newSize: current.size,
 		difference: current.size,
 	};
-	const gzip: BundleDiffSize = {
-		oldSize: 0,
-		newSize: current.gzip,
-		difference: current.gzip,
-	};
-	const brotli: BundleDiffSize = {
-		oldSize: 0,
-		newSize: current.brotli,
-		difference: current.brotli,
-	};
+	let gzip: BundleDiffSize | null;
+	if (current.gzip === null) {
+		gzip = null;
+	} else {
+		gzip = {
+			oldSize: 0,
+			newSize: current.gzip,
+			difference: current.gzip,
+		};
+	}
+
+	let brotli: BundleDiffSize | null;
+	if (current.brotli === null) {
+		brotli = null;
+	} else {
+		brotli = {
+			oldSize: 0,
+			newSize: current.brotli,
+			difference: current.brotli,
+		};
+	}
 	return {
 		status: "added",
 		id: current.id,
@@ -63,16 +85,27 @@ function compareRemoved(base: BundleSize): BundleDiff {
 		newSize: 0,
 		difference: -base.size,
 	};
-	const gzip: BundleDiffSize = {
-		oldSize: base.gzip,
-		newSize: 0,
-		difference: -base.gzip,
-	};
-	const brotli: BundleDiffSize = {
-		oldSize: base.brotli,
-		newSize: 0,
-		difference: -base.brotli,
-	};
+	let gzip: BundleDiffSize | null;
+	if (base.gzip === null) {
+		gzip = null;
+	} else {
+		gzip = {
+			oldSize: base.gzip,
+			newSize: 0,
+			difference: -base.gzip,
+		};
+	}
+
+	let brotli: BundleDiffSize | null;
+	if (base.brotli === null) {
+		brotli = null;
+	} else {
+		brotli = {
+			oldSize: base.brotli,
+			newSize: 0,
+			difference: -base.brotli,
+		};
+	}
 	return {
 		status: "removed",
 		id: base.id,

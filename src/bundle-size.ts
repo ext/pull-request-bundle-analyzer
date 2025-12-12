@@ -14,8 +14,8 @@ export interface BundleSize {
 	files: FileResult[];
 	/** Size on disk (bytes) */
 	size: number;
-	/** Gzip compressed size (bytes) */
-	gzip: number;
-	/** Brotli compressed size (bytes) */
-	brotli: number;
+	/** Gzip compressed size (bytes) or null if algorithm is disabled */
+	gzip: number | null;
+	/** Brotli compressed size (bytes) or null if algorithm is disabled */
+	brotli: number | null;
 }
