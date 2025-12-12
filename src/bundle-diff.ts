@@ -30,11 +30,11 @@ export interface BundleDiff {
 	/** Uncompressed / raw sizes */
 	raw: BundleDiffSize;
 
-	/** Gzip compressed sizes */
-	gzip: BundleDiffSize;
+	/** Gzip compressed sizes or null if algorithm is disabled */
+	gzip: BundleDiffSize | null;
 
-	/** Brotli compressed sizes */
-	brotli: BundleDiffSize;
+	/** Brotli compressed sizes or null if algorithm is disabled */
+	brotli: BundleDiffSize | null;
 
 	/** Files from the base result */
 	oldFiles: FileResult[];

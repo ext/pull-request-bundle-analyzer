@@ -16,8 +16,8 @@ export interface BundleConfig {
 
 // @public
 export interface BundleDiff {
-    brotli: BundleDiffSize;
-    gzip: BundleDiffSize;
+    brotli: BundleDiffSize | null;
+    gzip: BundleDiffSize | null;
     id: string;
     name: string;
     newFiles: FileResult[];

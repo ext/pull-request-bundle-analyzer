@@ -77,6 +77,32 @@ const removed: BundleDiff[] = [
 	},
 ];
 
+const updatedOneAlgorithm: BundleDiff[] = [
+	{
+		id: "one",
+		name: "one",
+		status: "updated",
+		raw: { oldSize: 90, newSize: 100, difference: 10 },
+		gzip: { oldSize: 75, newSize: 80, difference: 5 },
+		brotli: null,
+		oldFiles: [],
+		newFiles: [],
+	},
+];
+
+const updatedBothDisabled: BundleDiff[] = [
+	{
+		id: "none",
+		name: "none",
+		status: "updated",
+		raw: { oldSize: 90, newSize: 100, difference: 10 },
+		gzip: null,
+		brotli: null,
+		oldFiles: [],
+		newFiles: [],
+	},
+];
+
 describe("formatDiff()", () => {
 	describe("json", () => {
 		it("formats updated bundles", () => {
@@ -95,6 +121,18 @@ describe("formatDiff()", () => {
 			const outJson = formatDiff(removed, "json", { color: false });
 			const parsedJson = JSON.parse(outJson);
 			expect(parsedJson).toEqual(removed);
+		});
+
+		it("formats bundles with only one algorithm enabled", () => {
+			const out = formatDiff(updatedOneAlgorithm, "json", { color: false });
+			const parsed = JSON.parse(out);
+			expect(parsed).toEqual(updatedOneAlgorithm);
+		});
+
+		it("formats bundles with all algorithms disabled", () => {
+			const out = formatDiff(updatedBothDisabled, "json", { color: false });
+			const parsed = JSON.parse(out);
+			expect(parsed).toEqual(updatedBothDisabled);
 		});
 	});
 
@@ -133,6 +171,28 @@ describe("formatDiff()", () => {
 				| old (removed) | N/A | 200B → N/A | N/A | N/A |
 			`);
 		});
+
+		it("formats bundles with only one algorithm enabled", () => {
+			const out = formatDiff(updatedOneAlgorithm, "markdown", { color: false });
+			expect(out).toMatchInlineSnapshot(`
+				## Bundle sizes
+
+				| Bundle | Files | Size | Compressed | Change |
+				|---|---|---:|---:|---:|
+				| one | 0 file(s) | 90B → **100B** (+10B) | gzip: 80B<br>brotli: - | +11.11% |
+			`);
+		});
+
+		it("formats bundles with all algorithms disabled", () => {
+			const out = formatDiff(updatedBothDisabled, "markdown", { color: false });
+			expect(out).toMatchInlineSnapshot(`
+				## Bundle sizes
+
+				| Bundle | Files | Size | Compressed | Change |
+				|---|---|---:|---:|---:|
+				| none | 0 file(s) | 90B → **100B** (+10B) | gzip: -<br>brotli: - | +11.11% |
+			`);
+		});
 	});
 
 	describe("text", () => {
@@ -156,6 +216,20 @@ describe("formatDiff()", () => {
 			const outText = formatDiff(removed, "text", { color: false });
 			expect(outText).toMatchInlineSnapshot(`
 				old: removed
+			`);
+		});
+
+		it("formats bundles with only one algorithm enabled", () => {
+			const out = formatDiff(updatedOneAlgorithm, "text", { color: false });
+			expect(out).toMatchInlineSnapshot(`
+				one: files=0 (+0), size=100B (+10B), gzip=80B (+5B), brotli=-
+			`);
+		});
+
+		it("formats bundles with all algorithms disabled", () => {
+			const out = formatDiff(updatedBothDisabled, "text", { color: false });
+			expect(out).toMatchInlineSnapshot(`
+				none: files=0 (+0), size=100B (+10B), gzip=-, brotli=-
 			`);
 		});
 	});
