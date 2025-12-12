@@ -10,9 +10,7 @@ describe("getFiles", () => {
 	it("should return empty array when include and exclude are both empty", async () => {
 		const vol = Volume.fromJSON({ "/dist/index.js": "" });
 		const fs = vol.promises as unknown as typeof nodefs;
-		const bundle: NormalizedBundleConfig = {
-			id: "mock",
-			name: "mock",
+		const bundle: Pick<NormalizedBundleConfig, "include" | "exclude"> = {
 			include: [],
 			exclude: [],
 		};
@@ -23,9 +21,7 @@ describe("getFiles", () => {
 	it("should return files matched by include", async () => {
 		const vol = Volume.fromJSON({ "/dist/index.js": "" });
 		const fs = vol.promises as unknown as typeof nodefs;
-		const bundle: NormalizedBundleConfig = {
-			id: "mock",
-			name: "mock",
+		const bundle: Pick<NormalizedBundleConfig, "include" | "exclude"> = {
 			include: ["dist/index.js", "dist/foo.js"],
 			exclude: [],
 		};
@@ -36,9 +32,7 @@ describe("getFiles", () => {
 	it("should return files matched by include (glob)", async () => {
 		const vol = Volume.fromJSON({ "/dist/index.js": "", "/dist/foo.js": "" });
 		const fs = vol.promises as unknown as typeof nodefs;
-		const bundle: NormalizedBundleConfig = {
-			id: "mock",
-			name: "mock",
+		const bundle: Pick<NormalizedBundleConfig, "include" | "exclude"> = {
 			include: ["dist/*.js"],
 			exclude: [],
 		};
@@ -49,9 +43,7 @@ describe("getFiles", () => {
 	it("should exclude files matched by exclude", async () => {
 		const vol = Volume.fromJSON({ "/dist/index.js": "", "/dist/foo.js": "" });
 		const fs = vol.promises as unknown as typeof nodefs;
-		const bundle: NormalizedBundleConfig = {
-			id: "mock",
-			name: "mock",
+		const bundle: Pick<NormalizedBundleConfig, "include" | "exclude"> = {
 			include: ["dist/*.js"],
 			exclude: ["dist/foo.js"],
 		};

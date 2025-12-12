@@ -19,6 +19,10 @@ function formatJson(bundles: BundleSize[]): string {
 	return JSON.stringify(bundles, null, 2);
 }
 
+function formatMaybe(size: number | null): string {
+	return size === null ? "-" : prettySize(size);
+}
+
 function formatMarkdown(bundles: BundleSize[]): string {
 	const header = "## Bundle sizes\n\n";
 	const tableHeader = "| Bundle | Files | Size | Gzip | Brotli |\n|---|---|---:|---:|---:|\n";
@@ -28,8 +32,8 @@ function formatMarkdown(bundles: BundleSize[]): string {
 				`\`${item.bundle}\``,
 				`${String(item.files.length)} file(s)`,
 				prettySize(item.size),
-				prettySize(item.gzip),
-				prettySize(item.brotli),
+				formatMaybe(item.gzip),
+				formatMaybe(item.brotli),
 			];
 			return ["| ", cells.join(" | "), " |"].join("");
 		})
@@ -50,8 +54,8 @@ function formatText(bundles: BundleSize[], options: FormatBundleOptions): string
 			const parts = [
 				`files=${colorize(String(item.files.length))}`,
 				`size=${colorize(prettySize(item.size))}`,
-				`gzip=${colorize(prettySize(item.gzip))}`,
-				`brotli=${colorize(prettySize(item.brotli))}`,
+				`gzip=${colorize(formatMaybe(item.gzip))}`,
+				`brotli=${colorize(formatMaybe(item.brotli))}`,
 			];
 
 			const header = `${item.bundle}: ${parts.join(", ")}`;
@@ -65,8 +69,8 @@ function formatText(bundles: BundleSize[], options: FormatBundleOptions): string
 				const symbol = isLast ? "└" : "├";
 				const cells = [
 					` ${symbol} ${f.filename} size=${colorize(prettySize(f.size))}`,
-					`gzip=${colorize(prettySize(f.gzip))}`,
-					`brotli=${colorize(prettySize(f.brotli))}`,
+					`gzip=${colorize(formatMaybe(f.gzip))}`,
+					`brotli=${colorize(formatMaybe(f.brotli))}`,
 				];
 				return cells.join(", ");
 			});

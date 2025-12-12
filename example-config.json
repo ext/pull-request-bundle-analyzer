@@ -4,12 +4,14 @@
     {
       "id": "dist",
       "name": "dist",
-      "include": ["dist/*.mjs"]
+      "include": ["dist/*.mjs"],
+      "compression": "gzip"
     },
     {
       "id": "npm-package",
       "name": "npm package",
-      "include": ["*.tgz"]
+      "include": ["*.tgz"],
+      "compression": false
     }
   ]
 }

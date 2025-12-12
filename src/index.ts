@@ -1,5 +1,6 @@
 export {
 	type BundleConfig,
+	type CompressionAlgorithm,
 	type Config,
 	type NormalizedBundleConfig,
 	type NormalizedConfig,

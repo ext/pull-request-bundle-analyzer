@@ -2,7 +2,7 @@ import nodefs from "node:fs/promises";
 import { type NormalizedBundleConfig } from "./config/index.ts";
 
 interface GetFilesOptions {
-	bundle: NormalizedBundleConfig;
+	bundle: Pick<NormalizedBundleConfig, "include" | "exclude">;
 	cwd: string;
 	fs?: typeof nodefs | undefined;
 }

@@ -12,7 +12,7 @@ describe("getBundleSize()", () => {
 		const vol = Volume.fromJSON({ "/dist/a.js": a });
 		const fs = vol.promises as unknown as typeof nodefs;
 
-		const bundle: NormalizedBundleConfig = {
+		const bundle: Pick<NormalizedBundleConfig, "id" | "name" | "include" | "exclude"> = {
 			id: "app",
 			name: "app",
 			include: ["dist/*.js"],
@@ -43,7 +43,7 @@ describe("getBundleSize()", () => {
 		const vol = Volume.fromJSON({ "/dist/a.js": a });
 		const fs = vol.promises as unknown as typeof nodefs;
 
-		const bundle: NormalizedBundleConfig = {
+		const bundle: Pick<NormalizedBundleConfig, "id" | "name" | "include" | "exclude"> = {
 			id: "brotli-only",
 			name: "brotli-only",
 			include: ["dist/*.js"],
@@ -68,7 +68,7 @@ describe("getBundleSize()", () => {
 		const vol = Volume.fromJSON({ "/dist/a.js": a });
 		const fs = vol.promises as unknown as typeof nodefs;
 
-		const bundle: NormalizedBundleConfig = {
+		const bundle: Pick<NormalizedBundleConfig, "id" | "name" | "include" | "exclude"> = {
 			id: "gzip-only",
 			name: "gzip-only",
 			include: ["dist/*.js"],
@@ -93,7 +93,7 @@ describe("getBundleSize()", () => {
 		const vol = Volume.fromJSON({ "/dist/a.js": a });
 		const fs = vol.promises as unknown as typeof nodefs;
 
-		const bundle: NormalizedBundleConfig = {
+		const bundle: Pick<NormalizedBundleConfig, "id" | "name" | "include" | "exclude"> = {
 			id: "none",
 			name: "none",
 			include: ["dist/*.js"],
@@ -119,7 +119,7 @@ describe("getBundleSize()", () => {
 		const vol = Volume.fromJSON({ "/dist/a.js": a, "/dist/b.js": b });
 		const fs = vol.promises as unknown as typeof nodefs;
 
-		const bundle: NormalizedBundleConfig = {
+		const bundle: Pick<NormalizedBundleConfig, "id" | "name" | "include" | "exclude"> = {
 			id: "app",
 			name: "app",
 			include: ["dist/*.js"],
@@ -154,7 +154,7 @@ describe("getBundleSize()", () => {
 		const vol = Volume.fromJSON({});
 		const fs = vol.promises as unknown as typeof nodefs;
 
-		const bundle: NormalizedBundleConfig = {
+		const bundle: Pick<NormalizedBundleConfig, "id" | "name" | "include" | "exclude"> = {
 			id: "empty",
 			name: "empty",
 			include: [],

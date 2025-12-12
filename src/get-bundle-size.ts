@@ -24,7 +24,7 @@ export interface GetBundleSizeOptions {
  * @returns The total size of the bundle
  */
 export async function getBundleSize(
-	bundle: NormalizedBundleConfig,
+	bundle: Pick<NormalizedBundleConfig, "id" | "name" | "include" | "exclude">,
 	options: GetBundleSizeOptions,
 ): Promise<BundleSize> {
 	const { cwd, fs, compression } = options;

@@ -225,13 +225,15 @@ interface BundleConfig {
   name: string;
   include?: string | string[];
   exclude?: string | string[];
+  compression?: "gzip" | "brotli" | Array<"gzip" | "brotli"> | false;
 }
 ```
 
 - `id`: Unique identifier for this bundle.
-- `name`: The name of this bundle (displayed in the resulting reports)
-- `include`: Files to include for this bundle (globs supported)
-- `exclude`: Files to exclude for this bundle (globs supported)
+- `name`: The name of this bundle (displayed in the resulting reports).
+- `include`: Files to include for this bundle (globs supported).
+- `exclude`: Files to exclude for this bundle (globs supported).
+- `compression`: Compression algorithm(s) to enable for this bundle or `false` to disable compression (default gzip and brotli)
 
 ## Development
 

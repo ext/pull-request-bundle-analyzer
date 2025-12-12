@@ -8,6 +8,7 @@ import nodefs from 'node:fs/promises';
 
 // @public (undocumented)
 export interface BundleConfig {
+    compression?: CompressionAlgorithm | CompressionAlgorithm[] | false;
     exclude?: string | string[];
     id: string;
     include?: string | string[];
@@ -35,16 +36,19 @@ export interface BundleDiffSize {
 
 // @public
 export interface BundleSize {
-    brotli: number;
+    brotli: number | null;
     bundle: string;
     files: FileResult[];
-    gzip: number;
+    gzip: number | null;
     id: string;
     size: number;
 }
 
 // @public
 export function compareBundles(base: BundleSize[], current: BundleSize[]): BundleDiff[];
+
+// @public (undocumented)
+export type CompressionAlgorithm = "gzip" | "brotli";
 
 // @public (undocumented)
 export interface Config {
@@ -54,17 +58,21 @@ export interface Config {
 
 // @public
 export interface FileResult {
-    brotli: number;
+    brotli: number | null;
     filename: string;
-    gzip: number;
+    gzip: number | null;
     size: number;
 }
 
 // @public
-export function getBundleSize(bundle: NormalizedBundleConfig, options: GetBundleSizeOptions): Promise<BundleSize>;
+export function getBundleSize(bundle: Pick<NormalizedBundleConfig, "id" | "name" | "include" | "exclude">, options: GetBundleSizeOptions): Promise<BundleSize>;
 
 // @public (undocumented)
 export interface GetBundleSizeOptions {
+    compression: {
+        gzip: boolean;
+        brotli: boolean;
+    };
     cwd: string;
     // (undocumented)
     fs?: typeof nodefs | undefined;
@@ -72,6 +80,7 @@ export interface GetBundleSizeOptions {
 
 // @public (undocumented)
 export interface NormalizedBundleConfig {
+    compression: Array<"gzip" | "brotli">;
     // (undocumented)
     exclude: string[];
     id: string;

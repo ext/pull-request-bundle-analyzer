@@ -18,7 +18,15 @@ describe("readConfigFile()", () => {
 		});
 		const result = await readConfigFile(path, fs);
 		expect(result).toEqual({
-			bundles: [{ id: "app", name: "app", include: ["dist/*.js"], exclude: [] }],
+			bundles: [
+				{
+					id: "app",
+					name: "app",
+					include: ["dist/*.js"],
+					exclude: [],
+					compression: ["gzip", "brotli"],
+				},
+			],
 		});
 	});
 
@@ -46,6 +54,77 @@ describe("readConfigFile()", () => {
 		const { fs, path } = createVolume({ bundles: [{ id: "c", name: "c", include: "dist/*.js" }] });
 		const result = await readConfigFile(path, fs);
 		expect(result.bundles[0].exclude).toEqual([]);
+	});
+
+	it("should preserve compression algorithm when provided", async () => {
+		const { fs, path } = createVolume({
+			bundles: [
+				{ id: "single", name: "single", include: "dist/*.js", compression: ["gzip"] },
+				{ id: "none", name: "none", include: "dist/*.js", compression: [] },
+			],
+		});
+		const result = await readConfigFile(path, fs);
+		expect(result.bundles[0].compression).toEqual(["gzip"]);
+		expect(result.bundles[1].compression).toEqual([]);
+	});
+
+	it("should accept single compression string and normalize to array", async () => {
+		const { fs, path } = createVolume({
+			bundles: [
+				{ id: "single-str", name: "single-str", include: "dist/*.js", compression: "gzip" },
+			],
+		});
+		const result = await readConfigFile(path, fs);
+		expect(result.bundles[0].compression).toEqual(["gzip"]);
+	});
+
+	it("should accept false to disable compression and normalize to empty array", async () => {
+		const { fs, path } = createVolume({
+			bundles: [{ id: "disabled", name: "disabled", include: "dist/*.js", compression: false }],
+		});
+		const result = await readConfigFile(path, fs);
+		expect(result.bundles[0].compression).toEqual([]);
+	});
+
+	it("should reject invalid compression keywords", async () => {
+		const { fs, path } = createVolume({
+			bundles: [{ id: "bad", name: "bad", include: "x", compression: ["invalid"] }],
+		});
+		await expect(readConfigFile(path, fs)).rejects.toThrowErrorMatchingInlineSnapshot(
+			`[Error: Config schema validation failed: data/bundles/0/compression must be boolean
+data/bundles/0/compression must be equal to constant
+data/bundles/0/compression must be string
+data/bundles/0/compression must be equal to one of the allowed values
+data/bundles/0/compression/0 must be equal to one of the allowed values
+data/bundles/0/compression must match a schema in anyOf]`,
+		);
+	});
+
+	it("should reject boolean true for compression", async () => {
+		const { fs, path } = createVolume({
+			bundles: [{ id: "bad-true", name: "bad-true", include: "x", compression: true }],
+		});
+		await expect(readConfigFile(path, fs)).rejects.toThrowErrorMatchingInlineSnapshot(
+			`[Error: Config schema validation failed: data/bundles/0/compression must be equal to constant
+data/bundles/0/compression must be string
+data/bundles/0/compression must be equal to one of the allowed values
+data/bundles/0/compression must be array
+data/bundles/0/compression must match a schema in anyOf]`,
+		);
+	});
+
+	it("should reject mixed compression array with invalid entry", async () => {
+		const { fs, path } = createVolume({
+			bundles: [{ id: "bad-mix", name: "bad-mix", include: "x", compression: ["gzip", "invalid"] }],
+		});
+		await expect(readConfigFile(path, fs)).rejects.toThrowErrorMatchingInlineSnapshot(
+			`[Error: Config schema validation failed: data/bundles/0/compression must be boolean
+data/bundles/0/compression must be equal to constant
+data/bundles/0/compression must be string
+data/bundles/0/compression must be equal to one of the allowed values
+data/bundles/0/compression/1 must be equal to one of the allowed values
+data/bundles/0/compression must match a schema in anyOf]`,
+		);
 	});
 
 	it("should throw when a bundle is missing id", async () => {

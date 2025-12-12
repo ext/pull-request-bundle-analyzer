@@ -7,6 +7,8 @@ export interface NormalizedBundleConfig {
 	name: string;
 	include: string[];
 	exclude: string[];
+	/** Enabled compression algorithms for this bundle */
+	compression: Array<"gzip" | "brotli">;
 }
 
 /**

@@ -46,6 +46,17 @@
                 "items": { "type": "string" }
               }
             ]
+          },
+          "compression": {
+            "description": "Enabled compression algorithms for this bundle. Can be a single algorithm string, an array of algorithms, or false to disable compression.",
+            "anyOf": [
+              { "type": "boolean", "const": false },
+              { "type": "string", "enum": ["gzip", "brotli"] },
+              {
+                "type": "array",
+                "items": { "type": "string", "enum": ["gzip", "brotli"] }
+              }
+            ]
           }
         }
       },
