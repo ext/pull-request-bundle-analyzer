@@ -8,8 +8,8 @@ const brotliCompress = promisify(brotliCb);
 
 export interface GetFileSizeResult {
 	size: number;
-	gzip: number;
-	brotli: number;
+	gzip: number | null;
+	brotli: number | null;
 }
 
 /**
@@ -18,6 +18,8 @@ export interface GetFileSizeResult {
 export interface GetFileSizeOptions {
 	cwd: string;
 	fs?: typeof nodefs | undefined;
+	/** Enabled compression algorithms */
+	compression: { gzip: boolean; brotli: boolean };
 }
 
 /**
@@ -37,15 +39,41 @@ export async function getFileSize(
 	filePath: string,
 	options: GetFileSizeOptions,
 ): Promise<GetFileSizeResult> {
-	const { cwd, fs = nodefs } = options;
+	const { cwd, fs = nodefs, compression } = options;
 
 	const fullPath = path.isAbsolute(filePath) ? filePath : path.join(cwd, filePath);
 	const [buf, st] = await Promise.all([fs.readFile(fullPath), fs.stat(fullPath)]);
-	const [gzBuf, brBuf] = await Promise.all([gzip(buf), brotliCompress(buf)]);
+	let gzLen: number | null = null;
+	let brLen: number | null = null;
+
+	const doGzip = compression.gzip;
+	const doBrotli = compression.brotli;
+
+	const tasks: Array<Promise<unknown>> = [];
+
+	if (doGzip) {
+		tasks.push(
+			gzip(buf).then((gzBuf) => {
+				gzLen = Buffer.isBuffer(gzBuf) ? gzBuf.length : 0;
+			}),
+		);
+	}
+
+	if (doBrotli) {
+		tasks.push(
+			brotliCompress(buf).then((brBuf) => {
+				brLen = Buffer.isBuffer(brBuf) ? brBuf.length : 0;
+			}),
+		);
+	}
+
+	if (tasks.length > 0) {
+		await Promise.all(tasks);
+	}
 
 	return {
 		size: st.size,
-		gzip: Buffer.isBuffer(gzBuf) ? gzBuf.length : 0,
-		brotli: Buffer.isBuffer(brBuf) ? brBuf.length : 0,
+		gzip: gzLen,
+		brotli: brLen,
 	};
 }

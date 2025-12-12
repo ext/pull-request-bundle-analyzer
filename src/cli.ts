@@ -207,7 +207,14 @@ export async function analyze(options: AnalyzeOptions): Promise<void> {
 	const configPath = resolve(options.cwd, options.configFile);
 	const config = await readConfigFile(configPath, options.fs);
 	const results = await Promise.all(
-		config.bundles.map((bundle) => getBundleSize(bundle, { cwd: options.cwd, fs: options.fs })),
+		config.bundles.map((bundle) => {
+			const compression = { gzip: true, brotli: true };
+			return getBundleSize(bundle, {
+				cwd: options.cwd,
+				fs: options.fs,
+				compression,
+			});
+		}),
 	);
 
 	if (options.outputFile.length > 0) {
