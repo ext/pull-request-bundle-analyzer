@@ -23,14 +23,4 @@ describe("formatSize()", () => {
 		expect(formatSize("gzip", size, { style: "markdown", colorize })).toBe("gzip: *1.0KiB*");
 		expect(formatSize("gzip", size, { style: "text", colorize })).toBe("gzip=*1.0KiB* (+512B)");
 	});
-
-	it("formats markdown null as hyphen", () => {
-		const size = null;
-		expect(formatSize("gzip", size, { style: "markdown" })).toBe("gzip: -");
-	});
-
-	it("formats text null as hyphen (no diff)", () => {
-		const size = null;
-		expect(formatSize("gzip", size, { style: "text" })).toBe("gzip=-");
-	});
 });

@@ -19,9 +19,15 @@ function renderAddedOrUpdated(it: BundleDiff, colorize: (text: string) => string
 	const parts = [
 		`files=${colorize(String(newFiles.length))} (${sign(filesDiff)}${String(Math.abs(filesDiff))})`,
 		formatSize("size", it.raw, { style: "text", colorize }),
-		formatSize("gzip", it.gzip, { style: "text", colorize }),
-		formatSize("brotli", it.brotli, { style: "text", colorize }),
 	];
+
+	if (it.gzip !== null) {
+		parts.push(formatSize("gzip", it.gzip, { style: "text", colorize }));
+	}
+
+	if (it.brotli !== null) {
+		parts.push(formatSize("brotli", it.brotli, { style: "text", colorize }));
+	}
 
 	return `${it.name}: ${parts.join(", ")}`;
 }

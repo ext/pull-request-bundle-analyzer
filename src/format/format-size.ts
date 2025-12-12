@@ -16,24 +16,10 @@ export interface FormatSizeOptions {
  */
 export function formatSize(
 	label: string,
-	size: BundleDiffSize | null,
+	size: BundleDiffSize,
 	options: FormatSizeOptions,
 ): string {
 	const { style, colorize } = options;
-	// If the compression algorithm is disabled, the value will be `null`.
-	// Format a hyphen placeholder in that case (no diff shown).
-	if (size === null) {
-		switch (style) {
-			case "text":
-				return `${label}=-`;
-			case "markdown":
-				return `${label}: -`;
-			default: {
-				const _exhaustive: never = style;
-				return _exhaustive;
-			}
-		}
-	}
 
 	const num = prettySize(size.newSize);
 	const formattedNum = colorize ? colorize(num) : num;

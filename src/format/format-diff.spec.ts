@@ -79,11 +79,21 @@ const removed: BundleDiff[] = [
 
 const updatedOneAlgorithm: BundleDiff[] = [
 	{
-		id: "one",
-		name: "one",
+		id: "one-a",
+		name: "one-a",
 		status: "updated",
 		raw: { oldSize: 90, newSize: 100, difference: 10 },
 		gzip: { oldSize: 75, newSize: 80, difference: 5 },
+		brotli: null,
+		oldFiles: [],
+		newFiles: [],
+	},
+	{
+		id: "one-b",
+		name: "one-b",
+		status: "updated",
+		raw: { oldSize: 50, newSize: 60, difference: 10 },
+		gzip: { oldSize: 40, newSize: 45, difference: 5 },
 		brotli: null,
 		oldFiles: [],
 		newFiles: [],
@@ -92,10 +102,53 @@ const updatedOneAlgorithm: BundleDiff[] = [
 
 const updatedBothDisabled: BundleDiff[] = [
 	{
-		id: "none",
-		name: "none",
+		id: "none-a",
+		name: "none-a",
 		status: "updated",
 		raw: { oldSize: 90, newSize: 100, difference: 10 },
+		gzip: null,
+		brotli: null,
+		oldFiles: [],
+		newFiles: [],
+	},
+	{
+		id: "none-b",
+		name: "none-b",
+		status: "updated",
+		raw: { oldSize: 50, newSize: 60, difference: 10 },
+		gzip: null,
+		brotli: null,
+		oldFiles: [],
+		newFiles: [],
+	},
+];
+
+const updatedMixedAlgorithms: BundleDiff[] = [
+	{
+		id: "all-enabled",
+		name: "all-enabled",
+		status: "updated",
+		raw: { oldSize: 120, newSize: 130, difference: 10 },
+		gzip: { oldSize: 90, newSize: 95, difference: 5 },
+		brotli: { oldSize: 80, newSize: 85, difference: 5 },
+		oldFiles: [],
+		newFiles: [],
+	},
+	{
+		id: "brotli-only",
+		name: "brotli-only",
+		status: "updated",
+		raw: { oldSize: 70, newSize: 75, difference: 5 },
+		gzip: null,
+		brotli: { oldSize: 60, newSize: 62, difference: 2 },
+		oldFiles: [],
+		newFiles: [],
+	},
+	{
+		id: "all-disabled",
+		name: "all-disabled",
+		status: "updated",
+		raw: { oldSize: 30, newSize: 40, difference: 10 },
 		gzip: null,
 		brotli: null,
 		oldFiles: [],
@@ -133,6 +186,12 @@ describe("formatDiff()", () => {
 			const out = formatDiff(updatedBothDisabled, "json", { color: false });
 			const parsed = JSON.parse(out);
 			expect(parsed).toEqual(updatedBothDisabled);
+		});
+
+		it("formats bundles with mixed algorithms", () => {
+			const out = formatDiff(updatedMixedAlgorithms, "json", { color: false });
+			const parsed = JSON.parse(out);
+			expect(parsed).toEqual(updatedMixedAlgorithms);
 		});
 	});
 
@@ -179,7 +238,8 @@ describe("formatDiff()", () => {
 
 				| Bundle | Files | Size | Compressed | Change |
 				|---|---|---:|---:|---:|
-				| one | 0 file(s) | 90B → **100B** (+10B) | gzip: 80B<br>brotli: - | +11.11% |
+				| one-a | 0 file(s) | 90B → **100B** (+10B) | gzip: 80B | +11.11% |
+				| one-b | 0 file(s) | 50B → **60B** (+10B) | gzip: 45B | +20.00% |
 			`);
 		});
 
@@ -188,9 +248,23 @@ describe("formatDiff()", () => {
 			expect(out).toMatchInlineSnapshot(`
 				## Bundle sizes
 
+				| Bundle | Files | Size | Change |
+				|---|---|---:|---:|
+				| none-a | 0 file(s) | 90B → **100B** (+10B) | +11.11% |
+				| none-b | 0 file(s) | 50B → **60B** (+10B) | +20.00% |
+			`);
+		});
+
+		it("formats bundles with mixed algorithms", () => {
+			const out = formatDiff(updatedMixedAlgorithms, "markdown", { color: false });
+			expect(out).toMatchInlineSnapshot(`
+				## Bundle sizes
+
 				| Bundle | Files | Size | Compressed | Change |
 				|---|---|---:|---:|---:|
-				| none | 0 file(s) | 90B → **100B** (+10B) | gzip: -<br>brotli: - | +11.11% |
+				| all-enabled | 0 file(s) | 120B → **130B** (+10B) | gzip: 95B<br>brotli: 85B | +8.33% |
+				| brotli-only | 0 file(s) | 70B → **75B** (+5B) | brotli: 62B | +7.14% |
+				| all-disabled | 0 file(s) | 30B → **40B** (+10B) | N/A | +33.33% |
 			`);
 		});
 	});
@@ -222,14 +296,25 @@ describe("formatDiff()", () => {
 		it("formats bundles with only one algorithm enabled", () => {
 			const out = formatDiff(updatedOneAlgorithm, "text", { color: false });
 			expect(out).toMatchInlineSnapshot(`
-				one: files=0 (+0), size=100B (+10B), gzip=80B (+5B), brotli=-
+				one-a: files=0 (+0), size=100B (+10B), gzip=80B (+5B)
+				one-b: files=0 (+0), size=60B (+10B), gzip=45B (+5B)
 			`);
 		});
 
 		it("formats bundles with all algorithms disabled", () => {
 			const out = formatDiff(updatedBothDisabled, "text", { color: false });
 			expect(out).toMatchInlineSnapshot(`
-				none: files=0 (+0), size=100B (+10B), gzip=-, brotli=-
+				none-a: files=0 (+0), size=100B (+10B)
+				none-b: files=0 (+0), size=60B (+10B)
+			`);
+		});
+
+		it("formats bundles with mixed algorithms", () => {
+			const out = formatDiff(updatedMixedAlgorithms, "text", { color: false });
+			expect(out).toMatchInlineSnapshot(`
+				all-enabled: files=0 (+0), size=130B (+10B), gzip=95B (+5B), brotli=85B (+5B)
+				brotli-only: files=0 (+0), size=75B (+5B), brotli=62B (+2B)
+				all-disabled: files=0 (+0), size=40B (+10B)
 			`);
 		});
 	});

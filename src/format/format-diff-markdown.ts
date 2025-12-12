@@ -15,53 +15,83 @@ function diff(value: number): string {
 	return `${sign(value)}${prettySize(Math.abs(value))}`;
 }
 
-function renderAddedRow(it: BundleDiff): string {
+function compressedColumn(it: BundleDiff): string {
+	const parts: string[] = [];
+
+	if (it.gzip !== null) {
+		parts.push(formatSize("gzip", it.gzip, { style: "markdown" }));
+	}
+
+	if (it.brotli !== null) {
+		parts.push(formatSize("brotli", it.brotli, { style: "markdown" }));
+	}
+
+	if (parts.length === 0) {
+		return "N/A";
+	}
+
+	return parts.join("<br>");
+}
+
+function renderAddedRow(it: BundleDiff, showCompressed: boolean): string {
 	const name = it.name.replace(/ /g, "&nbsp;");
 	const sizeCol = `N/A → **${num(it.raw.newSize)}**`;
-	const compressedCol = `${formatSize("gzip", it.gzip, { style: "markdown" })}<br>${formatSize(
-		"brotli",
-		it.brotli,
-		{ style: "markdown" },
-	)}`;
+
+	if (!showCompressed) {
+		const percent = "+0.00%";
+		return `| ${name} (added) | ${String(it.newFiles.length)} file(s) | ${sizeCol} | ${percent} |`;
+	}
+
+	const compressedCol = compressedColumn(it);
 	const percent = "+0.00%";
 
 	return `| ${name} (added) | ${String(it.newFiles.length)} file(s) | ${sizeCol} | ${compressedCol} | ${percent} |`;
 }
 
-function renderRemovedRow(it: BundleDiff): string {
+function renderRemovedRow(it: BundleDiff, showCompressed: boolean): string {
 	const name = it.name.replace(/ /g, "&nbsp;");
 	const sizeCol = `${num(it.raw.oldSize)} → N/A`;
+
+	if (!showCompressed) {
+		return `| ${name} (removed) | N/A | ${sizeCol} | N/A |`;
+	}
+
 	return `| ${name} (removed) | N/A | ${sizeCol} | N/A | N/A |`;
 }
 
-function renderUpdatedRow(it: BundleDiff): string {
+function renderUpdatedRow(it: BundleDiff, showCompressed: boolean): string {
 	const name = it.name.replace(/ /g, "&nbsp;");
 	const sizeCol = `${num(it.raw.oldSize)} → **${num(it.raw.newSize)}** (${diff(
 		it.raw.difference,
 	)})`;
-	const compressedCol = `${formatSize("gzip", it.gzip, { style: "markdown" })}<br>${formatSize(
-		"brotli",
-		it.brotli,
-		{ style: "markdown" },
-	)}`;
 	const percent = formatPercent(it.raw);
+
+	if (!showCompressed) {
+		return `| ${name} | ${String(it.newFiles.length)} file(s) | ${sizeCol} | ${percent} |`;
+	}
+
+	const compressedCol = compressedColumn(it);
 
 	return `| ${name} | ${String(it.newFiles.length)} file(s) | ${sizeCol} | ${compressedCol} | ${percent} |`;
 }
 
 export function markdownFormat(results: BundleDiff[]): string {
 	const header = "## Bundle sizes\n\n";
-	const tableHeader = "| Bundle | Files | Size | Compressed | Change |\n|---|---|---:|---:|---:|\n";
+	const showCompressed = results.some((it) => Boolean(it.gzip) || Boolean(it.brotli));
+
+	const tableHeader = showCompressed
+		? "| Bundle | Files | Size | Compressed | Change |\n|---|---|---:|---:|---:|\n"
+		: "| Bundle | Files | Size | Change |\n|---|---|---:|---:|\n";
 
 	const rows = results
 		.map((it) => {
 			switch (it.status) {
 				case "added":
-					return renderAddedRow(it);
+					return renderAddedRow(it, showCompressed);
 				case "removed":
-					return renderRemovedRow(it);
+					return renderRemovedRow(it, showCompressed);
 				case "updated":
-					return renderUpdatedRow(it);
+					return renderUpdatedRow(it, showCompressed);
 				default: {
 					const _exhaustive: never = it.status;
 					return _exhaustive;
