@@ -1,6 +1,20 @@
 import type { FileResult } from "./file-result.ts";
 
 /**
+ * Grouped sizes for a single compression/state.
+ *
+ * @public
+ */
+export interface BundleDiffSize {
+	/** New size */
+	newSize: number;
+	/** Old size */
+	oldSize: number;
+	/** Difference (new - old) */
+	difference: number;
+}
+
+/**
  * Result of comparing two bundle size results.
  *
  * @public
@@ -13,26 +27,14 @@ export interface BundleDiff {
 	/** Status of the bundle when comparing base vs current */
 	status: "added" | "removed" | "updated";
 
-	/** Old size */
-	oldSize: number;
-	/** New size */
-	newSize: number;
-	/** Difference in size (new - old) */
-	sizeDiff: number;
+	/** Uncompressed / raw sizes */
+	raw: BundleDiffSize;
 
-	/** Old gzip */
-	oldGzip: number;
-	/** New gzip */
-	newGzip: number;
-	/** Difference in gzip (new - old) */
-	gzipDiff: number;
+	/** Gzip compressed sizes */
+	gzip: BundleDiffSize;
 
-	/** Old brotli */
-	oldBrotli: number;
-	/** New brotli */
-	newBrotli: number;
-	/** Difference in brotli (new - old) */
-	brotliDiff: number;
+	/** Brotli compressed sizes */
+	brotli: BundleDiffSize;
 
 	/** Files from the base result */
 	oldFiles: FileResult[];

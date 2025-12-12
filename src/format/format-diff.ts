@@ -41,28 +41,30 @@ function markdownFormat(results: BundleDiff[]): string {
 			const name = it.name.replace(/ /g, "&nbsp;");
 
 			if (it.status === "added") {
-				const sizeCol = `N/A → **${num(it.newSize)}**`;
-				const compressedCol = `gzip: ${num(it.newGzip)}<br>brotli: ${num(it.newBrotli)}`;
+				const sizeCol = `N/A → **${num(it.raw.newSize)}**`;
+				const compressedCol = `gzip: ${num(it.gzip.newSize)}<br>brotli: ${num(it.brotli.newSize)}`;
 				const percent = "+0.00%";
 				return `| ${name} (added) | ${String(newFiles.length)} file(s) | ${sizeCol} | ${compressedCol} | ${percent} |`;
 			}
 
 			if (it.status === "removed") {
-				const sizeCol = `${num(it.oldSize)} → N/A`;
+				const sizeCol = `${num(it.raw.oldSize)} → N/A`;
 				return `| ${name} (removed) | N/A | ${sizeCol} | N/A | N/A |`;
 			}
 
-			const sizeCol = `${num(it.oldSize)} → **${num(it.newSize)}** (${diff(it.sizeDiff)})`;
-			const compressedCol = `gzip: ${num(it.newGzip)}<br>brotli: ${num(it.newBrotli)}`;
+			const sizeCol = `${num(it.raw.oldSize)} → **${num(it.raw.newSize)}** (${diff(
+				it.raw.difference,
+			)})`;
+			const compressedCol = `gzip: ${num(it.gzip.newSize)}<br>brotli: ${num(it.brotli.newSize)}`;
 
 			let percent: string;
-			if (it.oldSize === 0) {
+			if (it.raw.oldSize === 0) {
 				percent = "+0.00%";
-			} else if (it.oldSize === it.newSize) {
+			} else if (it.raw.oldSize === it.raw.newSize) {
 				percent = "-";
 			} else {
-				const pct = ((it.sizeDiff / it.oldSize) * 100).toFixed(2);
-				percent = it.sizeDiff >= 0 ? `+${pct}%` : `${pct}%`;
+				const pct = ((it.raw.difference / it.raw.oldSize) * 100).toFixed(2);
+				percent = it.raw.difference >= 0 ? `+${pct}%` : `${pct}%`;
 			}
 
 			return `| ${name} | ${String(newFiles.length)} file(s) | ${sizeCol} | ${compressedCol} | ${percent} |`;
@@ -87,9 +89,9 @@ function textFormat(results: BundleDiff[], options: FormatDiffOptions): string {
 				`files=${colorize(String(newFiles.length))} (${sign(filesDiff)}${String(
 					Math.abs(filesDiff),
 				)})`,
-				`size=${colorize(num(it.newSize))} (${diff(it.sizeDiff)})`,
-				`gzip=${colorize(num(it.newGzip))} (${diff(it.gzipDiff)})`,
-				`brotli=${colorize(num(it.newBrotli))} (${diff(it.brotliDiff)})`,
+				`size=${colorize(num(it.raw.newSize))} (${diff(it.raw.difference)})`,
+				`gzip=${colorize(num(it.gzip.newSize))} (${diff(it.gzip.difference)})`,
+				`brotli=${colorize(num(it.brotli.newSize))} (${diff(it.brotli.difference)})`,
 			];
 
 			return `${it.name}: ${parts.join(", ")}`;

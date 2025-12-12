@@ -9,4 +9,4 @@ export { type GetBundleSizeOptions, getBundleSize } from "./get-bundle-size.ts";
 export { type FileResult } from "./file-result.ts";
 export { compareBundles } from "./compare/index.ts";
 export { type BundleSize } from "./bundle-size.ts";
-export { type BundleDiff } from "./bundle-diff.ts";
+export { type BundleDiff, type BundleDiffSize } from "./bundle-diff.ts";

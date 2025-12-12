@@ -98,9 +98,9 @@ it("reports no differences for identical bundles", async () => {
 	expect(diff[0].newFiles).toEqual([expect.objectContaining({ filename: "dist/app.js" })]);
 
 	/* assert sizes are unchanged between base and current */
-	expect(diff[0].sizeDiff).toBe(0);
-	expect(diff[0].oldSize).toBe(100);
-	expect(diff[0].newSize).toBe(100);
+	expect(diff[0].raw.difference).toBe(0);
+	expect(diff[0].raw.oldSize).toBe(100);
+	expect(diff[0].raw.newSize).toBe(100);
 
 	/* snapshot results for regression checks */
 	expect(base).toMatchSnapshot("base");
@@ -193,8 +193,8 @@ it("detects added bundle via config change", async () => {
 	const libDiff = diff.find((d) => d.id === "lib");
 	if (!libDiff) throw new Error("lib diff not found");
 	expect(libDiff.status).toBe("added");
-	expect(libDiff.oldSize).toBe(0);
-	expect(libDiff.newSize).toBeGreaterThan(0);
+	expect(libDiff.raw.oldSize).toBe(0);
+	expect(libDiff.raw.newSize).toBeGreaterThan(0);
 
 	/* snapshots */
 	expect(base).toMatchSnapshot("base");
@@ -276,7 +276,7 @@ it("detects removed bundle via config change", async () => {
 	const libDiff = diff.find((d) => d.id === "lib");
 	if (!libDiff) throw new Error("lib diff not found");
 	expect(libDiff.status).toBe("removed");
-	expect(libDiff.newSize).toBe(0);
+	expect(libDiff.raw.newSize).toBe(0);
 
 	/* snapshots */
 	expect(base).toMatchSnapshot("base");
@@ -349,9 +349,9 @@ it("reports size increase when file grows", async () => {
 	expect(diff[0].newFiles).toEqual([expect.objectContaining({ filename: "dist/app.js" })]);
 
 	/* assert sizes reflect the expected growth in the current bundle */
-	expect(diff[0].sizeDiff).toBe(60);
-	expect(diff[0].oldSize).toBe(100);
-	expect(diff[0].newSize).toBe(160);
+	expect(diff[0].raw.difference).toBe(60);
+	expect(diff[0].raw.oldSize).toBe(100);
+	expect(diff[0].raw.newSize).toBe(160);
 
 	/* snapshot results for regression checks */
 	expect(base).toMatchSnapshot("base");
@@ -431,9 +431,9 @@ it("detects added file between baseline and current", async () => {
 	]);
 
 	/* assert sizes reflect the added file (increase by vendor size) */
-	expect(diff[0].sizeDiff).toBe(30);
-	expect(diff[0].oldSize).toBe(50);
-	expect(diff[0].newSize).toBe(80);
+	expect(diff[0].raw.difference).toBe(30);
+	expect(diff[0].raw.oldSize).toBe(50);
+	expect(diff[0].raw.newSize).toBe(80);
 
 	/* snapshot results for regression checks */
 	expect(base).toMatchSnapshot("base");
@@ -514,9 +514,9 @@ it("detects removed file between baseline and current", async () => {
 	expect(diff[0].newFiles).toEqual([expect.objectContaining({ filename: "dist/app.js" })]);
 
 	/* assert sizes reflect that vendor.js was removed (decrease by vendor size) */
-	expect(diff[0].sizeDiff).toBe(-30);
-	expect(diff[0].oldSize).toBe(80);
-	expect(diff[0].newSize).toBe(50);
+	expect(diff[0].raw.difference).toBe(-30);
+	expect(diff[0].raw.oldSize).toBe(80);
+	expect(diff[0].raw.newSize).toBe(50);
 
 	/* snapshot results for regression checks */
 	expect(base).toMatchSnapshot("base");
@@ -606,12 +606,12 @@ it("compares multiple bundles", async () => {
 
 	const appDiff = findDiff(diff, "app");
 	const libDiff = findDiff(diff, "lib");
-	expect(appDiff.sizeDiff).toBe(10);
-	expect(appDiff.oldSize).toBe(100);
-	expect(appDiff.newSize).toBe(110);
-	expect(libDiff.sizeDiff).toBe(-20);
-	expect(libDiff.oldSize).toBe(200);
-	expect(libDiff.newSize).toBe(180);
+	expect(appDiff.raw.difference).toBe(10);
+	expect(appDiff.raw.oldSize).toBe(100);
+	expect(appDiff.raw.newSize).toBe(110);
+	expect(libDiff.raw.difference).toBe(-20);
+	expect(libDiff.raw.oldSize).toBe(200);
+	expect(libDiff.raw.newSize).toBe(180);
 
 	/* snapshots */
 	expect(base).toMatchSnapshot("base");
@@ -690,9 +690,9 @@ it("respects exclude patterns in config", async () => {
 	expect(diff[0].newFiles).toEqual([expect.objectContaining({ filename: "dist/app.js" })]);
 
 	/* assert sizes are unchanged because vendor.js is excluded */
-	expect(diff[0].sizeDiff).toBe(0);
-	expect(diff[0].oldSize).toBe(50);
-	expect(diff[0].newSize).toBe(50);
+	expect(diff[0].raw.difference).toBe(0);
+	expect(diff[0].raw.oldSize).toBe(50);
+	expect(diff[0].raw.newSize).toBe(50);
 
 	/* snapshot results for regression checks */
 	expect(base).toMatchSnapshot("base");
@@ -769,9 +769,9 @@ it("handles empty bundles gracefully", async () => {
 	expect(current[0].files).toEqual([]);
 
 	/* sizes empty */
-	expect(diff[0].sizeDiff).toBe(0);
-	expect(diff[0].oldSize).toBe(0);
-	expect(diff[0].newSize).toBe(0);
+	expect(diff[0].raw.difference).toBe(0);
+	expect(diff[0].raw.oldSize).toBe(0);
+	expect(diff[0].raw.newSize).toBe(0);
 
 	/* snapshots */
 	expect(base).toMatchSnapshot("base");

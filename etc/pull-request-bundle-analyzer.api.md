@@ -16,20 +16,21 @@ export interface BundleConfig {
 
 // @public
 export interface BundleDiff {
-    brotliDiff: number;
-    gzipDiff: number;
+    brotli: BundleDiffSize;
+    gzip: BundleDiffSize;
     id: string;
     name: string;
-    newBrotli: number;
     newFiles: FileResult[];
-    newGzip: number;
-    newSize: number;
-    oldBrotli: number;
     oldFiles: FileResult[];
-    oldGzip: number;
-    oldSize: number;
-    sizeDiff: number;
+    raw: BundleDiffSize;
     status: "added" | "removed" | "updated";
+}
+
+// @public
+export interface BundleDiffSize {
+    difference: number;
+    newSize: number;
+    oldSize: number;
 }
 
 // @public

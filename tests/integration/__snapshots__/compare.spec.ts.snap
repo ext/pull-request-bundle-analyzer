@@ -38,11 +38,18 @@ exports[`compares multiple bundles > base 1`] = `
 exports[`compares multiple bundles > compare 1`] = `
 [
   {
-    "brotliDiff": 0,
-    "gzipDiff": 0,
+    "brotli": {
+      "difference": 0,
+      "newSize": 11,
+      "oldSize": 11,
+    },
+    "gzip": {
+      "difference": 0,
+      "newSize": 24,
+      "oldSize": 24,
+    },
     "id": "app",
     "name": "app",
-    "newBrotli": 11,
     "newFiles": [
       {
         "brotli": 11,
@@ -51,9 +58,6 @@ exports[`compares multiple bundles > compare 1`] = `
         "size": 110,
       },
     ],
-    "newGzip": 24,
-    "newSize": 110,
-    "oldBrotli": 11,
     "oldFiles": [
       {
         "brotli": 11,
@@ -62,17 +66,26 @@ exports[`compares multiple bundles > compare 1`] = `
         "size": 100,
       },
     ],
-    "oldGzip": 24,
-    "oldSize": 100,
-    "sizeDiff": 10,
+    "raw": {
+      "difference": 10,
+      "newSize": 110,
+      "oldSize": 100,
+    },
     "status": "updated",
   },
   {
-    "brotliDiff": 0,
-    "gzipDiff": 0,
+    "brotli": {
+      "difference": 0,
+      "newSize": 11,
+      "oldSize": 11,
+    },
+    "gzip": {
+      "difference": 0,
+      "newSize": 24,
+      "oldSize": 24,
+    },
     "id": "lib",
     "name": "lib",
-    "newBrotli": 11,
     "newFiles": [
       {
         "brotli": 11,
@@ -81,9 +94,6 @@ exports[`compares multiple bundles > compare 1`] = `
         "size": 180,
       },
     ],
-    "newGzip": 24,
-    "newSize": 180,
-    "oldBrotli": 11,
     "oldFiles": [
       {
         "brotli": 11,
@@ -92,9 +102,11 @@ exports[`compares multiple bundles > compare 1`] = `
         "size": 200,
       },
     ],
-    "oldGzip": 24,
-    "oldSize": 200,
-    "sizeDiff": -20,
+    "raw": {
+      "difference": -20,
+      "newSize": 180,
+      "oldSize": 200,
+    },
     "status": "updated",
   },
 ]
@@ -158,11 +170,18 @@ exports[`detects added bundle via config change > base 1`] = `
 exports[`detects added bundle via config change > compare 1`] = `
 [
   {
-    "brotliDiff": 0,
-    "gzipDiff": 0,
+    "brotli": {
+      "difference": 0,
+      "newSize": 11,
+      "oldSize": 11,
+    },
+    "gzip": {
+      "difference": 0,
+      "newSize": 24,
+      "oldSize": 24,
+    },
     "id": "app",
     "name": "app",
-    "newBrotli": 11,
     "newFiles": [
       {
         "brotli": 11,
@@ -171,9 +190,6 @@ exports[`detects added bundle via config change > compare 1`] = `
         "size": 100,
       },
     ],
-    "newGzip": 24,
-    "newSize": 100,
-    "oldBrotli": 11,
     "oldFiles": [
       {
         "brotli": 11,
@@ -182,17 +198,26 @@ exports[`detects added bundle via config change > compare 1`] = `
         "size": 100,
       },
     ],
-    "oldGzip": 24,
-    "oldSize": 100,
-    "sizeDiff": 0,
+    "raw": {
+      "difference": 0,
+      "newSize": 100,
+      "oldSize": 100,
+    },
     "status": "updated",
   },
   {
-    "brotliDiff": 11,
-    "gzipDiff": 24,
+    "brotli": {
+      "difference": 11,
+      "newSize": 11,
+      "oldSize": 0,
+    },
+    "gzip": {
+      "difference": 24,
+      "newSize": 24,
+      "oldSize": 0,
+    },
     "id": "lib",
     "name": "lib",
-    "newBrotli": 11,
     "newFiles": [
       {
         "brotli": 11,
@@ -201,13 +226,12 @@ exports[`detects added bundle via config change > compare 1`] = `
         "size": 200,
       },
     ],
-    "newGzip": 24,
-    "newSize": 200,
-    "oldBrotli": 0,
     "oldFiles": [],
-    "oldGzip": 0,
-    "oldSize": 0,
-    "sizeDiff": 200,
+    "raw": {
+      "difference": 200,
+      "newSize": 200,
+      "oldSize": 0,
+    },
     "status": "added",
   },
 ]
@@ -271,11 +295,18 @@ exports[`detects added file between baseline and current > base 1`] = `
 exports[`detects added file between baseline and current > compare 1`] = `
 [
   {
-    "brotliDiff": 10,
-    "gzipDiff": 23,
+    "brotli": {
+      "difference": 10,
+      "newSize": 21,
+      "oldSize": 11,
+    },
+    "gzip": {
+      "difference": 23,
+      "newSize": 47,
+      "oldSize": 24,
+    },
     "id": "app",
     "name": "app",
-    "newBrotli": 21,
     "newFiles": [
       {
         "brotli": 11,
@@ -290,9 +321,6 @@ exports[`detects added file between baseline and current > compare 1`] = `
         "size": 30,
       },
     ],
-    "newGzip": 47,
-    "newSize": 80,
-    "oldBrotli": 11,
     "oldFiles": [
       {
         "brotli": 11,
@@ -301,9 +329,11 @@ exports[`detects added file between baseline and current > compare 1`] = `
         "size": 50,
       },
     ],
-    "oldGzip": 24,
-    "oldSize": 50,
-    "sizeDiff": 30,
+    "raw": {
+      "difference": 30,
+      "newSize": 80,
+      "oldSize": 50,
+    },
     "status": "updated",
   },
 ]
@@ -373,11 +403,18 @@ exports[`detects removed bundle via config change > base 1`] = `
 exports[`detects removed bundle via config change > compare 1`] = `
 [
   {
-    "brotliDiff": 0,
-    "gzipDiff": 0,
+    "brotli": {
+      "difference": 0,
+      "newSize": 11,
+      "oldSize": 11,
+    },
+    "gzip": {
+      "difference": 0,
+      "newSize": 24,
+      "oldSize": 24,
+    },
     "id": "app",
     "name": "app",
-    "newBrotli": 11,
     "newFiles": [
       {
         "brotli": 11,
@@ -386,9 +423,6 @@ exports[`detects removed bundle via config change > compare 1`] = `
         "size": 100,
       },
     ],
-    "newGzip": 24,
-    "newSize": 100,
-    "oldBrotli": 11,
     "oldFiles": [
       {
         "brotli": 11,
@@ -397,21 +431,27 @@ exports[`detects removed bundle via config change > compare 1`] = `
         "size": 100,
       },
     ],
-    "oldGzip": 24,
-    "oldSize": 100,
-    "sizeDiff": 0,
+    "raw": {
+      "difference": 0,
+      "newSize": 100,
+      "oldSize": 100,
+    },
     "status": "updated",
   },
   {
-    "brotliDiff": -11,
-    "gzipDiff": -24,
+    "brotli": {
+      "difference": -11,
+      "newSize": 0,
+      "oldSize": 11,
+    },
+    "gzip": {
+      "difference": -24,
+      "newSize": 0,
+      "oldSize": 24,
+    },
     "id": "lib",
     "name": "lib",
-    "newBrotli": 0,
     "newFiles": [],
-    "newGzip": 0,
-    "newSize": 0,
-    "oldBrotli": 11,
     "oldFiles": [
       {
         "brotli": 11,
@@ -420,9 +460,11 @@ exports[`detects removed bundle via config change > compare 1`] = `
         "size": 200,
       },
     ],
-    "oldGzip": 24,
-    "oldSize": 200,
-    "sizeDiff": -200,
+    "raw": {
+      "difference": -200,
+      "newSize": 0,
+      "oldSize": 200,
+    },
     "status": "removed",
   },
 ]
@@ -477,11 +519,18 @@ exports[`detects removed file between baseline and current > base 1`] = `
 exports[`detects removed file between baseline and current > compare 1`] = `
 [
   {
-    "brotliDiff": -10,
-    "gzipDiff": -23,
+    "brotli": {
+      "difference": -10,
+      "newSize": 11,
+      "oldSize": 21,
+    },
+    "gzip": {
+      "difference": -23,
+      "newSize": 24,
+      "oldSize": 47,
+    },
     "id": "app",
     "name": "app",
-    "newBrotli": 11,
     "newFiles": [
       {
         "brotli": 11,
@@ -490,9 +539,6 @@ exports[`detects removed file between baseline and current > compare 1`] = `
         "size": 50,
       },
     ],
-    "newGzip": 24,
-    "newSize": 50,
-    "oldBrotli": 21,
     "oldFiles": [
       {
         "brotli": 11,
@@ -507,9 +553,11 @@ exports[`detects removed file between baseline and current > compare 1`] = `
         "size": 30,
       },
     ],
-    "oldGzip": 47,
-    "oldSize": 80,
-    "sizeDiff": -30,
+    "raw": {
+      "difference": -30,
+      "newSize": 50,
+      "oldSize": 80,
+    },
     "status": "updated",
   },
 ]
@@ -551,19 +599,25 @@ exports[`handles empty bundles gracefully > base 1`] = `
 exports[`handles empty bundles gracefully > compare 1`] = `
 [
   {
-    "brotliDiff": 0,
-    "gzipDiff": 0,
+    "brotli": {
+      "difference": 0,
+      "newSize": 0,
+      "oldSize": 0,
+    },
+    "gzip": {
+      "difference": 0,
+      "newSize": 0,
+      "oldSize": 0,
+    },
     "id": "empty",
     "name": "empty",
-    "newBrotli": 0,
     "newFiles": [],
-    "newGzip": 0,
-    "newSize": 0,
-    "oldBrotli": 0,
     "oldFiles": [],
-    "oldGzip": 0,
-    "oldSize": 0,
-    "sizeDiff": 0,
+    "raw": {
+      "difference": 0,
+      "newSize": 0,
+      "oldSize": 0,
+    },
     "status": "updated",
   },
 ]
@@ -605,11 +659,18 @@ exports[`reports no differences for identical bundles > base 1`] = `
 exports[`reports no differences for identical bundles > compare 1`] = `
 [
   {
-    "brotliDiff": 0,
-    "gzipDiff": 0,
+    "brotli": {
+      "difference": 0,
+      "newSize": 11,
+      "oldSize": 11,
+    },
+    "gzip": {
+      "difference": 0,
+      "newSize": 24,
+      "oldSize": 24,
+    },
     "id": "app",
     "name": "app",
-    "newBrotli": 11,
     "newFiles": [
       {
         "brotli": 11,
@@ -618,9 +679,6 @@ exports[`reports no differences for identical bundles > compare 1`] = `
         "size": 100,
       },
     ],
-    "newGzip": 24,
-    "newSize": 100,
-    "oldBrotli": 11,
     "oldFiles": [
       {
         "brotli": 11,
@@ -629,9 +687,11 @@ exports[`reports no differences for identical bundles > compare 1`] = `
         "size": 100,
       },
     ],
-    "oldGzip": 24,
-    "oldSize": 100,
-    "sizeDiff": 0,
+    "raw": {
+      "difference": 0,
+      "newSize": 100,
+      "oldSize": 100,
+    },
     "status": "updated",
   },
 ]
@@ -680,11 +740,18 @@ exports[`reports size increase when file grows > base 1`] = `
 exports[`reports size increase when file grows > compare 1`] = `
 [
   {
-    "brotliDiff": 0,
-    "gzipDiff": 0,
+    "brotli": {
+      "difference": 0,
+      "newSize": 11,
+      "oldSize": 11,
+    },
+    "gzip": {
+      "difference": 0,
+      "newSize": 24,
+      "oldSize": 24,
+    },
     "id": "app",
     "name": "app",
-    "newBrotli": 11,
     "newFiles": [
       {
         "brotli": 11,
@@ -693,9 +760,6 @@ exports[`reports size increase when file grows > compare 1`] = `
         "size": 160,
       },
     ],
-    "newGzip": 24,
-    "newSize": 160,
-    "oldBrotli": 11,
     "oldFiles": [
       {
         "brotli": 11,
@@ -704,9 +768,11 @@ exports[`reports size increase when file grows > compare 1`] = `
         "size": 100,
       },
     ],
-    "oldGzip": 24,
-    "oldSize": 100,
-    "sizeDiff": 60,
+    "raw": {
+      "difference": 60,
+      "newSize": 160,
+      "oldSize": 100,
+    },
     "status": "updated",
   },
 ]
@@ -755,11 +821,18 @@ exports[`respects exclude patterns in config > base 1`] = `
 exports[`respects exclude patterns in config > compare 1`] = `
 [
   {
-    "brotliDiff": 0,
-    "gzipDiff": 0,
+    "brotli": {
+      "difference": 0,
+      "newSize": 11,
+      "oldSize": 11,
+    },
+    "gzip": {
+      "difference": 0,
+      "newSize": 24,
+      "oldSize": 24,
+    },
     "id": "app",
     "name": "app",
-    "newBrotli": 11,
     "newFiles": [
       {
         "brotli": 11,
@@ -768,9 +841,6 @@ exports[`respects exclude patterns in config > compare 1`] = `
         "size": 50,
       },
     ],
-    "newGzip": 24,
-    "newSize": 50,
-    "oldBrotli": 11,
     "oldFiles": [
       {
         "brotli": 11,
@@ -779,9 +849,11 @@ exports[`respects exclude patterns in config > compare 1`] = `
         "size": 50,
       },
     ],
-    "oldGzip": 24,
-    "oldSize": 50,
-    "sizeDiff": 0,
+    "raw": {
+      "difference": 0,
+      "newSize": 50,
+      "oldSize": 50,
+    },
     "status": "updated",
   },
 ]
