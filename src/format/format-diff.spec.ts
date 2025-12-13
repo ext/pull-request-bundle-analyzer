@@ -1,7 +1,9 @@
-import { stripVTControlCharacters } from "node:util";
-import { describe, expect, it } from "vitest";
+import util, { stripVTControlCharacters } from "node:util";
+import { describe, expect, it, vi } from "vitest";
 import { type BundleDiff } from "../bundle-diff.ts";
 import { formatDiff } from "./format-diff.ts";
+
+vi.spyOn(util, "styleText").mockImplementation((color, text) => `<${color}>${text}</${color}>`);
 
 expect.addSnapshotSerializer({
 	test() {
@@ -73,6 +75,32 @@ const removed: BundleDiff[] = [
 		gzip: { oldSize: 120, newSize: 0, difference: -120 },
 		brotli: { oldSize: 80, newSize: 0, difference: -80 },
 		oldFiles: [{ filename: "dist/old.js", size: 200, gzip: 120, brotli: 80 }],
+		newFiles: [],
+	},
+];
+
+const addedNoCompress: BundleDiff[] = [
+	{
+		id: "new-nc",
+		name: "new-nc",
+		status: "added",
+		raw: { oldSize: 0, newSize: 150, difference: 150 },
+		gzip: null,
+		brotli: null,
+		oldFiles: [],
+		newFiles: [{ filename: "dist/new-nc.js", size: 150, gzip: null, brotli: null }],
+	},
+];
+
+const removedNoCompress: BundleDiff[] = [
+	{
+		id: "old-nc",
+		name: "old-nc",
+		status: "removed",
+		raw: { oldSize: 200, newSize: 0, difference: -200 },
+		gzip: null,
+		brotli: null,
+		oldFiles: [{ filename: "dist/old-nc.js", size: 200, gzip: null, brotli: null }],
 		newFiles: [],
 	},
 ];
@@ -156,6 +184,22 @@ const updatedMixedAlgorithms: BundleDiff[] = [
 	},
 ];
 
+const removedFiles: BundleDiff[] = [
+	{
+		id: "removed-files",
+		name: "removed-files",
+		status: "updated",
+		raw: { oldSize: 120, newSize: 110, difference: -10 },
+		gzip: null,
+		brotli: null,
+		oldFiles: [
+			{ filename: "dist/a.js", size: 60, gzip: null, brotli: null },
+			{ filename: "dist/b.js", size: 60, gzip: null, brotli: null },
+		],
+		newFiles: [{ filename: "dist/a.js", size: 110, gzip: null, brotli: null }],
+	},
+];
+
 describe("formatDiff()", () => {
 	describe("json", () => {
 		it("formats updated bundles", () => {
@@ -192,6 +236,24 @@ describe("formatDiff()", () => {
 			const out = formatDiff(updatedMixedAlgorithms, "json", { color: false });
 			const parsed = JSON.parse(out);
 			expect(parsed).toEqual(updatedMixedAlgorithms);
+		});
+
+		it("formats bundle with removed file", () => {
+			const out = formatDiff(removedFiles, "json", { color: false });
+			const parsed = JSON.parse(out);
+			expect(parsed).toEqual(removedFiles);
+		});
+
+		it("formats added bundle with no compression", () => {
+			const out = formatDiff(addedNoCompress, "json", { color: false });
+			const parsed = JSON.parse(out);
+			expect(parsed).toEqual(addedNoCompress);
+		});
+
+		it("formats removed bundle with no compression", () => {
+			const out = formatDiff(removedNoCompress, "json", { color: false });
+			const parsed = JSON.parse(out);
+			expect(parsed).toEqual(removedNoCompress);
 		});
 	});
 
@@ -267,6 +329,39 @@ describe("formatDiff()", () => {
 				| all-disabled | 0 file(s) | 30B → **40B** (+10B) | N/A | +33.33% |
 			`);
 		});
+
+		it("formats bundle with removed file", () => {
+			const out = formatDiff(removedFiles, "markdown", { color: false });
+			expect(out).toMatchInlineSnapshot(`
+				## Bundle sizes
+
+				| Bundle | Files | Size | Change |
+				|---|---|---:|---:|
+				| removed-files | 1 file(s) | 120B → **110B** (-10B) | -8.33% |
+			`);
+		});
+
+		it("formats added bundle with no compression (no compressed column)", () => {
+			const outMd = formatDiff(addedNoCompress, "markdown", { color: false });
+			expect(outMd).toMatchInlineSnapshot(`
+				## Bundle sizes
+
+				| Bundle | Files | Size | Change |
+				|---|---|---:|---:|
+				| new-nc (added) | 1 file(s) | N/A → **150B** | +0.00% |
+			`);
+		});
+
+		it("formats removed bundle with no compression (no compressed column)", () => {
+			const outMd = formatDiff(removedNoCompress, "markdown", { color: false });
+			expect(outMd).toMatchInlineSnapshot(`
+				## Bundle sizes
+
+				| Bundle | Files | Size | Change |
+				|---|---|---:|---:|
+				| old-nc (removed) | N/A | 200B → N/A | N/A |
+			`);
+		});
 	});
 
 	describe("text", () => {
@@ -315,6 +410,34 @@ describe("formatDiff()", () => {
 				all-enabled: files=0 (+0), size=130B (+10B), gzip=95B (+5B), brotli=85B (+5B)
 				brotli-only: files=0 (+0), size=75B (+5B), brotli=62B (+2B)
 				all-disabled: files=0 (+0), size=40B (+10B)
+			`);
+		});
+
+		it("formats bundle with removed file", () => {
+			const out = formatDiff(removedFiles, "text", { color: false });
+			expect(out).toMatchInlineSnapshot(`removed-files: files=1 (-1), size=110B (-10B)`);
+		});
+
+		it("formats added bundle with no compression (text)", () => {
+			const out = formatDiff(addedNoCompress, "text", { color: false });
+			expect(out).toMatchInlineSnapshot(`
+				new-nc: files=1 (+1), size=150B (+150B)
+			`);
+		});
+
+		it("formats removed bundle with no compression (text)", () => {
+			const out = formatDiff(removedNoCompress, "text", { color: false });
+			expect(out).toMatchInlineSnapshot(`
+				old-nc: removed
+			`);
+		});
+
+		it("colorize output", () => {
+			const out = formatDiff(updated, "text", { color: true });
+			expect(out).toMatchInlineSnapshot(`
+				app: files=<cyan>2</cyan> (+0), size=<cyan>100B</cyan> (+10B), gzip=<cyan>80B</cyan> (+5B), brotli=<cyan>70B</cyan> (-2B)
+				lib: files=<cyan>1</cyan> (+0), size=<cyan>200B</cyan> (+0B), gzip=<cyan>150B</cyan> (+0B), brotli=<cyan>120B</cyan> (+0B)
+				vendor: files=<cyan>1</cyan> (+0), size=<cyan>250B</cyan> (-50B), gzip=<cyan>210B</cyan> (-40B), brotli=<cyan>200B</cyan> (-30B)
 			`);
 		});
 	});

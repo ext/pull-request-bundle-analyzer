@@ -92,6 +92,8 @@ export function markdownFormat(results: BundleDiff[]): string {
 					return renderRemovedRow(it, showCompressed);
 				case "updated":
 					return renderUpdatedRow(it, showCompressed);
+				/* istanbul ignore next */
+				/* v8 ignore next -- exhaustive switch, should never come here */
 				default: {
 					const _exhaustive: never = it.status;
 					return _exhaustive;
