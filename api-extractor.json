@@ -17,7 +17,7 @@
     "enabled": true,
 
     "untrimmedFilePath": "",
-    "publicTrimmedFilePath": "<projectFolder>/dist/index.d.ts"
+    "publicTrimmedFilePath": "<projectFolder>/dist/index.d.mts"
   },
 
   "tsdocMetadata": {
