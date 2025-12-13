@@ -8,6 +8,8 @@ const ajv = new Ajv({ allErrors: true, strict: false });
 const validate = ajv.compile(schema as object);
 
 /**
+ * Read, validate and normalize config file.
+ *
  * @public
  * @param filePath - Path to config file
  * @param fs - Optional fs promises-like API to use (for testing)

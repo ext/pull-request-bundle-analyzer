@@ -105,7 +105,7 @@ export interface NormalizedConfig {
     bundles: NormalizedBundleConfig[];
 }
 
-// @public (undocumented)
+// @public
 export function readConfigFile(filePath: string, fs?: typeof nodefs): Promise<NormalizedConfig>;
 
 // (No @packageDocumentation comment for this package)
