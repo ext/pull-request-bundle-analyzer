@@ -74,6 +74,28 @@ export interface FileResult {
 }
 
 // @public
+export type Format = (typeof formats)[number];
+
+// @public
+export function formatBundle(bundles: BundleSize[], format: Format, options: FormatBundleOptions): string;
+
+// @public
+export interface FormatBundleOptions {
+    color: boolean;
+}
+
+// @public
+export function formatDiff(results: BundleDiff[], format: Format, options: FormatDiffOptions): string;
+
+// @public
+export interface FormatDiffOptions {
+    color: boolean;
+}
+
+// @public
+export const formats: readonly ["json", "markdown", "text"];
+
+// @public
 export function getBundleSize(bundle: Pick<NormalizedBundleConfig, "id" | "name" | "include" | "exclude">, options: GetBundleSizeOptions): Promise<BundleSize>;
 
 // @public (undocumented)

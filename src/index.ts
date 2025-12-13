@@ -11,3 +11,11 @@ export { type FileResult } from "./file-result.ts";
 export { compareBundle, compareBundles } from "./compare/index.ts";
 export { type BundleSize } from "./bundle-size.ts";
 export { type BundleDiff, type BundleDiffSize } from "./bundle-diff.ts";
+export {
+	type Format,
+	type FormatBundleOptions,
+	type FormatDiffOptions,
+	formatBundle,
+	formatDiff,
+	formats,
+} from "./format/index.ts";

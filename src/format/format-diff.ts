@@ -14,6 +14,15 @@ export interface FormatDiffOptions {
 	color: boolean;
 }
 
+/**
+ * Formats the bundle diff results.
+ *
+ * @public
+ * @param results - Results from `compareBundles()`.
+ * @param format - `"json"`, `"markdown"` or `"text"`.
+ * @param options - Options for formatting.
+ * @returns A string in the specified format.
+ */
 export function formatDiff(
 	results: BundleDiff[],
 	format: Format,
