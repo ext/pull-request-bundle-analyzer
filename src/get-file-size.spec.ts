@@ -66,4 +66,17 @@ describe("getFileSize", () => {
 		expect(res.gzip).toBeNull();
 		expect(res.brotli).toBeNull();
 	});
+
+	it("should handle absolute file paths", async () => {
+		const content = "x".repeat(1024);
+		const vol = Volume.fromJSON({ "/abs/foo.js": content });
+		const fs = vol.promises as unknown as typeof nodefs;
+		const compression = { gzip: true, brotli: true };
+
+		const res = await getFileSize("/abs/foo.js", { cwd, fs, compression });
+
+		expect(res.size).toBeGreaterThan(0);
+		expect(res.gzip).toBeGreaterThan(0);
+		expect(res.brotli).toBeGreaterThan(0);
+	});
 });

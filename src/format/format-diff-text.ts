@@ -33,7 +33,9 @@ function renderAddedOrUpdated(it: BundleDiff, colorize: (text: string) => string
 }
 
 export function textFormat(results: BundleDiff[], options: FormatDiffOptions): string {
-	const colorize = (text: string): string => (options.color ? util.styleText("cyan", text) : text);
+	const colorize = (text: string): string => {
+		return options.color ? util.styleText("cyan", text) : text;
+	};
 
 	return results
 		.map((it) => {
@@ -43,6 +45,8 @@ export function textFormat(results: BundleDiff[], options: FormatDiffOptions): s
 				case "added":
 				case "updated":
 					return renderAddedOrUpdated(it, colorize);
+				/* istanbul ignore next */
+				/* v8 ignore next -- exhaustive switch, should never come here */
 				default: {
 					const _exhaustive: never = it.status;
 					return _exhaustive;

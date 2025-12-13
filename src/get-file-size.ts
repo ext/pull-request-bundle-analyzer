@@ -49,12 +49,12 @@ export async function getFileSize(
 	const doGzip = compression.gzip;
 	const doBrotli = compression.brotli;
 
-	const tasks: Array<Promise<unknown>> = [];
+	const tasks: Array<Promise<void>> = [];
 
 	if (doGzip) {
 		tasks.push(
 			gzip(buf).then((gzBuf) => {
-				gzLen = Buffer.isBuffer(gzBuf) ? gzBuf.length : 0;
+				gzLen = gzBuf.length;
 			}),
 		);
 	}
@@ -62,7 +62,7 @@ export async function getFileSize(
 	if (doBrotli) {
 		tasks.push(
 			brotliCompress(buf).then((brBuf) => {
-				brLen = Buffer.isBuffer(brBuf) ? brBuf.length : 0;
+				brLen = brBuf.length;
 			}),
 		);
 	}

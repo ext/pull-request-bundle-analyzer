@@ -5,15 +5,18 @@ const paramName = "--mock-parameter";
 
 describe("parseOutput()", () => {
 	it("should parse a valid format:key string", () => {
-		expect(parseOutput("json:report", { paramName, requireFormat: true })).toEqual({
+		const result1 = parseOutput("json:report", { paramName, requireFormat: true });
+		const result2 = parseOutput("markdown:summary", { paramName, requireFormat: true });
+		const result3 = parseOutput("text:out", { paramName, requireFormat: true });
+		expect(result1).toEqual({
 			format: "json",
 			key: "report",
 		});
-		expect(parseOutput("markdown:summary", { paramName, requireFormat: true })).toEqual({
+		expect(result2).toEqual({
 			format: "markdown",
 			key: "summary",
 		});
-		expect(parseOutput("text:out", { paramName, requireFormat: true })).toEqual({
+		expect(result3).toEqual({
 			format: "text",
 			key: "out",
 		});
@@ -32,6 +35,14 @@ describe("parseOutput()", () => {
 		expect(() => parseOutput("json", { paramName, requireFormat: true })).toThrow(
 			"--mock-parameter must be in the form 'format:key'",
 		);
+	});
+
+	it("should allow missing format when requireFormat is false", () => {
+		const result = parseOutput("report", { paramName, requireFormat: false });
+		expect(result).toEqual({
+			format: undefined,
+			key: "report",
+		});
 	});
 
 	it("should throw for unsupported formats", () => {

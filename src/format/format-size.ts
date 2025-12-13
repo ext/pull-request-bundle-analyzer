@@ -33,6 +33,8 @@ export function formatSize(
 		case "markdown": {
 			return `${label}: ${formattedNum}`;
 		}
+		/* istanbul ignore next */
+		/* v8 ignore next -- exhaustive switch, should never come here */
 		default: {
 			const _exhaustive: never = style;
 			return _exhaustive;
