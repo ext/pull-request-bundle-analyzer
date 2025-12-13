@@ -50,4 +50,13 @@ export default [
 			"import/extensions": "off",
 		},
 	},
+
+	{
+		name: "local/examples",
+		files: ["examples/**/*.ts"],
+		rules: {
+			"no-console": "off",
+			"import/no-unresolved": "off",
+		},
+	},
 ];
