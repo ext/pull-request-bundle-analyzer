@@ -29,6 +29,7 @@
   "scripts": {
     "prebuild": "tsc",
     "build": "node build.mjs",
+    "postbuild": "tsc --project examples/tsconfig.json",
     "eslint": "eslint --cache .",
     "eslint:fix": "eslint --cache --fix .",
     "prettier:check": "prettier --check .",
