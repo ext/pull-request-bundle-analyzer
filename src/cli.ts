@@ -5,8 +5,7 @@ import { type ArtifactSize } from "./artifact-size.ts";
 import { compareArtifacts } from "./compare/index.ts";
 import { type Format, formatArtifact, formatDiff, formats } from "./format/index.ts";
 import { readConfigFile } from "./read-config-file.ts";
-import { readJsonFile } from "./read-json-file.ts";
-import { type ParsedOutput, parseOutput, resolve, toArray } from "./utils/index.ts";
+import { type ParsedOutput, parseOutput, readJsonFile, resolve, toArray } from "./utils/index.ts";
 
 interface CliOptions {
 	cwd: string;
