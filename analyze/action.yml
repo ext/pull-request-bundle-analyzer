@@ -16,7 +16,7 @@ inputs:
   output-file:
     description: "Path to the output file produced by the analyzer."
     required: false
-    default: "temp/bundle-size.json"
+    default: "temp/artifact-size.json"
   version:
     description: "Optional npm package version (e.g. 1.2.3). Default uses the version specified in package.json or latest if not specified."
     required: false
