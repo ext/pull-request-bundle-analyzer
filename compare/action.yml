@@ -71,11 +71,15 @@ runs:
 
     - name: Ensure base artifact exists
       shell: bash
-      run: cat "temp/base/${{ inputs.base-name }}"
+      run: |
+        tree temp/base
+        cat "temp/base/${{ inputs.base-name }}"
 
     - name: Ensure current artifact exists
       shell: bash
-      run: cat "temp/base/${{ inputs.current-name }}"
+      run: |
+        tree temp/current
+        cat "temp/base/${{ inputs.current-name }}"
 
     - id: compare
       name: Compare results and set output
