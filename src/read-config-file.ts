@@ -2,7 +2,7 @@ import nodefs from "node:fs/promises";
 import { Ajv } from "ajv";
 import schema from "../schema.json" with { type: "json" };
 import { type Config, type NormalizedConfig, normalizeConfig } from "./config/index.ts";
-import { readJsonFile } from "./read-json-file.ts";
+import { readJsonFile } from "./utils/index.ts";
 
 const ajv = new Ajv({ allErrors: true, strict: false });
 const validate = ajv.compile(schema as object);
