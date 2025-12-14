@@ -103,7 +103,7 @@ On target branch:
 
 ```yaml
 - name: Run analyzer
-  uses: ext/artifact-size-analyzer/analyze
+  uses: ext/artifact-size-analyzer/analyze@v1
   with:
     config-file: ./example-config.json
     artifact-name: base-size
@@ -113,7 +113,7 @@ On head branch:
 
 ```yaml
 - name: Run analyzer
-  uses: ext/artifact-size-analyzer/analyze
+  uses: ext/artifact-size-analyzer/analyze@v1
   with:
     config-file: ./example-config.json
     artifact-name: current-size
@@ -124,17 +124,10 @@ To compare:
 ```yaml
 - name: Compare results
   id: compare
-  uses: ext/artifact-size-analyzer/compare
+  uses: ext/artifact-size-analyzer/compare@v1
   with:
     base-artifact: base-size
     current-artifact: current-size
-```
-
-> [!TIP]
-> It is recommended to pin the action references used in workflows to the same version as the dev dependency to avoid unexpected changes.
-
-```yaml
-uses: ext/artifact-size-analyzer/analyze@1.2.3
 ```
 
 Example workflow:
@@ -168,7 +161,7 @@ jobs:
           npm run build
 
       - name: Run analyzer
-        uses: ext/artifact-size-analyzer/analyze
+        uses: ext/artifact-size-analyzer/analyze@v1
         with:
           config-file: ./example-config.json
           artifact-name: base-size
@@ -191,7 +184,7 @@ jobs:
           npm run build
 
       - name: Run analyzer (current)
-        uses: ext/artifact-size-analyzer/analyze
+        uses: ext/artifact-size-analyzer/analyze@v1
         with:
           config-file: ./example-config.json
           artifact-name: current-size
@@ -209,7 +202,7 @@ jobs:
 
       - name: Compare results
         id: compare
-        uses: ext/artifact-size-analyzer/compare
+        uses: ext/artifact-size-analyzer/compare@v1
         with:
           base-artifact: base-size
           current-artifact: current-size
