@@ -5,7 +5,14 @@ import { type ArtifactSize } from "./artifact-size.ts";
 import { compareArtifacts } from "./compare/index.ts";
 import { type Format, formatArtifact, formatDiff, formats } from "./format/index.ts";
 import { readConfigFile } from "./read-config-file.ts";
-import { type ParsedOutput, parseOutput, readJsonFile, resolve, toArray } from "./utils/index.ts";
+import {
+	type ParsedOutput,
+	parseOutput,
+	readJsonFile,
+	resolve,
+	toArray,
+	writeFile,
+} from "./utils/index.ts";
 
 interface CliOptions {
 	cwd: string;
@@ -36,13 +43,6 @@ interface CompareOptions {
 	formatOptions: { header: boolean };
 	console?: Console;
 	fs?: typeof nodefs;
-}
-
-interface WriteFileOptions {
-	cwd: string;
-	filename: string;
-	output: string;
-	fs: typeof nodefs;
 }
 
 interface WriteGithubOptions {
@@ -204,7 +204,7 @@ export async function cli(options: CliOptions): Promise<void> {
 }
 
 export async function analyze(options: AnalyzeOptions): Promise<void> {
-	const { fs = nodefs, formatOptions } = options;
+	const { cwd, fs = nodefs, formatOptions } = options;
 	const { header } = formatOptions;
 	const configPath = resolve(options.cwd, options.configFile);
 	const config = await readConfigFile(configPath, options.fs);
@@ -224,14 +224,9 @@ export async function analyze(options: AnalyzeOptions): Promise<void> {
 
 	if (options.outputFile.length > 0) {
 		for (const spec of options.outputFile) {
-			const { format, key } = spec;
+			const { format, key: filename } = spec;
 			const output = formatArtifact(results, format, { header });
-			await writeFile({
-				fs,
-				cwd: options.cwd,
-				filename: key,
-				output,
-			});
+			await writeFile(output, { fs, cwd, filename });
 		}
 	} else {
 		const console = options.console ?? globalThis.console;
@@ -253,7 +248,7 @@ export async function analyze(options: AnalyzeOptions): Promise<void> {
 }
 
 export async function compare(options: CompareOptions): Promise<void> {
-	const { fs = nodefs, formatOptions } = options;
+	const { cwd, fs = nodefs, formatOptions } = options;
 	const { header } = formatOptions;
 	const basePath = resolve(options.cwd, options.base);
 	const currentPath = resolve(options.cwd, options.current);
@@ -263,14 +258,9 @@ export async function compare(options: CompareOptions): Promise<void> {
 
 	if (options.outputFile.length > 0) {
 		for (const spec of options.outputFile) {
-			const { format, key } = spec;
+			const { format, key: filename } = spec;
 			const output = formatDiff(diff, format, { header });
-			await writeFile({
-				fs,
-				cwd: options.cwd,
-				filename: key,
-				output,
-			});
+			await writeFile(output, { fs, cwd, filename });
 		}
 	} else {
 		const console = options.console ?? globalThis.console;
@@ -289,11 +279,6 @@ export async function compare(options: CompareOptions): Promise<void> {
 			output,
 		});
 	}
-}
-
-async function writeFile({ fs, cwd, output, filename }: WriteFileOptions): Promise<void> {
-	const dst = resolve(cwd, filename);
-	await fs.writeFile(dst, output, "utf8");
 }
 
 async function writeGithub({ fs, env, key, output }: WriteGithubOptions): Promise<void> {
