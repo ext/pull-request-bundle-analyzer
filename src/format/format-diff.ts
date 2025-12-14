@@ -1,4 +1,4 @@
-import { type BundleDiff } from "../bundle-diff.ts";
+import { type ArtifactDiff } from "../artifact-diff.ts";
 import { jsonFormat } from "./format-diff-json.ts";
 import { markdownFormat } from "./format-diff-markdown.ts";
 import { textFormat } from "./format-diff-text.ts";
@@ -15,16 +15,16 @@ export interface FormatDiffOptions {
 }
 
 /**
- * Formats the bundle diff results.
+ * Formats the artifact diff results.
  *
  * @public
- * @param results - Results from `compareBundles()`.
+ * @param results - Results from `compareArtifacts()`.
  * @param format - `"json"`, `"markdown"` or `"text"`.
  * @param options - Options for formatting.
  * @returns A string in the specified format.
  */
 export function formatDiff(
-	results: BundleDiff[],
+	results: ArtifactDiff[],
 	format: Format,
 	options: FormatDiffOptions,
 ): string {

@@ -1,4 +1,4 @@
-import { getBundleSize } from "../dist/index.mjs";
+import { analyzeArtifact } from "../dist/index.mjs";
 
 /* compression algorithm options */
 const compression = {
@@ -6,15 +6,15 @@ const compression = {
 	brotli: false,
 };
 
-/* bundle configuration (similar to the configuration file) */
-const bundle = {
+/* artifact configuration (similar to the configuration file) */
+const artifact = {
 	id: "dist",
 	name: "dist",
 	include: ["dist/**/*.js"],
 	exclude: [],
 };
 
-/* analyzes the configured bundle */
-const result = await getBundleSize(bundle, { cwd: process.cwd(), compression });
+/* analyzes the configured artifact */
+const result = await analyzeArtifact(artifact, { cwd: process.cwd(), compression });
 
 console.log("Result:", result);

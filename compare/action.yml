@@ -1,4 +1,4 @@
-name: "Compare pull-request-bundle-analyzer results"
+name: "Compare artifact-size-analyzer results"
 author: David Sveningsson
 description: "Download two analyzer artifacts, run the `compare` command and save markdown output."
 
@@ -22,10 +22,10 @@ inputs:
     required: false
     default: "artifact-size.json"
   version:
-    description: "Optional npm package version (e.g. 1.2.3). If provided, runs `npx pull-request-bundle-analyzer@<version>`."
+    description: "Optional npm package version (e.g. 1.2.3). If provided, runs `npx artifact-size-analyzer@<version>`."
     required: false
   use-local:
-    description: "When set to 'true', run the local ./bin/bundle-analyzer from the repository instead of using npx. Caller must checkout the repository when using this option."
+    description: "When set to 'true', run the local ./bin/artifact-size-analyzer from the repository instead of using npx. Caller must checkout the repository when using this option."
     required: false
     default: "false"
 
@@ -61,11 +61,11 @@ runs:
       run: |
         set -euo pipefail
         if [ "${{ inputs.use-local }}" = "true" ]; then
-          CMD='node ./bin/bundle-analyzer'
+          CMD='node ./bin/artifact-size-analyzer'
         elif [ -n "${{ inputs.version }}" ]; then
-          CMD="npx pull-request-bundle-analyzer@${{ inputs.version }}"
+          CMD="npx artifact-size-analyzer@${{ inputs.version }}"
         else
-          CMD='npx pull-request-bundle-analyzer'
+          CMD='npx artifact-size-analyzer'
         fi
         echo "cmd=$CMD" | tee -a "$GITHUB_OUTPUT"
 

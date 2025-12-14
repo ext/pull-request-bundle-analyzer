@@ -1,16 +1,20 @@
 {
-  "name": "pull-request-bundle-analyzer",
+  "name": "artifact-size-analyzer",
   "version": "0.0.0",
-  "description": "A tool to analyze JavaScript bundle sizes and compare results between runs",
+  "description": "Zero-opinion tool to analyze and compare artifact sizes across branches and CI runs",
   "keywords": [
-    "pull requests",
-    "bundle"
+    "artifact",
+    "build",
+    "bundle",
+    "ci",
+    "pull-requests",
+    "size"
   ],
-  "homepage": "https://github.com/ext/pull-request-bundle-analyzer",
-  "bugs": "https://github.com/ext/pull-request-bundle-analyzer/issues",
+  "homepage": "https://github.com/ext/artifact-size-analyzer",
+  "bugs": "https://github.com/ext/artifact-size-analyzer/issues",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ext/pull-request-bundle-analyzer.git"
+    "url": "git+https://github.com/ext/artifact-size-analyzer.git"
   },
   "funding": {
     "type": "individual",

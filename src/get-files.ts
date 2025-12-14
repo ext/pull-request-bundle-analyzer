@@ -1,8 +1,8 @@
 import nodefs from "node:fs/promises";
-import { type NormalizedBundleConfig } from "./config/index.ts";
+import { type NormalizedArtifactConfig } from "./config/index.ts";
 
 interface GetFilesOptions {
-	bundle: Pick<NormalizedBundleConfig, "include" | "exclude">;
+	artifact: Pick<NormalizedArtifactConfig, "include" | "exclude">;
 	cwd: string;
 	fs?: typeof nodefs | undefined;
 }
@@ -11,8 +11,8 @@ interface GetFilesOptions {
  * @internal
  */
 export async function getFiles(options: GetFilesOptions): Promise<string[]> {
-	const { bundle, cwd, fs = nodefs } = options;
-	const { include, exclude } = bundle;
+	const { artifact, cwd, fs = nodefs } = options;
+	const { include, exclude } = artifact;
 
 	const result = new Set<string>();
 

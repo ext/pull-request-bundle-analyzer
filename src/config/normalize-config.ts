@@ -1,4 +1,4 @@
-import { type BundleConfig, type CompressionAlgorithm, type Config } from "./config.ts";
+import { type ArtifactConfig, type CompressionAlgorithm, type Config } from "./config.ts";
 import { type NormalizedConfig } from "./index.ts";
 
 function toArray<T>(value: T | T[] | undefined): T[] {
@@ -8,7 +8,7 @@ function toArray<T>(value: T | T[] | undefined): T[] {
 	return value ? [value] : [];
 }
 
-function normalizeCompression(value: BundleConfig["compression"]): CompressionAlgorithm[] {
+function normalizeCompression(value: ArtifactConfig["compression"]): CompressionAlgorithm[] {
 	if (value === undefined) {
 		return ["gzip", "brotli"];
 	}
@@ -22,9 +22,9 @@ function normalizeCompression(value: BundleConfig["compression"]): CompressionAl
  * @internal
  */
 export function normalizeConfig(config: Config): NormalizedConfig {
-	const { bundles = [] } = config;
+	const { artifacts = [] } = config;
 	return {
-		bundles: bundles.map((entry) => {
+		artifacts: artifacts.map((entry) => {
 			return {
 				id: entry.id,
 				name: entry.name,

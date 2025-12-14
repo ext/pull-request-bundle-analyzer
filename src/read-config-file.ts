@@ -26,13 +26,13 @@ export async function readConfigFile(
 		throw new Error(`Config schema validation failed: ${errText}`);
 	}
 
-	const bundles = config.bundles ?? [];
+	const artifacts = config.artifacts ?? [];
 	const seen = new Set<string>();
-	for (const bundle of bundles) {
-		if (seen.has(bundle.id)) {
-			throw new Error(`Duplicate bundle id "${bundle.id}" found in config`);
+	for (const artifact of artifacts) {
+		if (seen.has(artifact.id)) {
+			throw new Error(`Duplicate artifact id "${artifact.id}" found in config`);
 		}
-		seen.add(bundle.id);
+		seen.add(artifact.id);
 	}
 	return normalizeConfig(config);
 }

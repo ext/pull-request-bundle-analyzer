@@ -1,16 +1,16 @@
-import type { FileResult } from "./file-result.ts";
+import { type FileResult } from "./file-result.ts";
 
 /**
- * Sizes for a single bundle.
+ * Sizes for a single artifact.
  *
  * @public
  */
-export interface BundleSize {
-	/** Unique identifier for this bundle */
+export interface ArtifactSize {
+	/** Unique identifier for this artifact */
 	id: string;
-	/** Bundle name */
-	bundle: string;
-	/** Files in the bundle (detailed per-file sizes) */
+	/** Artifact name */
+	artifact: string;
+	/** Files in the artifact (detailed per-file sizes) */
 	files: FileResult[];
 	/** Size on disk (bytes) */
 	size: number;

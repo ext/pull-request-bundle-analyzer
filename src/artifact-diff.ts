@@ -5,7 +5,7 @@ import type { FileResult } from "./file-result.ts";
  *
  * @public
  */
-export interface BundleDiffSize {
+export interface ArtifactSizeDiff {
 	/** New size */
 	newSize: number;
 	/** Old size */
@@ -15,30 +15,30 @@ export interface BundleDiffSize {
 }
 
 /**
- * Result of comparing two bundle size results.
+ * Result of comparing two artifact size results.
  *
  * @public
  */
-export interface BundleDiff {
-	/** Unique identifier for this bundle */
+export interface ArtifactDiff {
+	/** Unique identifier for this artifact */
 	id: string;
-	/** Bundle name */
+	/** Artifact name */
 	name: string;
-	/** Status of the bundle when comparing base vs current */
+	/** Status of the artifact when comparing base vs current */
 	status: "added" | "removed" | "updated";
 
 	/** Uncompressed / raw sizes */
-	raw: BundleDiffSize;
+	raw: ArtifactSizeDiff;
 
 	/** Gzip compressed sizes or null if algorithm is disabled */
-	gzip: BundleDiffSize | null;
+	gzip: ArtifactSizeDiff | null;
 
 	/** Brotli compressed sizes or null if algorithm is disabled */
-	brotli: BundleDiffSize | null;
+	brotli: ArtifactSizeDiff | null;
 
 	/** Files from the base result */
 	oldFiles: FileResult[];
 
-	/** Files from the current bundle */
+	/** Files from the current artifact */
 	newFiles: FileResult[];
 }

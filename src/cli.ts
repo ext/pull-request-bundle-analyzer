@@ -1,10 +1,10 @@
 import nodefs from "node:fs/promises";
 import path from "node:path";
 import yargs from "yargs";
-import { type BundleSize } from "./bundle-size.ts";
-import { compareBundles } from "./compare/index.ts";
-import { type Format, formatBundle, formatDiff, formats } from "./format/index.ts";
-import { getBundleSize } from "./get-bundle-size.ts";
+import { analyzeArtifact } from "./analyze-artifact.ts";
+import { type ArtifactSize } from "./artifact-size.ts";
+import { compareArtifacts } from "./compare/index.ts";
+import { type Format, formatArtifact, formatDiff, formats } from "./format/index.ts";
 import { readConfigFile } from "./read-config-file.ts";
 import { readJsonFile } from "./read-json-file.ts";
 import { type ParsedOutput, parseOutput } from "./utils/index.ts";
@@ -69,11 +69,11 @@ interface WriteGithubOptions {
 export async function cli(options: CliOptions): Promise<void> {
 	const { cwd, env, argv } = options;
 	const parser = yargs(argv)
-		.scriptName("bundle-analyzer")
+		.scriptName("artifact-size-analyzer")
 		.usage("$0 <command> [options]")
 		.command(
 			"analyze",
-			"Analyze bundles from a config file",
+			"Analyze artifacts from a config file",
 			(y) =>
 				y
 					.option("config-file", {
@@ -207,12 +207,12 @@ export async function analyze(options: AnalyzeOptions): Promise<void> {
 	const configPath = resolve(options.cwd, options.configFile);
 	const config = await readConfigFile(configPath, options.fs);
 	const results = await Promise.all(
-		config.bundles.map((bundle) => {
+		config.artifacts.map((artifact) => {
 			const compression = {
-				gzip: bundle.compression.includes("gzip"),
-				brotli: bundle.compression.includes("brotli"),
+				gzip: artifact.compression.includes("gzip"),
+				brotli: artifact.compression.includes("brotli"),
 			};
-			return getBundleSize(bundle, {
+			return analyzeArtifact(artifact, {
 				cwd: options.cwd,
 				fs: options.fs,
 				compression,
@@ -223,7 +223,7 @@ export async function analyze(options: AnalyzeOptions): Promise<void> {
 	if (options.outputFile.length > 0) {
 		for (const spec of options.outputFile) {
 			const { format, key } = spec;
-			const output = formatBundle(results, format, { color: false });
+			const output = formatArtifact(results, format, { color: false });
 			await writeFile({
 				fs,
 				cwd: options.cwd,
@@ -234,13 +234,13 @@ export async function analyze(options: AnalyzeOptions): Promise<void> {
 	} else {
 		const console = options.console ?? globalThis.console;
 		const color = process.stdout.isTTY;
-		const output = formatBundle(results, options.format, { color });
+		const output = formatArtifact(results, options.format, { color });
 		console.log(output);
 	}
 
 	for (const spec of options.outputGithub) {
 		const { format: fmt, key } = spec;
-		const output = formatBundle(results, fmt, { color: false });
+		const output = formatArtifact(results, fmt, { color: false });
 		await writeGithub({
 			fs,
 			env: options.env,
@@ -254,9 +254,9 @@ export async function compare(options: CompareOptions): Promise<void> {
 	const fs = options.fs ?? nodefs;
 	const basePath = resolve(options.cwd, options.base);
 	const currentPath = resolve(options.cwd, options.current);
-	const base = (await readJsonFile(basePath, options.fs)) as BundleSize[];
-	const current = (await readJsonFile(currentPath, options.fs)) as BundleSize[];
-	const diff = compareBundles(base, current);
+	const base = (await readJsonFile(basePath, options.fs)) as ArtifactSize[];
+	const current = (await readJsonFile(currentPath, options.fs)) as ArtifactSize[];
+	const diff = compareArtifacts(base, current);
 
 	if (options.outputFile.length > 0) {
 		for (const spec of options.outputFile) {

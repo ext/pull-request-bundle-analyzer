@@ -1,6 +1,6 @@
 {
   "$schema": "./schema.json",
-  "bundles": [
+  "artifacts": [
     {
       "id": "dist",
       "name": "dist",

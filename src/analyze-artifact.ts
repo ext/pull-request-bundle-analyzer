@@ -1,13 +1,13 @@
 import type nodefs from "node:fs/promises";
-import { type BundleSize } from "./bundle-size.ts";
-import { type NormalizedBundleConfig } from "./config/index.ts";
+import { type ArtifactSize } from "./artifact-size.ts";
+import { type NormalizedArtifactConfig } from "./config/index.ts";
 import { getFileSize } from "./get-file-size.ts";
 import { getFiles } from "./get-files.ts";
 
 /**
  * @public
  */
-export interface GetBundleSizeOptions {
+export interface AnalyzeArtifactOptions {
 	/** Working directory */
 	cwd: string;
 	fs?: typeof nodefs | undefined;
@@ -16,22 +16,22 @@ export interface GetBundleSizeOptions {
 }
 
 /**
- * Get the total size of a bundle.
+ * Analyze the total size of an artifact.
  *
  * @public
- * @param bundle - Bundle config
+ * @param artifact - Artifact config
  * @param options - Options
- * @returns The total size of the bundle
+ * @returns The total size of the artifact
  */
-export async function getBundleSize(
-	bundle: Pick<NormalizedBundleConfig, "id" | "name" | "include" | "exclude">,
-	options: GetBundleSizeOptions,
-): Promise<BundleSize> {
+export async function analyzeArtifact(
+	artifact: Pick<NormalizedArtifactConfig, "id" | "name" | "include" | "exclude">,
+	options: AnalyzeArtifactOptions,
+): Promise<ArtifactSize> {
 	const { cwd, fs, compression } = options;
-	const files = await getFiles({ bundle, cwd, fs });
-	const result: BundleSize = {
-		id: bundle.id,
-		bundle: bundle.name,
+	const files = await getFiles({ artifact, cwd, fs });
+	const result: ArtifactSize = {
+		id: artifact.id,
+		artifact: artifact.name,
 		files: [],
 		size: 0,
 		gzip: 0,

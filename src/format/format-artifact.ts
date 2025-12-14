@@ -1,35 +1,35 @@
 /* eslint-disable n/no-unsupported-features/node-builtins -- styleText is backported to 22.13 */
 
 import util from "node:util";
-import { type BundleSize } from "../bundle-size.ts";
+import { type ArtifactSize } from "../artifact-size.ts";
 import { prettySize } from "../pretty-size.ts";
 import { type Format } from "./formats.ts";
 
 /**
- * Options for `formatBundle()`.
+ * Options for `formatArtifact()`.
  *
  * @public
  */
-export interface FormatBundleOptions {
+export interface FormatArtifactOptions {
 	/** Whether output should be colorized */
 	color: boolean;
 }
 
-function formatJson(bundles: BundleSize[]): string {
-	return JSON.stringify(bundles, null, 2);
+function formatJson(artifacts: ArtifactSize[]): string {
+	return JSON.stringify(artifacts, null, 2);
 }
 
 function formatMaybe(size: number | null): string {
 	return size === null ? "-" : prettySize(size);
 }
 
-function formatMarkdown(bundles: BundleSize[]): string {
-	const header = "## Bundle sizes\n\n";
-	const tableHeader = "| Bundle | Files | Size | Gzip | Brotli |\n|---|---|---:|---:|---:|\n";
-	const rows = bundles
+function formatMarkdown(artifacts: ArtifactSize[]): string {
+	const header = "## Artifact sizes\n\n";
+	const tableHeader = "| Artifact | Files | Size | Gzip | Brotli |\n|---|---|---:|---:|---:|\n";
+	const rows = artifacts
 		.map((item) => {
 			const cells = [
-				`\`${item.bundle}\``,
+				`\`${item.artifact}\``,
 				`${String(item.files.length)} file(s)`,
 				prettySize(item.size),
 				formatMaybe(item.gzip),
@@ -42,14 +42,14 @@ function formatMarkdown(bundles: BundleSize[]): string {
 	return `${header}${tableHeader}${rows}\n`;
 }
 
-function formatText(bundles: BundleSize[], options: FormatBundleOptions): string {
+function formatText(artifacts: ArtifactSize[], options: FormatArtifactOptions): string {
 	const { color } = options;
 
 	const colorize = (text: string): string => {
 		return color ? util.styleText("cyan", text) : text;
 	};
 
-	return bundles
+	return artifacts
 		.map((item) => {
 			const parts = [
 				`files=${colorize(String(item.files.length))}`,
@@ -58,7 +58,7 @@ function formatText(bundles: BundleSize[], options: FormatBundleOptions): string
 				`brotli=${colorize(formatMaybe(item.brotli))}`,
 			];
 
-			const header = `${item.bundle}: ${parts.join(", ")}`;
+			const header = `${item.artifact}: ${parts.join(", ")}`;
 
 			if (item.files.length === 0) {
 				return header;
@@ -81,24 +81,24 @@ function formatText(bundles: BundleSize[], options: FormatBundleOptions): string
 }
 
 /**
- * Format the result of the bundle analysis.
+ * Format the result of the artifact analysis.
  *
  * @public
- * @param bundles - Bundles to get results from
+ * @param artifacts - Artifacts to get results from
  * @param format - Output format
  * @returns Formatted string
  */
-export function formatBundle(
-	bundles: BundleSize[],
+export function formatArtifact(
+	artifacts: ArtifactSize[],
 	format: Format,
-	options: FormatBundleOptions,
+	options: FormatArtifactOptions,
 ): string {
 	switch (format) {
 		case "json":
-			return formatJson(bundles);
+			return formatJson(artifacts);
 		case "markdown":
-			return formatMarkdown(bundles);
+			return formatMarkdown(artifacts);
 		case "text":
-			return formatText(bundles, options);
+			return formatText(artifacts, options);
 	}
 }

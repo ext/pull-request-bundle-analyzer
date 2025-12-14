@@ -1,10 +1,10 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`compares multiple bundles > base 1`] = `
+exports[`compares multiple artifacts > base 1`] = `
 [
   {
+    "artifact": "app",
     "brotli": 11,
-    "bundle": "app",
     "files": [
       {
         "brotli": 11,
@@ -18,8 +18,8 @@ exports[`compares multiple bundles > base 1`] = `
     "size": 100,
   },
   {
+    "artifact": "lib",
     "brotli": 11,
-    "bundle": "lib",
     "files": [
       {
         "brotli": 11,
@@ -35,7 +35,7 @@ exports[`compares multiple bundles > base 1`] = `
 ]
 `;
 
-exports[`compares multiple bundles > compare 1`] = `
+exports[`compares multiple artifacts > compare 1`] = `
 [
   {
     "brotli": {
@@ -112,11 +112,11 @@ exports[`compares multiple bundles > compare 1`] = `
 ]
 `;
 
-exports[`compares multiple bundles > current 1`] = `
+exports[`compares multiple artifacts > current 1`] = `
 [
   {
+    "artifact": "app",
     "brotli": 11,
-    "bundle": "app",
     "files": [
       {
         "brotli": 11,
@@ -130,8 +130,8 @@ exports[`compares multiple bundles > current 1`] = `
     "size": 110,
   },
   {
+    "artifact": "lib",
     "brotli": 11,
-    "bundle": "lib",
     "files": [
       {
         "brotli": 11,
@@ -147,11 +147,11 @@ exports[`compares multiple bundles > current 1`] = `
 ]
 `;
 
-exports[`detects added bundle via config change > base 1`] = `
+exports[`detects added artifact via config change > base 1`] = `
 [
   {
+    "artifact": "app",
     "brotli": 11,
-    "bundle": "app",
     "files": [
       {
         "brotli": 11,
@@ -167,7 +167,7 @@ exports[`detects added bundle via config change > base 1`] = `
 ]
 `;
 
-exports[`detects added bundle via config change > compare 1`] = `
+exports[`detects added artifact via config change > compare 1`] = `
 [
   {
     "brotli": {
@@ -237,11 +237,11 @@ exports[`detects added bundle via config change > compare 1`] = `
 ]
 `;
 
-exports[`detects added bundle via config change > current 1`] = `
+exports[`detects added artifact via config change > current 1`] = `
 [
   {
+    "artifact": "app",
     "brotli": 11,
-    "bundle": "app",
     "files": [
       {
         "brotli": 11,
@@ -255,8 +255,8 @@ exports[`detects added bundle via config change > current 1`] = `
     "size": 100,
   },
   {
+    "artifact": "lib",
     "brotli": 11,
-    "bundle": "lib",
     "files": [
       {
         "brotli": 11,
@@ -275,8 +275,8 @@ exports[`detects added bundle via config change > current 1`] = `
 exports[`detects added file between baseline and current > base 1`] = `
 [
   {
+    "artifact": "app",
     "brotli": 11,
-    "bundle": "app",
     "files": [
       {
         "brotli": 11,
@@ -342,8 +342,8 @@ exports[`detects added file between baseline and current > compare 1`] = `
 exports[`detects added file between baseline and current > current 1`] = `
 [
   {
+    "artifact": "app",
     "brotli": 21,
-    "bundle": "app",
     "files": [
       {
         "brotli": 11,
@@ -365,11 +365,11 @@ exports[`detects added file between baseline and current > current 1`] = `
 ]
 `;
 
-exports[`detects removed bundle via config change > base 1`] = `
+exports[`detects removed artifact via config change > base 1`] = `
 [
   {
+    "artifact": "app",
     "brotli": 11,
-    "bundle": "app",
     "files": [
       {
         "brotli": 11,
@@ -383,8 +383,8 @@ exports[`detects removed bundle via config change > base 1`] = `
     "size": 100,
   },
   {
+    "artifact": "lib",
     "brotli": 11,
-    "bundle": "lib",
     "files": [
       {
         "brotli": 11,
@@ -400,7 +400,7 @@ exports[`detects removed bundle via config change > base 1`] = `
 ]
 `;
 
-exports[`detects removed bundle via config change > compare 1`] = `
+exports[`detects removed artifact via config change > compare 1`] = `
 [
   {
     "brotli": {
@@ -470,11 +470,11 @@ exports[`detects removed bundle via config change > compare 1`] = `
 ]
 `;
 
-exports[`detects removed bundle via config change > current 1`] = `
+exports[`detects removed artifact via config change > current 1`] = `
 [
   {
+    "artifact": "app",
     "brotli": 11,
-    "bundle": "app",
     "files": [
       {
         "brotli": 11,
@@ -493,8 +493,8 @@ exports[`detects removed bundle via config change > current 1`] = `
 exports[`detects removed file between baseline and current > base 1`] = `
 [
   {
+    "artifact": "app",
     "brotli": 21,
-    "bundle": "app",
     "files": [
       {
         "brotli": 11,
@@ -566,8 +566,8 @@ exports[`detects removed file between baseline and current > compare 1`] = `
 exports[`detects removed file between baseline and current > current 1`] = `
 [
   {
+    "artifact": "app",
     "brotli": 11,
-    "bundle": "app",
     "files": [
       {
         "brotli": 11,
@@ -583,11 +583,11 @@ exports[`detects removed file between baseline and current > current 1`] = `
 ]
 `;
 
-exports[`handles empty bundles gracefully > base 1`] = `
+exports[`handles empty artifacts gracefully > base 1`] = `
 [
   {
+    "artifact": "empty",
     "brotli": 0,
-    "bundle": "empty",
     "files": [],
     "gzip": 0,
     "id": "empty",
@@ -596,7 +596,7 @@ exports[`handles empty bundles gracefully > base 1`] = `
 ]
 `;
 
-exports[`handles empty bundles gracefully > compare 1`] = `
+exports[`handles empty artifacts gracefully > compare 1`] = `
 [
   {
     "brotli": {
@@ -623,11 +623,11 @@ exports[`handles empty bundles gracefully > compare 1`] = `
 ]
 `;
 
-exports[`handles empty bundles gracefully > current 1`] = `
+exports[`handles empty artifacts gracefully > current 1`] = `
 [
   {
+    "artifact": "empty",
     "brotli": 0,
-    "bundle": "empty",
     "files": [],
     "gzip": 0,
     "id": "empty",
@@ -636,11 +636,11 @@ exports[`handles empty bundles gracefully > current 1`] = `
 ]
 `;
 
-exports[`reports no differences for identical bundles > base 1`] = `
+exports[`reports no differences for identical artifacts > base 1`] = `
 [
   {
+    "artifact": "app",
     "brotli": 11,
-    "bundle": "app",
     "files": [
       {
         "brotli": 11,
@@ -656,7 +656,7 @@ exports[`reports no differences for identical bundles > base 1`] = `
 ]
 `;
 
-exports[`reports no differences for identical bundles > compare 1`] = `
+exports[`reports no differences for identical artifacts > compare 1`] = `
 [
   {
     "brotli": {
@@ -697,11 +697,11 @@ exports[`reports no differences for identical bundles > compare 1`] = `
 ]
 `;
 
-exports[`reports no differences for identical bundles > current 1`] = `
+exports[`reports no differences for identical artifacts > current 1`] = `
 [
   {
+    "artifact": "app",
     "brotli": 11,
-    "bundle": "app",
     "files": [
       {
         "brotli": 11,
@@ -720,8 +720,8 @@ exports[`reports no differences for identical bundles > current 1`] = `
 exports[`reports size increase when file grows > base 1`] = `
 [
   {
+    "artifact": "app",
     "brotli": 11,
-    "bundle": "app",
     "files": [
       {
         "brotli": 11,
@@ -781,8 +781,8 @@ exports[`reports size increase when file grows > compare 1`] = `
 exports[`reports size increase when file grows > current 1`] = `
 [
   {
+    "artifact": "app",
     "brotli": 11,
-    "bundle": "app",
     "files": [
       {
         "brotli": 11,
@@ -801,8 +801,8 @@ exports[`reports size increase when file grows > current 1`] = `
 exports[`respects exclude patterns in config > base 1`] = `
 [
   {
+    "artifact": "app",
     "brotli": 11,
-    "bundle": "app",
     "files": [
       {
         "brotli": 11,
@@ -862,8 +862,8 @@ exports[`respects exclude patterns in config > compare 1`] = `
 exports[`respects exclude patterns in config > current 1`] = `
 [
   {
+    "artifact": "app",
     "brotli": 11,
-    "bundle": "app",
     "files": [
       {
         "brotli": 11,

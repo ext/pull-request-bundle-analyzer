@@ -1,13 +1,13 @@
 /**
  * @public
  */
-export interface NormalizedBundleConfig {
-	/** Unique identifier for this bundle */
+export interface NormalizedArtifactConfig {
+	/** Unique identifier for this artifact */
 	id: string;
 	name: string;
 	include: string[];
 	exclude: string[];
-	/** Enabled compression algorithms for this bundle */
+	/** Enabled compression algorithms for this artifact */
 	compression: Array<"gzip" | "brotli">;
 }
 
@@ -15,5 +15,5 @@ export interface NormalizedBundleConfig {
  * @public
  */
 export interface NormalizedConfig {
-	bundles: NormalizedBundleConfig[];
+	artifacts: NormalizedArtifactConfig[];
 }

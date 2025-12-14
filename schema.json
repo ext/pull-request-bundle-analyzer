@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "pull-request-bundle-analyzer config",
+  "title": "artifact-size-analyzer config",
   "type": "object",
   "additionalProperties": false,
   "properties": {
@@ -8,7 +8,7 @@
       "description": "Part of the JSON Schema standard, this optional keyword declares the URL of the schema that the file conforms to. Editors may download the schema and use it to perform syntax highlighting.",
       "type": "string"
     },
-    "bundles": {
+    "artifacts": {
       "type": "array",
       "items": {
         "type": "object",
@@ -16,17 +16,17 @@
         "required": ["id", "name"],
         "properties": {
           "id": {
-            "description": "Unique identifier for this bundle. Must be provided and unique across bundles.",
+            "description": "Unique identifier for this artifact. Must be provided and unique across artifacts.",
             "type": "string",
             "minLength": 1
           },
           "name": {
-            "description": "The name of this bundle (displayed in the resulting reports)",
+            "description": "The name of this artifact (displayed in the resulting reports)",
             "type": "string",
             "minLength": 1
           },
           "include": {
-            "description": "Files to include for this bundle (globs supported)",
+            "description": "Files to include for this artifact (globs supported)",
             "examples": ["dist/**/*.js"],
             "anyOf": [
               { "type": "string" },
@@ -37,7 +37,7 @@
             ]
           },
           "exclude": {
-            "description": "Files to exclude for this bundle (globs supported)",
+            "description": "Files to exclude for this artifact (globs supported)",
             "examples": ["dist/vendor/**"],
             "anyOf": [
               { "type": "string" },
@@ -48,7 +48,7 @@
             ]
           },
           "compression": {
-            "description": "Enabled compression algorithms for this bundle. Can be a single algorithm string, an array of algorithms, or false to disable compression.",
+            "description": "Enabled compression algorithms for this artifact. Can be a single algorithm string, an array of algorithms, or false to disable compression.",
             "anyOf": [
               { "type": "boolean", "const": false },
               { "type": "string", "enum": ["gzip", "brotli"] },

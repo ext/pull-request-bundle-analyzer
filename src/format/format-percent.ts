@@ -1,9 +1,9 @@
-import { type BundleDiffSize } from "../bundle-diff.ts";
+import { type ArtifactSizeDiff } from "../artifact-diff.ts";
 
 /**
  * @internal
  */
-export function formatPercent({ oldSize, newSize, difference }: BundleDiffSize): string {
+export function formatPercent({ oldSize, newSize, difference }: ArtifactSizeDiff): string {
 	if (oldSize === 0) {
 		return "+0.00%";
 	}

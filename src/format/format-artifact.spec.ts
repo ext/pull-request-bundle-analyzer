@@ -1,7 +1,7 @@
 import util, { stripVTControlCharacters } from "node:util";
 import { describe, expect, it, vi } from "vitest";
-import { type BundleSize } from "../bundle-size.ts";
-import { formatBundle } from "./format-bundle.ts";
+import { type ArtifactSize } from "../artifact-size.ts";
+import { formatArtifact } from "./format-artifact.ts";
 
 vi.spyOn(util, "styleText").mockImplementation((color, text) => `<${color}>${text}</${color}>`);
 
@@ -17,7 +17,7 @@ expect.addSnapshotSerializer({
 const data = [
 	{
 		id: "app",
-		bundle: "app",
+		artifact: "app",
 		files: [
 			{ filename: "dist/a.js", size: 70, gzip: 60, brotli: 50 },
 			{ filename: "dist/b.js", size: 30, gzip: 20, brotli: 20 },
@@ -28,22 +28,22 @@ const data = [
 	},
 	{
 		id: "lib",
-		bundle: "lib",
+		artifact: "lib",
 		files: [{ filename: "dist/lib.js", size: 200, gzip: 150, brotli: 120 }],
 		size: 200,
 		gzip: 150,
 		brotli: 120,
 	},
-] satisfies BundleSize[];
+] satisfies ArtifactSize[];
 
-describe("formatResult()", () => {
+describe("formatArtifact()", () => {
 	it("formats json", () => {
-		const out = formatBundle(data, "json", { color: false });
+		const out = formatArtifact(data, "json", { color: false });
 		const parsed = JSON.parse(out);
 		expect(parsed).toEqual([
 			{
 				id: "app",
-				bundle: "app",
+				artifact: "app",
 				files: [
 					{
 						filename: "dist/a.js",
@@ -64,7 +64,7 @@ describe("formatResult()", () => {
 			},
 			{
 				id: "lib",
-				bundle: "lib",
+				artifact: "lib",
 				files: [
 					{
 						filename: "dist/lib.js",
@@ -80,11 +80,11 @@ describe("formatResult()", () => {
 		]);
 	});
 
-	it("formats bundles with no files and no compression", () => {
-		const empty: BundleSize[] = [
+	it("formats artifacts with no files and no compression", () => {
+		const empty: ArtifactSize[] = [
 			{
 				id: "empty",
-				bundle: "empty",
+				artifact: "empty",
 				files: [],
 				size: 0,
 				gzip: null,
@@ -93,30 +93,30 @@ describe("formatResult()", () => {
 		];
 
 		// json
-		const outJson = formatBundle(empty, "json", { color: false });
+		const outJson = formatArtifact(empty, "json", { color: false });
 		const parsed = JSON.parse(outJson);
 		expect(parsed).toEqual(empty);
 
 		// markdown
-		const outMd = formatBundle(empty, "markdown", { color: false });
+		const outMd = formatArtifact(empty, "markdown", { color: false });
 		expect(outMd).toMatchInlineSnapshot(`
-			## Bundle sizes
+			## Artifact sizes
 
-			| Bundle | Files | Size | Gzip | Brotli |
+			| Artifact | Files | Size | Gzip | Brotli |
 			|---|---|---:|---:|---:|
 			| \`empty\` | 0 file(s) | 0B | - | - |
 		`);
 
 		// text
-		const outText = formatBundle(empty, "text", { color: false });
+		const outText = formatArtifact(empty, "text", { color: false });
 		expect(outText).toMatchInlineSnapshot(`empty: files=0, size=0B, gzip=-, brotli=-`);
 	});
 
-	it("formats bundle with only one algorithm enabled", () => {
-		const single: BundleSize[] = [
+	it("formats artifact with only one algorithm enabled", () => {
+		const single: ArtifactSize[] = [
 			{
 				id: "single",
-				bundle: "single",
+				artifact: "single",
 				files: [{ filename: "dist/s.js", size: 100, gzip: 80, brotli: null }],
 				size: 100,
 				gzip: 80,
@@ -125,22 +125,22 @@ describe("formatResult()", () => {
 		];
 
 		// json
-		const outJson = formatBundle(single, "json", { color: false });
+		const outJson = formatArtifact(single, "json", { color: false });
 		const parsed = JSON.parse(outJson);
 		expect(parsed).toEqual(single);
 
 		// markdown
-		const outMd = formatBundle(single, "markdown", { color: false });
+		const outMd = formatArtifact(single, "markdown", { color: false });
 		expect(outMd).toMatchInlineSnapshot(`
-			## Bundle sizes
+			## Artifact sizes
 
-			| Bundle | Files | Size | Gzip | Brotli |
+			| Artifact | Files | Size | Gzip | Brotli |
 			|---|---|---:|---:|---:|
 			| \`single\` | 1 file(s) | 100B | 80B | - |
 		`);
 
 		// text
-		const outText = formatBundle(single, "text", { color: false });
+		const outText = formatArtifact(single, "text", { color: false });
 		expect(outText).toMatchInlineSnapshot(`
 			single: files=1, size=100B, gzip=80B, brotli=-
 			 └ dist/s.js size=100B, gzip=80B, brotli=-
@@ -148,11 +148,11 @@ describe("formatResult()", () => {
 	});
 
 	it("formats markdown", () => {
-		const out = formatBundle(data, "markdown", { color: false });
+		const out = formatArtifact(data, "markdown", { color: false });
 		expect(out).toMatchInlineSnapshot(`
-			## Bundle sizes
+			## Artifact sizes
 
-			| Bundle | Files | Size | Gzip | Brotli |
+			| Artifact | Files | Size | Gzip | Brotli |
 			|---|---|---:|---:|---:|
 			| \`app\` | 2 file(s) | 100B | 80B | 70B |
 			| \`lib\` | 1 file(s) | 200B | 150B | 120B |
@@ -160,7 +160,7 @@ describe("formatResult()", () => {
 	});
 
 	it("formats text", () => {
-		const out = formatBundle(data, "text", { color: false });
+		const out = formatArtifact(data, "text", { color: false });
 		expect(out).toMatchInlineSnapshot(`
 			app: files=2, size=100B, gzip=80B, brotli=70B
 			 ├ dist/a.js size=70B, gzip=60B, brotli=50B
@@ -171,7 +171,7 @@ describe("formatResult()", () => {
 	});
 
 	it("should colorize text output", () => {
-		const out = formatBundle(data, "text", { color: true });
+		const out = formatArtifact(data, "text", { color: true });
 		expect(out).toMatchInlineSnapshot(`
 			app: files=<cyan>2</cyan>, size=<cyan>100B</cyan>, gzip=<cyan>80B</cyan>, brotli=<cyan>70B</cyan>
 			 ├ dist/a.js size=<cyan>70B</cyan>, gzip=<cyan>60B</cyan>, brotli=<cyan>50B</cyan>

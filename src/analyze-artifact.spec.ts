@@ -1,18 +1,18 @@
 import nodefs from "node:fs/promises";
 import { Volume } from "memfs";
 import { describe, expect, it } from "vitest";
-import { type NormalizedBundleConfig } from "./config/index.ts";
-import { getBundleSize } from "./get-bundle-size.ts";
+import { analyzeArtifact } from "./analyze-artifact.ts";
+import { type NormalizedArtifactConfig } from "./config/index.ts";
 
 const cwd = "/";
 
-describe("getBundleSize()", () => {
+describe("analyzeArtifact()", () => {
 	it("aggregates sizes from single files", async () => {
 		const a = "a".repeat(2000);
 		const vol = Volume.fromJSON({ "/dist/a.js": a });
 		const fs = vol.promises as unknown as typeof nodefs;
 
-		const bundle: Pick<NormalizedBundleConfig, "id" | "name" | "include" | "exclude"> = {
+		const artifact: Pick<NormalizedArtifactConfig, "id" | "name" | "include" | "exclude"> = {
 			id: "app",
 			name: "app",
 			include: ["dist/*.js"],
@@ -20,7 +20,7 @@ describe("getBundleSize()", () => {
 		};
 
 		const compression = { gzip: true, brotli: true };
-		const result = await getBundleSize(bundle, { cwd, fs, compression });
+		const result = await analyzeArtifact(artifact, { cwd, fs, compression });
 
 		/* aggregated results */
 		expect(result.size).toEqual(2000);
@@ -43,7 +43,7 @@ describe("getBundleSize()", () => {
 		const vol = Volume.fromJSON({ "/dist/a.js": a });
 		const fs = vol.promises as unknown as typeof nodefs;
 
-		const bundle: Pick<NormalizedBundleConfig, "id" | "name" | "include" | "exclude"> = {
+		const artifact: Pick<NormalizedArtifactConfig, "id" | "name" | "include" | "exclude"> = {
 			id: "brotli-only",
 			name: "brotli-only",
 			include: ["dist/*.js"],
@@ -51,7 +51,7 @@ describe("getBundleSize()", () => {
 		};
 
 		const compression = { gzip: false, brotli: true };
-		const result = await getBundleSize(bundle, { cwd, fs, compression });
+		const result = await analyzeArtifact(artifact, { cwd, fs, compression });
 
 		expect(result.size).toEqual(2000);
 		expect(result.gzip).toBeNull();
@@ -68,7 +68,7 @@ describe("getBundleSize()", () => {
 		const vol = Volume.fromJSON({ "/dist/a.js": a });
 		const fs = vol.promises as unknown as typeof nodefs;
 
-		const bundle: Pick<NormalizedBundleConfig, "id" | "name" | "include" | "exclude"> = {
+		const artifact: Pick<NormalizedArtifactConfig, "id" | "name" | "include" | "exclude"> = {
 			id: "gzip-only",
 			name: "gzip-only",
 			include: ["dist/*.js"],
@@ -76,7 +76,7 @@ describe("getBundleSize()", () => {
 		};
 
 		const compression = { gzip: true, brotli: false };
-		const result = await getBundleSize(bundle, { cwd, fs, compression });
+		const result = await analyzeArtifact(artifact, { cwd, fs, compression });
 
 		expect(result.size).toEqual(2000);
 		expect(result.gzip).toBeGreaterThan(0);
@@ -93,7 +93,7 @@ describe("getBundleSize()", () => {
 		const vol = Volume.fromJSON({ "/dist/a.js": a });
 		const fs = vol.promises as unknown as typeof nodefs;
 
-		const bundle: Pick<NormalizedBundleConfig, "id" | "name" | "include" | "exclude"> = {
+		const artifact: Pick<NormalizedArtifactConfig, "id" | "name" | "include" | "exclude"> = {
 			id: "none",
 			name: "none",
 			include: ["dist/*.js"],
@@ -101,7 +101,7 @@ describe("getBundleSize()", () => {
 		};
 
 		const compression = { gzip: false, brotli: false };
-		const result = await getBundleSize(bundle, { cwd, fs, compression });
+		const result = await analyzeArtifact(artifact, { cwd, fs, compression });
 
 		expect(result.size).toEqual(2000);
 		expect(result.gzip).toBeNull();
@@ -119,7 +119,7 @@ describe("getBundleSize()", () => {
 		const vol = Volume.fromJSON({ "/dist/a.js": a, "/dist/b.js": b });
 		const fs = vol.promises as unknown as typeof nodefs;
 
-		const bundle: Pick<NormalizedBundleConfig, "id" | "name" | "include" | "exclude"> = {
+		const artifact: Pick<NormalizedArtifactConfig, "id" | "name" | "include" | "exclude"> = {
 			id: "app",
 			name: "app",
 			include: ["dist/*.js"],
@@ -127,7 +127,7 @@ describe("getBundleSize()", () => {
 		};
 
 		const compression = { gzip: true, brotli: true };
-		const result = await getBundleSize(bundle, { cwd, fs, compression });
+		const result = await analyzeArtifact(artifact, { cwd, fs, compression });
 
 		/* aggregated results */
 		expect(result.size).toEqual(5000);
@@ -154,7 +154,7 @@ describe("getBundleSize()", () => {
 		const vol = Volume.fromJSON({});
 		const fs = vol.promises as unknown as typeof nodefs;
 
-		const bundle: Pick<NormalizedBundleConfig, "id" | "name" | "include" | "exclude"> = {
+		const artifact: Pick<NormalizedArtifactConfig, "id" | "name" | "include" | "exclude"> = {
 			id: "empty",
 			name: "empty",
 			include: [],
@@ -162,10 +162,10 @@ describe("getBundleSize()", () => {
 		};
 
 		const compression = { gzip: true, brotli: true };
-		const result = await getBundleSize(bundle, { cwd, fs, compression });
+		const result = await analyzeArtifact(artifact, { cwd, fs, compression });
 		expect(result).toEqual({
 			id: "empty",
-			bundle: "empty",
+			artifact: "empty",
 			files: [],
 			size: 0,
 			gzip: 0,

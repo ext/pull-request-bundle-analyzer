@@ -1,4 +1,4 @@
-import { type BundleDiff } from "../bundle-diff.ts";
+import { type ArtifactDiff } from "../artifact-diff.ts";
 import { prettySize } from "../pretty-size.ts";
 import { formatPercent } from "./format-percent.ts";
 import { formatSize } from "./format-size.ts";
@@ -15,7 +15,7 @@ function diff(value: number): string {
 	return `${sign(value)}${prettySize(Math.abs(value))}`;
 }
 
-function compressedColumn(it: BundleDiff): string {
+function compressedColumn(it: ArtifactDiff): string {
 	const parts: string[] = [];
 
 	if (it.gzip !== null) {
@@ -33,7 +33,7 @@ function compressedColumn(it: BundleDiff): string {
 	return parts.join("<br>");
 }
 
-function renderAddedRow(it: BundleDiff, showCompressed: boolean): string {
+function renderAddedRow(it: ArtifactDiff, showCompressed: boolean): string {
 	const name = it.name.replace(/ /g, "&nbsp;");
 	const sizeCol = `N/A → **${num(it.raw.newSize)}**`;
 
@@ -48,7 +48,7 @@ function renderAddedRow(it: BundleDiff, showCompressed: boolean): string {
 	return `| ${name} (added) | ${String(it.newFiles.length)} file(s) | ${sizeCol} | ${compressedCol} | ${percent} |`;
 }
 
-function renderRemovedRow(it: BundleDiff, showCompressed: boolean): string {
+function renderRemovedRow(it: ArtifactDiff, showCompressed: boolean): string {
 	const name = it.name.replace(/ /g, "&nbsp;");
 	const sizeCol = `${num(it.raw.oldSize)} → N/A`;
 
@@ -59,7 +59,7 @@ function renderRemovedRow(it: BundleDiff, showCompressed: boolean): string {
 	return `| ${name} (removed) | N/A | ${sizeCol} | N/A | N/A |`;
 }
 
-function renderUpdatedRow(it: BundleDiff, showCompressed: boolean): string {
+function renderUpdatedRow(it: ArtifactDiff, showCompressed: boolean): string {
 	const name = it.name.replace(/ /g, "&nbsp;");
 	const sizeCol = `${num(it.raw.oldSize)} → **${num(it.raw.newSize)}** (${diff(
 		it.raw.difference,
@@ -75,13 +75,13 @@ function renderUpdatedRow(it: BundleDiff, showCompressed: boolean): string {
 	return `| ${name} | ${String(it.newFiles.length)} file(s) | ${sizeCol} | ${compressedCol} | ${percent} |`;
 }
 
-export function markdownFormat(results: BundleDiff[]): string {
-	const header = "## Bundle sizes\n\n";
+export function markdownFormat(results: ArtifactDiff[]): string {
+	const header = "## Artifact sizes\n\n";
 	const showCompressed = results.some((it) => Boolean(it.gzip) || Boolean(it.brotli));
 
 	const tableHeader = showCompressed
-		? "| Bundle | Files | Size | Compressed | Change |\n|---|---|---:|---:|---:|\n"
-		: "| Bundle | Files | Size | Change |\n|---|---|---:|---:|\n";
+		? "| Artifact | Files | Size | Compressed | Change |\n|---|---|---:|---:|---:|\n"
+		: "| Artifact | Files | Size | Change |\n|---|---|---:|---:|\n";
 
 	const rows = results
 		.map((it) => {

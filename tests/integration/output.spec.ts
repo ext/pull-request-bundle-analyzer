@@ -22,8 +22,8 @@ function createConsole(): { stream: WritableStreamBuffer; console: Console } {
 it("should write to GitHub Actions output when --output-github is provided", async () => {
 	const { stream, console } = createConsole();
 	const { fs } = await createVolume({
-		"/project/bundle-config.json": JSON.stringify({
-			bundles: [{ id: "app", name: "app", include: "dist/**/*.js" }],
+		"/project/artifact-config.json": JSON.stringify({
+			artifacts: [{ id: "app", name: "app", include: "dist/**/*.js" }],
 		}),
 	});
 	await fs.writeFile("/project/dist/app.js", "a".repeat(50));
@@ -34,7 +34,7 @@ it("should write to GitHub Actions output when --output-github is provided", asy
 		env: {
 			GITHUB_OUTPUT: "/gha_out.txt",
 		},
-		configFile: "bundle-config.json",
+		configFile: "artifact-config.json",
 		format: "json",
 		outputFile: [],
 		outputGithub: [{ format: "json", key: "foo" }],
@@ -50,7 +50,7 @@ it("should write to GitHub Actions output when --output-github is provided", asy
 		"[
 		  {
 		    "id": "app",
-		    "bundle": "app",
+		    "artifact": "app",
 		    "files": [
 		      {
 		        "filename": "dist/app.js",
@@ -71,8 +71,8 @@ it("should write to GitHub Actions output when --output-github is provided", asy
 it("should write multiple GitHub outputs when multiple --output-github are provided", async () => {
 	const { stream, console } = createConsole();
 	const { fs } = await createVolume({
-		"/project/bundle-config.json": JSON.stringify({
-			bundles: [{ id: "app", name: "app", include: "dist/**/*.js" }],
+		"/project/artifact-config.json": JSON.stringify({
+			artifacts: [{ id: "app", name: "app", include: "dist/**/*.js" }],
 		}),
 	});
 	await fs.writeFile("/project/dist/app.js", "c".repeat(40));
@@ -83,7 +83,7 @@ it("should write multiple GitHub outputs when multiple --output-github are provi
 		env: {
 			GITHUB_OUTPUT: "/gha_out.txt",
 		},
-		configFile: "bundle-config.json",
+		configFile: "artifact-config.json",
 		format: "json",
 		outputFile: [],
 		outputGithub: [
@@ -104,7 +104,7 @@ it("should write multiple GitHub outputs when multiple --output-github are provi
 		"[
 		  {
 		    "id": "app",
-		    "bundle": "app",
+		    "artifact": "app",
 		    "files": [
 		      {
 		        "filename": "dist/app.js",
@@ -125,8 +125,8 @@ it("should write multiple GitHub outputs when multiple --output-github are provi
 it("should silently do nothing when --output-github is provided but GITHUB_OUTPUT is not set", async () => {
 	const { stream, console } = createConsole();
 	const { fs } = await createVolume({
-		"/project/bundle-config.json": JSON.stringify({
-			bundles: [{ id: "app", name: "app", include: "dist/**/*.js" }],
+		"/project/artifact-config.json": JSON.stringify({
+			artifacts: [{ id: "app", name: "app", include: "dist/**/*.js" }],
 		}),
 	});
 	await fs.writeFile("/project/dist/app.js", "b".repeat(30));
@@ -135,7 +135,7 @@ it("should silently do nothing when --output-github is provided but GITHUB_OUTPU
 		analyze({
 			cwd: "/project",
 			env: {},
-			configFile: "bundle-config.json",
+			configFile: "artifact-config.json",
 			format: "json",
 			outputFile: [],
 			outputGithub: [{ format: "json", key: "foo" }],
@@ -150,7 +150,7 @@ it("should silently do nothing when --output-github is provided but GITHUB_OUTPU
 		"[
 		  {
 		    "id": "app",
-		    "bundle": "app",
+		    "artifact": "app",
 		    "files": [
 		      {
 		        "filename": "dist/app.js",

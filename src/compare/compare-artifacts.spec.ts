@@ -1,20 +1,20 @@
 import { describe, expect, it } from "vitest";
-import { type BundleSize } from "../bundle-size.ts";
-import { compareBundles } from "./compare-bundles.ts";
+import { type ArtifactSize } from "../artifact-size.ts";
+import { compareArtifacts } from "./compare-artifacts.ts";
 
 const base = [
-	{ id: "app", bundle: "app", files: [], size: 1000, gzip: 300, brotli: 200 },
-	{ id: "lib", bundle: "lib", files: [], size: 2000, gzip: 800, brotli: 600 },
-] satisfies BundleSize[];
+	{ id: "app", artifact: "app", files: [], size: 1000, gzip: 300, brotli: 200 },
+	{ id: "lib", artifact: "lib", files: [], size: 2000, gzip: 800, brotli: 600 },
+] satisfies ArtifactSize[];
 
 const current = [
-	{ id: "app", bundle: "app", files: [], size: 1100, gzip: 320, brotli: 210 },
-	{ id: "lib", bundle: "lib", files: [], size: 1900, gzip: 790, brotli: 590 },
-] satisfies BundleSize[];
+	{ id: "app", artifact: "app", files: [], size: 1100, gzip: 320, brotli: 210 },
+	{ id: "lib", artifact: "lib", files: [], size: 1900, gzip: 790, brotli: 590 },
+] satisfies ArtifactSize[];
 
-describe("compareBundles()", () => {
-	it("should compare two bundles", () => {
-		const res = compareBundles(base, current);
+describe("compareArtifacts()", () => {
+	it("should compare two artifacts", () => {
+		const res = compareArtifacts(base, current);
 		expect(res).toEqual([
 			{
 				id: "app",

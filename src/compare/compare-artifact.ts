@@ -1,13 +1,13 @@
-import type { BundleDiff, BundleDiffSize } from "../bundle-diff.ts";
-import type { BundleSize } from "../bundle-size.ts";
+import { type ArtifactDiff, type ArtifactSizeDiff } from "../artifact-diff.ts";
+import { type ArtifactSize } from "../artifact-size.ts";
 
-function compareUpdated(base: BundleSize, current: BundleSize): BundleDiff {
-	const raw: BundleDiffSize = {
+function compareUpdated(base: ArtifactSize, current: ArtifactSize): ArtifactDiff {
+	const raw: ArtifactSizeDiff = {
 		oldSize: base.size,
 		newSize: current.size,
 		difference: current.size - base.size,
 	};
-	let gzip: BundleDiffSize | null;
+	let gzip: ArtifactSizeDiff | null;
 	if (base.gzip === null || current.gzip === null) {
 		gzip = null;
 	} else {
@@ -18,7 +18,7 @@ function compareUpdated(base: BundleSize, current: BundleSize): BundleDiff {
 		};
 	}
 
-	let brotli: BundleDiffSize | null;
+	let brotli: ArtifactSizeDiff | null;
 	if (base.brotli === null || current.brotli === null) {
 		brotli = null;
 	} else {
@@ -31,7 +31,7 @@ function compareUpdated(base: BundleSize, current: BundleSize): BundleDiff {
 	return {
 		status: "updated",
 		id: current.id,
-		name: current.bundle,
+		name: current.artifact,
 		raw,
 		gzip,
 		brotli,
@@ -40,13 +40,13 @@ function compareUpdated(base: BundleSize, current: BundleSize): BundleDiff {
 	};
 }
 
-function compareAdded(current: BundleSize): BundleDiff {
-	const raw: BundleDiffSize = {
+function compareAdded(current: ArtifactSize): ArtifactDiff {
+	const raw: ArtifactSizeDiff = {
 		oldSize: 0,
 		newSize: current.size,
 		difference: current.size,
 	};
-	let gzip: BundleDiffSize | null;
+	let gzip: ArtifactSizeDiff | null;
 	if (current.gzip === null) {
 		gzip = null;
 	} else {
@@ -57,7 +57,7 @@ function compareAdded(current: BundleSize): BundleDiff {
 		};
 	}
 
-	let brotli: BundleDiffSize | null;
+	let brotli: ArtifactSizeDiff | null;
 	if (current.brotli === null) {
 		brotli = null;
 	} else {
@@ -70,7 +70,7 @@ function compareAdded(current: BundleSize): BundleDiff {
 	return {
 		status: "added",
 		id: current.id,
-		name: current.bundle,
+		name: current.artifact,
 		raw,
 		gzip,
 		brotli,
@@ -79,13 +79,13 @@ function compareAdded(current: BundleSize): BundleDiff {
 	};
 }
 
-function compareRemoved(base: BundleSize): BundleDiff {
-	const raw: BundleDiffSize = {
+function compareRemoved(base: ArtifactSize): ArtifactDiff {
+	const raw: ArtifactSizeDiff = {
 		oldSize: base.size,
 		newSize: 0,
 		difference: -base.size,
 	};
-	let gzip: BundleDiffSize | null;
+	let gzip: ArtifactSizeDiff | null;
 	if (base.gzip === null) {
 		gzip = null;
 	} else {
@@ -96,7 +96,7 @@ function compareRemoved(base: BundleSize): BundleDiff {
 		};
 	}
 
-	let brotli: BundleDiffSize | null;
+	let brotli: ArtifactSizeDiff | null;
 	if (base.brotli === null) {
 		brotli = null;
 	} else {
@@ -109,7 +109,7 @@ function compareRemoved(base: BundleSize): BundleDiff {
 	return {
 		status: "removed",
 		id: base.id,
-		name: base.bundle,
+		name: base.artifact,
 		raw,
 		gzip,
 		brotli,
@@ -121,7 +121,7 @@ function compareRemoved(base: BundleSize): BundleDiff {
 /* eslint-disable @typescript-eslint/unified-signatures -- false positive */
 
 /**
- * Compare two bundles and return the size difference.
+ * Compare two artifacts and return the size difference.
  *
  * The returned values are computed as `current - base` for each metric. The
  * returned object also contains the `files` array copied from the `current`
@@ -129,10 +129,10 @@ function compareRemoved(base: BundleSize): BundleDiff {
  *
  * @public
  */
-export function compareBundle(base: BundleSize, current: BundleSize): BundleDiff;
+export function compareArtifact(base: ArtifactSize, current: ArtifactSize): ArtifactDiff;
 
 /**
- * Compare two bundles and return the size difference.
+ * Compare two artifacts and return the size difference.
  *
  * The returned values are computed as `current - base` for each metric. The
  * returned object also contains the `files` array copied from the `current`
@@ -141,10 +141,10 @@ export function compareBundle(base: BundleSize, current: BundleSize): BundleDiff
  * @public
  */
 
-export function compareBundle(base: BundleSize, current: undefined): BundleDiff;
+export function compareArtifact(base: ArtifactSize, current: undefined): ArtifactDiff;
 
 /**
- * Compare two bundles and return the size difference.
+ * Compare two artifacts and return the size difference.
  *
  * The returned values are computed as `current - base` for each metric. The
  * returned object also contains the `files` array copied from the `current`
@@ -153,12 +153,12 @@ export function compareBundle(base: BundleSize, current: undefined): BundleDiff;
  * @public
  */
 
-export function compareBundle(base: undefined, current: BundleSize): BundleDiff;
+export function compareArtifact(base: undefined, current: ArtifactSize): ArtifactDiff;
 
 /* eslint-enable @typescript-eslint/unified-signatures */
-export function compareBundle(
-	...args: [BundleSize, BundleSize] | [undefined, BundleSize] | [BundleSize, undefined]
-): BundleDiff {
+export function compareArtifact(
+	...args: [ArtifactSize, ArtifactSize] | [undefined, ArtifactSize] | [ArtifactSize, undefined]
+): ArtifactDiff {
 	const [base, current] = args;
 
 	if (base && current) {

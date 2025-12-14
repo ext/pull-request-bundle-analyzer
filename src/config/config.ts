@@ -6,18 +6,18 @@ export type CompressionAlgorithm = "gzip" | "brotli";
 /**
  * @public
  */
-export interface BundleConfig {
-	/** Unique identifier for this bundle */
+export interface ArtifactConfig {
+	/** Unique identifier for this artifact */
 	id: string;
-	/** The name of this bundle (displayed in the resulting reports) */
+	/** The name of this artifact (displayed in the resulting reports) */
 	name: string;
-	/** Files to include for this bundle (globs supported) */
+	/** Files to include for this artifact (globs supported) */
 	include?: string | string[];
-	/** Files to exclude for this bundle (globs supported) */
+	/** Files to exclude for this artifact (globs supported) */
 	exclude?: string | string[];
 
 	/**
-	 * Enabled compression algorithms for this bundle.
+	 * Enabled compression algorithms for this artifact.
 	 *
 	 * Accepts:
 	 * - an array of algorithms (e.g. `["gzip"]`)
@@ -33,5 +33,6 @@ export interface BundleConfig {
  * @public
  */
 export interface Config {
-	bundles?: BundleConfig[];
+	/** Build artifacts to analyze. */
+	artifacts?: ArtifactConfig[];
 }

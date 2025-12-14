@@ -1,4 +1,4 @@
-import { type BundleDiffSize } from "../bundle-diff.ts";
+import { type ArtifactSizeDiff } from "../artifact-diff.ts";
 import { prettySize } from "../pretty-size.ts";
 
 /**
@@ -16,7 +16,7 @@ export interface FormatSizeOptions {
  */
 export function formatSize(
 	label: string,
-	size: BundleDiffSize,
+	size: ArtifactSizeDiff,
 	options: FormatSizeOptions,
 ): string {
 	const { style, colorize } = options;

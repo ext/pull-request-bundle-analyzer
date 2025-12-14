@@ -3,8 +3,8 @@ import type nodefs from "node:fs/promises";
 import { Volume } from "memfs";
 import { WritableStreamBuffer } from "stream-buffers";
 import { expect, it } from "vitest";
-import { BundleDiff } from "../../src/bundle-diff.ts";
-import { BundleSize } from "../../src/bundle-size.ts";
+import { ArtifactDiff } from "../../src/artifact-diff.ts";
+import { type ArtifactSize } from "../../src/artifact-size.ts";
 import { analyze, compare } from "../../src/cli.ts";
 import { type Config } from "../../src/config/index.ts";
 
@@ -29,7 +29,7 @@ async function readJsonFile<T = unknown>(fs: typeof nodefs, filePath: string): P
 
 function makeConfig(): Config {
 	return {
-		bundles: [
+		artifacts: [
 			{
 				id: "app",
 				name: "app",
@@ -39,10 +39,10 @@ function makeConfig(): Config {
 	};
 }
 
-it("reports no differences for identical bundles", async () => {
+it("reports no differences for identical artifacts", async () => {
 	const { stream, console } = createConsole();
 	const { fs } = await createVolume({
-		"/project/bundle-config.json": JSON.stringify(makeConfig()),
+		"/project/artifact-config.json": JSON.stringify(makeConfig()),
 	});
 
 	/* baseline */
@@ -50,7 +50,7 @@ it("reports no differences for identical bundles", async () => {
 	await analyze({
 		cwd: "/project",
 		env: {},
-		configFile: "bundle-config.json",
+		configFile: "artifact-config.json",
 		outputFile: [{ format: "json", key: "temp/base.json" }],
 		outputGithub: [],
 		format: "json",
@@ -63,7 +63,7 @@ it("reports no differences for identical bundles", async () => {
 	await analyze({
 		cwd: "/project",
 		env: {},
-		configFile: "bundle-config.json",
+		configFile: "artifact-config.json",
 		outputFile: [{ format: "json", key: "temp/current.json" }],
 		outputGithub: [],
 		format: "json",
@@ -82,11 +82,11 @@ it("reports no differences for identical bundles", async () => {
 		fs,
 	});
 
-	const base = await readJsonFile<BundleSize[]>(fs, "/project/temp/base.json");
-	const current = await readJsonFile<BundleSize[]>(fs, "/project/temp/current.json");
-	const diff = await readJsonFile<BundleDiff[]>(fs, "/project/temp/diff.json");
+	const base = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/base.json");
+	const current = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/current.json");
+	const diff = await readJsonFile<ArtifactDiff[]>(fs, "/project/temp/diff.json");
 
-	/* assert returned bundle counts are correct */
+	/* assert returned artifact counts are correct */
 	expect(base).toHaveLength(1);
 	expect(current).toHaveLength(1);
 	expect(diff).toHaveLength(1);
@@ -112,21 +112,21 @@ it("reports no differences for identical bundles", async () => {
 	expect(stdout).toMatchInlineSnapshot(`false`);
 });
 
-it("detects added bundle via config change", async () => {
+it("detects added artifact via config change", async () => {
 	const { stream, console } = createConsole();
 	const { fs } = await createVolume({
-		"/project/bundle-config.json": JSON.stringify({
-			bundles: [{ id: "app", name: "app", include: "dist/app/**/*.js" }],
+		"/project/artifact-config.json": JSON.stringify({
+			artifacts: [{ id: "app", name: "app", include: "dist/app/**/*.js" }],
 		}),
 	});
 
-	/* baseline with single bundle (app) */
+	/* baseline with single artifact (app) */
 	await fs.mkdir("/project/dist/app", { recursive: true });
 	await fs.writeFile("/project/dist/app/app.js", "a".repeat(100));
 	await analyze({
 		cwd: "/project",
 		env: {},
-		configFile: "bundle-config.json",
+		configFile: "artifact-config.json",
 		outputFile: [{ format: "json", key: "temp/base.json" }],
 		outputGithub: [],
 		format: "json",
@@ -134,25 +134,25 @@ it("detects added bundle via config change", async () => {
 		console,
 	});
 
-	/* update config to add a second bundle (lib) and write files */
+	/* update config to add a second artifact (lib) and write files */
 	await fs.mkdir("/project/dist/lib", { recursive: true });
 	await fs.writeFile("/project/dist/lib/lib.js", "l".repeat(200));
 	await fs.writeFile(
-		"/project/bundle-config.json",
+		"/project/artifact-config.json",
 		JSON.stringify({
-			bundles: [
+			artifacts: [
 				{ id: "app", name: "app", include: "dist/app/**/*.js" },
 				{ id: "lib", name: "lib", include: "dist/lib/**/*.js" },
 			],
 		}),
 	);
 
-	/* current with added bundle */
+	/* current with added artifact */
 	await fs.writeFile("/project/dist/app/app.js", "a".repeat(100));
 	await analyze({
 		cwd: "/project",
 		env: {},
-		configFile: "bundle-config.json",
+		configFile: "artifact-config.json",
 		outputFile: [{ format: "json", key: "temp/current.json" }],
 		outputGithub: [],
 		format: "json",
@@ -173,9 +173,9 @@ it("detects added bundle via config change", async () => {
 		console,
 	});
 
-	const base = await readJsonFile<BundleSize[]>(fs, "/project/temp/base.json");
-	const current = await readJsonFile<BundleSize[]>(fs, "/project/temp/current.json");
-	const diff = await readJsonFile<BundleDiff[]>(fs, "/project/temp/diff.json");
+	const base = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/base.json");
+	const current = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/current.json");
+	const diff = await readJsonFile<ArtifactDiff[]>(fs, "/project/temp/diff.json");
 
 	expect(base).toHaveLength(1);
 	expect(current).toHaveLength(2);
@@ -183,12 +183,12 @@ it("detects added bundle via config change", async () => {
 
 	/* app should be present in both, lib should be added in current */
 	expect(base[0].files).toEqual([expect.objectContaining({ filename: "dist/app/app.js" })]);
-	const appBundle = current.find((b) => b.id === "app");
-	expect(appBundle).toBeDefined();
-	expect(appBundle?.files).toEqual([expect.objectContaining({ filename: "dist/app/app.js" })]);
-	const libBundle = current.find((b) => b.id === "lib");
-	expect(libBundle).toBeDefined();
-	expect(libBundle?.files).toEqual([expect.objectContaining({ filename: "dist/lib/lib.js" })]);
+	const appArtifact = current.find((b) => b.id === "app");
+	expect(appArtifact).toBeDefined();
+	expect(appArtifact?.files).toEqual([expect.objectContaining({ filename: "dist/app/app.js" })]);
+	const libArtifact = current.find((b) => b.id === "lib");
+	expect(libArtifact).toBeDefined();
+	expect(libArtifact?.files).toEqual([expect.objectContaining({ filename: "dist/lib/lib.js" })]);
 
 	const libDiff = diff.find((d) => d.id === "lib");
 	if (!libDiff) throw new Error("lib diff not found");
@@ -206,18 +206,18 @@ it("detects added bundle via config change", async () => {
 	expect(stdout).toMatchInlineSnapshot(`false`);
 });
 
-it("detects removed bundle via config change", async () => {
+it("detects removed artifact via config change", async () => {
 	const { stream, console } = createConsole();
 	const { fs } = await createVolume({
-		"/project/bundle-config.json": JSON.stringify({
-			bundles: [
+		"/project/artifact-config.json": JSON.stringify({
+			artifacts: [
 				{ id: "app", name: "app", include: "dist/app/**/*.js" },
 				{ id: "lib", name: "lib", include: "dist/lib/**/*.js" },
 			],
 		}),
 	});
 
-	/* baseline with two bundles */
+	/* baseline with two artifacts */
 	await fs.mkdir("/project/dist/app", { recursive: true });
 	await fs.mkdir("/project/dist/lib", { recursive: true });
 	await fs.writeFile("/project/dist/app/app.js", "a".repeat(100));
@@ -225,7 +225,7 @@ it("detects removed bundle via config change", async () => {
 	await analyze({
 		cwd: "/project",
 		env: {},
-		configFile: "bundle-config.json",
+		configFile: "artifact-config.json",
 		outputFile: [{ format: "json", key: "temp/base.json" }],
 		outputGithub: [],
 		format: "json",
@@ -233,10 +233,10 @@ it("detects removed bundle via config change", async () => {
 		console,
 	});
 
-	/* update config to remove lib bundle */
+	/* update config to remove lib artifact */
 	await fs.writeFile(
-		"/project/bundle-config.json",
-		JSON.stringify({ bundles: [{ id: "app", name: "app", include: "dist/app/**/*.js" }] }),
+		"/project/artifact-config.json",
+		JSON.stringify({ artifacts: [{ id: "app", name: "app", include: "dist/app/**/*.js" }] }),
 	);
 
 	/* current with only app present */
@@ -244,7 +244,7 @@ it("detects removed bundle via config change", async () => {
 	await analyze({
 		cwd: "/project",
 		env: {},
-		configFile: "bundle-config.json",
+		configFile: "artifact-config.json",
 		outputFile: [{ format: "json", key: "temp/current.json" }],
 		outputGithub: [],
 		format: "json",
@@ -265,9 +265,9 @@ it("detects removed bundle via config change", async () => {
 		console,
 	});
 
-	const base = await readJsonFile<BundleSize[]>(fs, "/project/temp/base.json");
-	const current = await readJsonFile<BundleSize[]>(fs, "/project/temp/current.json");
-	const diff = await readJsonFile<BundleDiff[]>(fs, "/project/temp/diff.json");
+	const base = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/base.json");
+	const current = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/current.json");
+	const diff = await readJsonFile<ArtifactDiff[]>(fs, "/project/temp/diff.json");
 
 	expect(base).toHaveLength(2);
 	expect(current).toHaveLength(1);
@@ -291,14 +291,14 @@ it("detects removed bundle via config change", async () => {
 it("reports size increase when file grows", async () => {
 	const { stream, console } = createConsole();
 	const { fs } = await createVolume({
-		"/project/bundle-config.json": JSON.stringify(makeConfig()),
+		"/project/artifact-config.json": JSON.stringify(makeConfig()),
 	});
 
 	/* baseline */
 	await fs.writeFile("/project/dist/app.js", "x".repeat(100));
 	await analyze({
 		cwd: "/project",
-		configFile: "bundle-config.json",
+		configFile: "artifact-config.json",
 		outputFile: [{ format: "json", key: "temp/base.json" }],
 		outputGithub: [],
 		format: "json",
@@ -312,7 +312,7 @@ it("reports size increase when file grows", async () => {
 	await analyze({
 		cwd: "/project",
 		env: {},
-		configFile: "bundle-config.json",
+		configFile: "artifact-config.json",
 		outputFile: [{ format: "json", key: "temp/current.json" }],
 		outputGithub: [],
 		format: "json",
@@ -333,11 +333,11 @@ it("reports size increase when file grows", async () => {
 		console,
 	});
 
-	const base = await readJsonFile<BundleSize[]>(fs, "/project/temp/base.json");
-	const current = await readJsonFile<BundleSize[]>(fs, "/project/temp/current.json");
-	const diff = await readJsonFile<BundleDiff[]>(fs, "/project/temp/diff.json");
+	const base = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/base.json");
+	const current = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/current.json");
+	const diff = await readJsonFile<ArtifactDiff[]>(fs, "/project/temp/diff.json");
 
-	/* assert returned bundle counts are correct */
+	/* assert returned artifact counts are correct */
 	expect(base).toHaveLength(1);
 	expect(current).toHaveLength(1);
 	expect(diff).toHaveLength(1);
@@ -348,7 +348,7 @@ it("reports size increase when file grows", async () => {
 	expect(diff[0].oldFiles).toEqual([expect.objectContaining({ filename: "dist/app.js" })]);
 	expect(diff[0].newFiles).toEqual([expect.objectContaining({ filename: "dist/app.js" })]);
 
-	/* assert sizes reflect the expected growth in the current bundle */
+	/* assert sizes reflect the expected growth in the current artifact */
 	expect(diff[0].raw.difference).toBe(60);
 	expect(diff[0].raw.oldSize).toBe(100);
 	expect(diff[0].raw.newSize).toBe(160);
@@ -366,7 +366,7 @@ it("reports size increase when file grows", async () => {
 it("detects added file between baseline and current", async () => {
 	const { stream, console } = createConsole();
 	const { fs } = await createVolume({
-		"/project/bundle-config.json": JSON.stringify(makeConfig()),
+		"/project/artifact-config.json": JSON.stringify(makeConfig()),
 	});
 
 	/* baseline (single file) */
@@ -374,7 +374,7 @@ it("detects added file between baseline and current", async () => {
 	await analyze({
 		cwd: "/project",
 		env: {},
-		configFile: "bundle-config.json",
+		configFile: "artifact-config.json",
 		outputFile: [{ format: "json", key: "temp/base.json" }],
 		outputGithub: [],
 		format: "json",
@@ -388,7 +388,7 @@ it("detects added file between baseline and current", async () => {
 	await analyze({
 		cwd: "/project",
 		env: {},
-		configFile: "bundle-config.json",
+		configFile: "artifact-config.json",
 		outputFile: [{ format: "json", key: "temp/current.json" }],
 		outputGithub: [],
 		format: "json",
@@ -409,11 +409,11 @@ it("detects added file between baseline and current", async () => {
 		console,
 	});
 
-	const base = await readJsonFile<BundleSize[]>(fs, "/project/temp/base.json");
-	const current = await readJsonFile<BundleSize[]>(fs, "/project/temp/current.json");
-	const diff = await readJsonFile<BundleDiff[]>(fs, "/project/temp/diff.json");
+	const base = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/base.json");
+	const current = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/current.json");
+	const diff = await readJsonFile<ArtifactDiff[]>(fs, "/project/temp/diff.json");
 
-	/* assert returned bundle counts are correct */
+	/* assert returned artifact counts are correct */
 	expect(base).toHaveLength(1);
 	expect(current).toHaveLength(1);
 	expect(diff).toHaveLength(1);
@@ -448,7 +448,7 @@ it("detects added file between baseline and current", async () => {
 it("detects removed file between baseline and current", async () => {
 	const { stream, console } = createConsole();
 	const { fs } = await createVolume({
-		"/project/bundle-config.json": JSON.stringify(makeConfig()),
+		"/project/artifact-config.json": JSON.stringify(makeConfig()),
 	});
 
 	/* baseline (app + vendor) */
@@ -457,7 +457,7 @@ it("detects removed file between baseline and current", async () => {
 	await analyze({
 		cwd: "/project",
 		env: {},
-		configFile: "bundle-config.json",
+		configFile: "artifact-config.json",
 		outputFile: [{ format: "json", key: "temp/base.json" }],
 		outputGithub: [],
 		format: "json",
@@ -471,7 +471,7 @@ it("detects removed file between baseline and current", async () => {
 	await analyze({
 		cwd: "/project",
 		env: {},
-		configFile: "bundle-config.json",
+		configFile: "artifact-config.json",
 		outputFile: [{ format: "json", key: "temp/current.json" }],
 		outputGithub: [],
 		format: "json",
@@ -492,11 +492,11 @@ it("detects removed file between baseline and current", async () => {
 		console,
 	});
 
-	const base = await readJsonFile<BundleSize[]>(fs, "/project/temp/base.json");
-	const current = await readJsonFile<BundleSize[]>(fs, "/project/temp/current.json");
-	const diff = await readJsonFile<BundleDiff[]>(fs, "/project/temp/diff.json");
+	const base = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/base.json");
+	const current = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/current.json");
+	const diff = await readJsonFile<ArtifactDiff[]>(fs, "/project/temp/diff.json");
 
-	/* assert returned bundle counts are correct */
+	/* assert returned artifact counts are correct */
 	expect(base).toHaveLength(1);
 	expect(current).toHaveLength(1);
 	expect(diff).toHaveLength(1);
@@ -528,11 +528,11 @@ it("detects removed file between baseline and current", async () => {
 	expect(stdout).toMatchInlineSnapshot(`false`);
 });
 
-it("compares multiple bundles", async () => {
+it("compares multiple artifacts", async () => {
 	const { stream, console } = createConsole();
 	const { fs } = await createVolume({
-		"/project/bundle-config.json": JSON.stringify({
-			bundles: [
+		"/project/artifact-config.json": JSON.stringify({
+			artifacts: [
 				{ id: "app", name: "app", include: "dist/app/**/*.js" },
 				{ id: "lib", name: "lib", include: "dist/lib/**/*.js" },
 			],
@@ -547,7 +547,7 @@ it("compares multiple bundles", async () => {
 	await analyze({
 		cwd: "/project",
 		env: {},
-		configFile: "bundle-config.json",
+		configFile: "artifact-config.json",
 		outputFile: [{ format: "json", key: "temp/base.json" }],
 		outputGithub: [],
 		format: "json",
@@ -561,7 +561,7 @@ it("compares multiple bundles", async () => {
 	await analyze({
 		cwd: "/project",
 		env: {},
-		configFile: "bundle-config.json",
+		configFile: "artifact-config.json",
 		outputFile: [{ format: "json", key: "temp/current.json" }],
 		outputGithub: [],
 		format: "json",
@@ -582,23 +582,23 @@ it("compares multiple bundles", async () => {
 		console,
 	});
 
-	const base = await readJsonFile<BundleSize[]>(fs, "/project/temp/base.json");
-	const current = await readJsonFile<BundleSize[]>(fs, "/project/temp/current.json");
-	const diff = await readJsonFile<BundleDiff[]>(fs, "/project/temp/diff.json");
+	const base = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/base.json");
+	const current = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/current.json");
+	const diff = await readJsonFile<ArtifactDiff[]>(fs, "/project/temp/diff.json");
 
-	/* assert returned bundle counts are correct */
+	/* assert returned artifact counts are correct */
 	expect(base).toHaveLength(2);
 	expect(current).toHaveLength(2);
 	expect(diff).toHaveLength(2);
 
-	/* assert expected filenames for each bundle (nested directory layout) */
+	/* assert expected filenames for each artifact (nested directory layout) */
 	expect(base[0].files).toEqual([expect.objectContaining({ filename: "dist/app/app.js" })]);
 	expect(current[0].files).toEqual([expect.objectContaining({ filename: "dist/app/app.js" })]);
 	expect(diff[0].oldFiles).toEqual([expect.objectContaining({ filename: "dist/app/app.js" })]);
 	expect(diff[0].newFiles).toEqual([expect.objectContaining({ filename: "dist/app/app.js" })]);
 
 	/* size diffs */
-	function findDiff(arr: BundleDiff[], name: string): BundleDiff {
+	function findDiff(arr: ArtifactDiff[], name: string): ArtifactDiff {
 		const d = arr.find((x) => x.name === name);
 		if (!d) throw new Error(`diff not found: ${name}`);
 		return d;
@@ -626,8 +626,8 @@ it("compares multiple bundles", async () => {
 it("respects exclude patterns in config", async () => {
 	const { stream, console } = createConsole();
 	const { fs } = await createVolume({
-		"/project/bundle-config.json": JSON.stringify({
-			bundles: [
+		"/project/artifact-config.json": JSON.stringify({
+			artifacts: [
 				{
 					id: "app",
 					name: "app",
@@ -644,7 +644,7 @@ it("respects exclude patterns in config", async () => {
 	await analyze({
 		cwd: "/project",
 		env: {},
-		configFile: "bundle-config.json",
+		configFile: "artifact-config.json",
 		outputFile: [{ format: "json", key: "temp/base.json" }],
 		outputGithub: [],
 		format: "json",
@@ -658,7 +658,7 @@ it("respects exclude patterns in config", async () => {
 	await analyze({
 		cwd: "/project",
 		env: {},
-		configFile: "bundle-config.json",
+		configFile: "artifact-config.json",
 		outputFile: [{ format: "json", key: "temp/current.json" }],
 		outputGithub: [],
 		format: "json",
@@ -679,9 +679,9 @@ it("respects exclude patterns in config", async () => {
 		console,
 	});
 
-	const base = await readJsonFile<BundleSize[]>(fs, "/project/temp/base.json");
-	const current = await readJsonFile<BundleSize[]>(fs, "/project/temp/current.json");
-	const diff = await readJsonFile<BundleDiff[]>(fs, "/project/temp/diff.json");
+	const base = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/base.json");
+	const current = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/current.json");
+	const diff = await readJsonFile<ArtifactDiff[]>(fs, "/project/temp/diff.json");
 
 	/* assert vendor is excluded from results as configured */
 	expect(base[0].files).toEqual([expect.objectContaining({ filename: "dist/app.js" })]);
@@ -704,11 +704,11 @@ it("respects exclude patterns in config", async () => {
 	expect(stdout).toMatchInlineSnapshot(`false`);
 });
 
-it("handles empty bundles gracefully", async () => {
+it("handles empty artifacts gracefully", async () => {
 	const { stream, console } = createConsole();
 	const { fs } = await createVolume({
-		"/project/bundle-config.json": JSON.stringify({
-			bundles: [
+		"/project/artifact-config.json": JSON.stringify({
+			artifacts: [
 				{
 					id: "empty",
 					name: "empty",
@@ -722,7 +722,7 @@ it("handles empty bundles gracefully", async () => {
 	await analyze({
 		cwd: "/project",
 		env: {},
-		configFile: "bundle-config.json",
+		configFile: "artifact-config.json",
 		outputFile: [{ format: "json", key: "temp/base.json" }],
 		outputGithub: [],
 		format: "json",
@@ -734,7 +734,7 @@ it("handles empty bundles gracefully", async () => {
 	await analyze({
 		cwd: "/project",
 		env: {},
-		configFile: "bundle-config.json",
+		configFile: "artifact-config.json",
 		outputFile: [{ format: "json", key: "temp/current.json" }],
 		outputGithub: [],
 		format: "json",
@@ -755,11 +755,11 @@ it("handles empty bundles gracefully", async () => {
 		console,
 	});
 
-	const base = await readJsonFile<BundleSize[]>(fs, "/project/temp/base.json");
-	const current = await readJsonFile<BundleSize[]>(fs, "/project/temp/current.json");
-	const diff = await readJsonFile<BundleDiff[]>(fs, "/project/temp/diff.json");
+	const base = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/base.json");
+	const current = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/current.json");
+	const diff = await readJsonFile<ArtifactDiff[]>(fs, "/project/temp/diff.json");
 
-	/* assert empty bundle handled */
+	/* assert empty artifact handled */
 	expect(base).toHaveLength(1);
 	expect(current).toHaveLength(1);
 	expect(diff).toHaveLength(1);
