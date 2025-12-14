@@ -16,11 +16,11 @@ inputs:
   base-name:
     description: "File name inside the base artifact that contains the analyzer output."
     required: false
-    default: "bundle-size.json"
+    default: "artifact-size.json"
   current-name:
     description: "File name inside the current artifact that contains the analyzer output."
     required: false
-    default: "bundle-size.json"
+    default: "artifact-size.json"
   version:
     description: "Optional npm package version (e.g. 1.2.3). If provided, runs `npx pull-request-bundle-analyzer@<version>`."
     required: false

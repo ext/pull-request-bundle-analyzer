@@ -37,6 +37,7 @@ jobs:
         with:
           config-file: ./example-config.json
           artifact-name: base-size
+          output-file: temp/artifact-size.json
           use-local: true
 
   analyze-current:
@@ -67,6 +68,7 @@ jobs:
         with:
           config-file: ./example-config.json
           artifact-name: current-size
+          output-file: temp/artifact-size.json
           use-local: true
 
   compare:
