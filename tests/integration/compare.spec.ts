@@ -197,7 +197,9 @@ it("detects added artifact via config change", async () => {
 	expect(libArtifact?.files).toEqual([expect.objectContaining({ filename: "dist/lib/lib.js" })]);
 
 	const libDiff = diff.find((d) => d.id === "lib");
-	if (!libDiff) throw new Error("lib diff not found");
+	if (!libDiff) {
+		throw new Error("lib diff not found");
+	}
 	expect(libDiff.status).toBe("added");
 	expect(libDiff.raw.oldSize).toBe(0);
 	expect(libDiff.raw.newSize).toBeGreaterThan(0);
@@ -283,7 +285,9 @@ it("detects removed artifact via config change", async () => {
 	expect(diff).toHaveLength(2);
 
 	const libDiff = diff.find((d) => d.id === "lib");
-	if (!libDiff) throw new Error("lib diff not found");
+	if (!libDiff) {
+		throw new Error("lib diff not found");
+	}
 	expect(libDiff.status).toBe("removed");
 	expect(libDiff.raw.newSize).toBe(0);
 
@@ -621,7 +625,9 @@ it("compares multiple artifacts", async () => {
 	/* size diffs */
 	function findDiff(arr: ArtifactDiff[], name: string): ArtifactDiff {
 		const d = arr.find((x) => x.name === name);
-		if (!d) throw new Error(`diff not found: ${name}`);
+		if (!d) {
+			throw new Error(`diff not found: ${name}`);
+		}
 		return d;
 	}
 
