@@ -33,12 +33,20 @@ function formatMarkdown(artifacts: ArtifactSize[], options: { header: boolean })
 	const includeBrotli = artifacts.some((a) => a.brotli !== null);
 
 	const headerCols = ["Artifact", "Files", "Size"];
-	if (includeGzip) headerCols.push("Gzip");
-	if (includeBrotli) headerCols.push("Brotli");
+	if (includeGzip) {
+		headerCols.push("Gzip");
+	}
+	if (includeBrotli) {
+		headerCols.push("Brotli");
+	}
 
 	const alignCols = ["---", "---", "---:"];
-	if (includeGzip) alignCols.push("---:");
-	if (includeBrotli) alignCols.push("---:");
+	if (includeGzip) {
+		alignCols.push("---:");
+	}
+	if (includeBrotli) {
+		alignCols.push("---:");
+	}
 
 	const tableHeader = `| ${headerCols.join(" | ")} |\n|${alignCols.join("|")}|\n`;
 	const rows = artifacts
@@ -49,8 +57,12 @@ function formatMarkdown(artifacts: ArtifactSize[], options: { header: boolean })
 				prettySize(item.size),
 			];
 
-			if (includeGzip) cells.push(formatMaybe(item.gzip));
-			if (includeBrotli) cells.push(formatMaybe(item.brotli));
+			if (includeGzip) {
+				cells.push(formatMaybe(item.gzip));
+			}
+			if (includeBrotli) {
+				cells.push(formatMaybe(item.brotli));
+			}
 			return ["| ", cells.join(" | "), " |"].join("");
 		})
 		.join("\n");
@@ -75,8 +87,12 @@ function formatText(artifacts: ArtifactSize[], options: FormatArtifactOptions): 
 				`size=${colorize(prettySize(item.size))}`,
 			];
 
-			if (includeGzip) parts.push(`gzip=${colorize(formatMaybe(item.gzip))}`);
-			if (includeBrotli) parts.push(`brotli=${colorize(formatMaybe(item.brotli))}`);
+			if (includeGzip) {
+				parts.push(`gzip=${colorize(formatMaybe(item.gzip))}`);
+			}
+			if (includeBrotli) {
+				parts.push(`brotli=${colorize(formatMaybe(item.brotli))}`);
+			}
 
 			const header = `${item.artifact}: ${parts.join(", ")}`;
 
@@ -89,8 +105,12 @@ function formatText(artifacts: ArtifactSize[], options: FormatArtifactOptions): 
 				const symbol = isLast ? "└" : "├";
 				const cells: string[] = [` ${symbol} ${f.filename} size=${colorize(prettySize(f.size))}`];
 
-				if (includeGzip) cells.push(`gzip=${colorize(formatMaybe(f.gzip))}`);
-				if (includeBrotli) cells.push(`brotli=${colorize(formatMaybe(f.brotli))}`);
+				if (includeGzip) {
+					cells.push(`gzip=${colorize(formatMaybe(f.gzip))}`);
+				}
+				if (includeBrotli) {
+					cells.push(`brotli=${colorize(formatMaybe(f.brotli))}`);
+				}
 
 				return cells.join(", ");
 			});

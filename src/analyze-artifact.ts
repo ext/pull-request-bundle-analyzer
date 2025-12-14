@@ -44,8 +44,12 @@ export async function analyzeArtifact(
 	for (const filePath of files) {
 		const size = await getFileSize(filePath, { cwd, fs, compression });
 		result.size += size.size;
-		if (size.gzip !== null) gzipTotal += size.gzip;
-		if (size.brotli !== null) brotliTotal += size.brotli;
+		if (size.gzip !== null) {
+			gzipTotal += size.gzip;
+		}
+		if (size.brotli !== null) {
+			brotliTotal += size.brotli;
+		}
 		result.files.push({
 			filename: filePath,
 			size: size.size,
