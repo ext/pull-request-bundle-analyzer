@@ -35,6 +35,7 @@
     "schema.json"
   ],
   "scripts": {
+    "attw": "npx @arethetypeswrong/cli --profile esm-only --no-emoji --pack .",
     "prebuild": "tsc",
     "build": "node build.mjs",
     "postbuild": "tsc --project examples/tsconfig.json",
@@ -50,6 +51,7 @@
     "yargs": "18.0.0"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "0.18.2",
     "@html-validate/eslint-config": "6.11.1",
     "@html-validate/eslint-config-typescript": "6.11.1",
     "@html-validate/eslint-config-typescript-typeinfo": "6.11.1",
