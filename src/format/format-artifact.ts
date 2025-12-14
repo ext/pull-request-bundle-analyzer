@@ -13,6 +13,10 @@ import { type Format } from "./formats.ts";
 export interface FormatArtifactOptions {
 	/** Whether output should be colorized */
 	color: boolean;
+	/**
+	 * When `true` include the header for formats with headers.
+	 */
+	header: boolean;
 }
 
 function formatJson(artifacts: ArtifactSize[]): string {
@@ -23,8 +27,8 @@ function formatMaybe(size: number | null): string {
 	return size === null ? "-" : prettySize(size);
 }
 
-function formatMarkdown(artifacts: ArtifactSize[]): string {
-	const header = "## Artifact sizes\n\n";
+function formatMarkdown(artifacts: ArtifactSize[], options: { header: boolean }): string {
+	const header = options.header ? "## Artifact sizes\n\n" : "";
 	const tableHeader = "| Artifact | Files | Size | Gzip | Brotli |\n|---|---|---:|---:|---:|\n";
 	const rows = artifacts
 		.map((item) => {
@@ -91,14 +95,20 @@ function formatText(artifacts: ArtifactSize[], options: FormatArtifactOptions): 
 export function formatArtifact(
 	artifacts: ArtifactSize[],
 	format: Format,
-	options: FormatArtifactOptions,
+	options?: Partial<FormatArtifactOptions>,
 ): string {
+	const opts: FormatArtifactOptions = {
+		color: false,
+		header: true,
+		...options,
+	};
+
 	switch (format) {
 		case "json":
 			return formatJson(artifacts);
 		case "markdown":
-			return formatMarkdown(artifacts);
+			return formatMarkdown(artifacts, opts);
 		case "text":
-			return formatText(artifacts, options);
+			return formatText(artifacts, opts);
 	}
 }

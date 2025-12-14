@@ -38,7 +38,7 @@ const data = [
 
 describe("formatArtifact()", () => {
 	it("formats json", () => {
-		const out = formatArtifact(data, "json", { color: false });
+		const out = formatArtifact(data, "json");
 		const parsed = JSON.parse(out);
 		expect(parsed).toEqual([
 			{
@@ -93,12 +93,12 @@ describe("formatArtifact()", () => {
 		];
 
 		// json
-		const outJson = formatArtifact(empty, "json", { color: false });
+		const outJson = formatArtifact(empty, "json");
 		const parsed = JSON.parse(outJson);
 		expect(parsed).toEqual(empty);
 
 		// markdown
-		const outMd = formatArtifact(empty, "markdown", { color: false });
+		const outMd = formatArtifact(empty, "markdown");
 		expect(outMd).toMatchInlineSnapshot(`
 			## Artifact sizes
 
@@ -108,7 +108,7 @@ describe("formatArtifact()", () => {
 		`);
 
 		// text
-		const outText = formatArtifact(empty, "text", { color: false });
+		const outText = formatArtifact(empty, "text");
 		expect(outText).toMatchInlineSnapshot(`empty: files=0, size=0B, gzip=-, brotli=-`);
 	});
 
@@ -125,12 +125,12 @@ describe("formatArtifact()", () => {
 		];
 
 		// json
-		const outJson = formatArtifact(single, "json", { color: false });
+		const outJson = formatArtifact(single, "json");
 		const parsed = JSON.parse(outJson);
 		expect(parsed).toEqual(single);
 
 		// markdown
-		const outMd = formatArtifact(single, "markdown", { color: false });
+		const outMd = formatArtifact(single, "markdown");
 		expect(outMd).toMatchInlineSnapshot(`
 			## Artifact sizes
 
@@ -140,7 +140,7 @@ describe("formatArtifact()", () => {
 		`);
 
 		// text
-		const outText = formatArtifact(single, "text", { color: false });
+		const outText = formatArtifact(single, "text");
 		expect(outText).toMatchInlineSnapshot(`
 			single: files=1, size=100B, gzip=80B, brotli=-
 			 └ dist/s.js size=100B, gzip=80B, brotli=-
@@ -148,7 +148,7 @@ describe("formatArtifact()", () => {
 	});
 
 	it("formats markdown", () => {
-		const out = formatArtifact(data, "markdown", { color: false });
+		const out = formatArtifact(data, "markdown");
 		expect(out).toMatchInlineSnapshot(`
 			## Artifact sizes
 
@@ -159,8 +159,18 @@ describe("formatArtifact()", () => {
 		`);
 	});
 
+	it("should include header when header is true", () => {
+		const out = formatArtifact(data, "markdown", { header: true });
+		expect(out).toContain("## Artifact sizes");
+	});
+
+	it("should omit header when header is false", () => {
+		const out = formatArtifact(data, "markdown", { color: false, header: false });
+		expect(out).not.toContain("## Artifact sizes");
+	});
+
 	it("formats text", () => {
-		const out = formatArtifact(data, "text", { color: false });
+		const out = formatArtifact(data, "text");
 		expect(out).toMatchInlineSnapshot(`
 			app: files=2, size=100B, gzip=80B, brotli=70B
 			 ├ dist/a.js size=70B, gzip=60B, brotli=50B
@@ -171,7 +181,7 @@ describe("formatArtifact()", () => {
 	});
 
 	it("should colorize text output", () => {
-		const out = formatArtifact(data, "text", { color: true });
+		const out = formatArtifact(data, "text", { color: true, header: true });
 		expect(out).toMatchInlineSnapshot(`
 			app: files=<cyan>2</cyan>, size=<cyan>100B</cyan>, gzip=<cyan>80B</cyan>, brotli=<cyan>70B</cyan>
 			 ├ dist/a.js size=<cyan>70B</cyan>, gzip=<cyan>60B</cyan>, brotli=<cyan>50B</cyan>

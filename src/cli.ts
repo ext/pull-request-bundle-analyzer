@@ -36,6 +36,7 @@ interface AnalyzeOptions {
 	format: Format;
 	outputFile: ParsedOutput[];
 	outputGithub: ParsedOutput[];
+	formatOptions: { header: boolean };
 	console?: Console;
 	fs?: typeof nodefs;
 }
@@ -48,6 +49,7 @@ interface CompareOptions {
 	outputGithub: ParsedOutput[];
 	base: string;
 	current: string;
+	formatOptions: { header: boolean };
 	console?: Console;
 	fs?: typeof nodefs;
 }
@@ -71,6 +73,9 @@ export async function cli(options: CliOptions): Promise<void> {
 	const parser = yargs(argv)
 		.scriptName("artifact-size-analyzer")
 		.usage("$0 <command> [options]")
+		.parserConfiguration({
+			"boolean-negation": false,
+		})
 		.command(
 			"analyze",
 			"Analyze artifacts from a config file",
@@ -114,6 +119,11 @@ export async function cli(options: CliOptions): Promise<void> {
 						describe: "Output format",
 						choices: formats,
 						default: "text" as const,
+					})
+					.option("no-header", {
+						describe: "Disable header in output for formats with headers",
+						type: "boolean",
+						default: false,
 					}),
 			async (args) => {
 				await analyze({
@@ -121,6 +131,7 @@ export async function cli(options: CliOptions): Promise<void> {
 					env,
 					configFile: args.configFile,
 					format: args.format,
+					formatOptions: { header: !args.noHeader },
 					outputFile: args.outputFile.map((it) => ({
 						format: it.format ?? args.format,
 						key: it.key,
@@ -153,6 +164,11 @@ export async function cli(options: CliOptions): Promise<void> {
 						describe: "Output format",
 						choices: formats,
 						default: "text" as const,
+					})
+					.option("no-header", {
+						describe: "Disable header in output for formats with headers",
+						type: "boolean",
+						default: false,
 					})
 					.option("output-file", {
 						alias: "o",
@@ -187,6 +203,7 @@ export async function cli(options: CliOptions): Promise<void> {
 					base: args.base,
 					current: args.current,
 					format: args.format,
+					formatOptions: { header: !args.noHeader },
 					outputFile: args.outputFile.map((it) => ({
 						format: it.format ?? args.format,
 						key: it.key,
@@ -203,7 +220,8 @@ export async function cli(options: CliOptions): Promise<void> {
 }
 
 export async function analyze(options: AnalyzeOptions): Promise<void> {
-	const fs = options.fs ?? nodefs;
+	const { fs = nodefs, formatOptions } = options;
+	const { header } = formatOptions;
 	const configPath = resolve(options.cwd, options.configFile);
 	const config = await readConfigFile(configPath, options.fs);
 	const results = await Promise.all(
@@ -223,7 +241,7 @@ export async function analyze(options: AnalyzeOptions): Promise<void> {
 	if (options.outputFile.length > 0) {
 		for (const spec of options.outputFile) {
 			const { format, key } = spec;
-			const output = formatArtifact(results, format, { color: false });
+			const output = formatArtifact(results, format, { header });
 			await writeFile({
 				fs,
 				cwd: options.cwd,
@@ -234,13 +252,13 @@ export async function analyze(options: AnalyzeOptions): Promise<void> {
 	} else {
 		const console = options.console ?? globalThis.console;
 		const color = process.stdout.isTTY;
-		const output = formatArtifact(results, options.format, { color });
+		const output = formatArtifact(results, options.format, { color, header });
 		console.log(output);
 	}
 
 	for (const spec of options.outputGithub) {
 		const { format: fmt, key } = spec;
-		const output = formatArtifact(results, fmt, { color: false });
+		const output = formatArtifact(results, fmt, { header });
 		await writeGithub({
 			fs,
 			env: options.env,
@@ -251,7 +269,8 @@ export async function analyze(options: AnalyzeOptions): Promise<void> {
 }
 
 export async function compare(options: CompareOptions): Promise<void> {
-	const fs = options.fs ?? nodefs;
+	const { fs = nodefs, formatOptions } = options;
+	const { header } = formatOptions;
 	const basePath = resolve(options.cwd, options.base);
 	const currentPath = resolve(options.cwd, options.current);
 	const base = (await readJsonFile(basePath, options.fs)) as ArtifactSize[];
@@ -261,7 +280,7 @@ export async function compare(options: CompareOptions): Promise<void> {
 	if (options.outputFile.length > 0) {
 		for (const spec of options.outputFile) {
 			const { format, key } = spec;
-			const output = formatDiff(diff, format, { color: false });
+			const output = formatDiff(diff, format, { header });
 			await writeFile({
 				fs,
 				cwd: options.cwd,
@@ -272,13 +291,13 @@ export async function compare(options: CompareOptions): Promise<void> {
 	} else {
 		const console = options.console ?? globalThis.console;
 		const color = process.stdout.isTTY;
-		const output = formatDiff(diff, options.format, { color });
+		const output = formatDiff(diff, options.format, { color, header });
 		console.log(output);
 	}
 
 	for (const spec of options.outputGithub) {
 		const { format: fmt, key } = spec;
-		const output = formatDiff(diff, fmt, { color: false });
+		const output = formatDiff(diff, fmt, { header });
 		await writeGithub({
 			fs,
 			env: options.env,

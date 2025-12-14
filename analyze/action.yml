@@ -17,6 +17,11 @@ inputs:
     description: "Path to the output file produced by the analyzer."
     required: false
     default: "temp/artifact-size.json"
+  no-header:
+    description: "When set to 'true', disable the header in output for formats with headers."
+    required: false
+    type: boolean
+    default: false
   version:
     description: "Optional npm package version (e.g. 1.2.3). Default uses the version specified in package.json or latest if not specified."
     required: false
@@ -49,7 +54,8 @@ runs:
         ${{ steps.pick-cmd.outputs.cmd }} analyze \
           --config-file "${{ inputs.config-file }}" \
           --output-file "${{ inputs.output-file }}" \
-          --format json
+          --format json \
+          ${{ (inputs.no-header == true || inputs.no-header == 'true') && format('--no-header') || '' }}
 
     - name: Upload artifact
       uses: actions/upload-artifact@v6

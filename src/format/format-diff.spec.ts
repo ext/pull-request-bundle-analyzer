@@ -203,55 +203,55 @@ const removedFiles: ArtifactDiff[] = [
 describe("formatDiff()", () => {
 	describe("json", () => {
 		it("formats updated artifacts", () => {
-			const out = formatDiff(updated, "json", { color: false });
+			const out = formatDiff(updated, "json");
 			const parsed = JSON.parse(out);
 			expect(parsed).toEqual(updated);
 		});
 
 		it("formats added artifact", () => {
-			const outJson = formatDiff(added, "json", { color: false });
+			const outJson = formatDiff(added, "json");
 			const parsedJson = JSON.parse(outJson);
 			expect(parsedJson).toEqual(added);
 		});
 
 		it("formats removed artifact", () => {
-			const outJson = formatDiff(removed, "json", { color: false });
+			const outJson = formatDiff(removed, "json");
 			const parsedJson = JSON.parse(outJson);
 			expect(parsedJson).toEqual(removed);
 		});
 
 		it("formats artifacts with only one algorithm enabled", () => {
-			const out = formatDiff(updatedOneAlgorithm, "json", { color: false });
+			const out = formatDiff(updatedOneAlgorithm, "json");
 			const parsed = JSON.parse(out);
 			expect(parsed).toEqual(updatedOneAlgorithm);
 		});
 
 		it("formats artifacts with all algorithms disabled", () => {
-			const out = formatDiff(updatedBothDisabled, "json", { color: false });
+			const out = formatDiff(updatedBothDisabled, "json");
 			const parsed = JSON.parse(out);
 			expect(parsed).toEqual(updatedBothDisabled);
 		});
 
 		it("formats artifacts with mixed algorithms", () => {
-			const out = formatDiff(updatedMixedAlgorithms, "json", { color: false });
+			const out = formatDiff(updatedMixedAlgorithms, "json");
 			const parsed = JSON.parse(out);
 			expect(parsed).toEqual(updatedMixedAlgorithms);
 		});
 
 		it("formats artifact with removed file", () => {
-			const out = formatDiff(removedFiles, "json", { color: false });
+			const out = formatDiff(removedFiles, "json");
 			const parsed = JSON.parse(out);
 			expect(parsed).toEqual(removedFiles);
 		});
 
 		it("formats added artifact with no compression", () => {
-			const out = formatDiff(addedNoCompress, "json", { color: false });
+			const out = formatDiff(addedNoCompress, "json");
 			const parsed = JSON.parse(out);
 			expect(parsed).toEqual(addedNoCompress);
 		});
 
 		it("formats removed artifact with no compression", () => {
-			const out = formatDiff(removedNoCompress, "json", { color: false });
+			const out = formatDiff(removedNoCompress, "json");
 			const parsed = JSON.parse(out);
 			expect(parsed).toEqual(removedNoCompress);
 		});
@@ -259,7 +259,7 @@ describe("formatDiff()", () => {
 
 	describe("markdown", () => {
 		it("formats updated artifacts", () => {
-			const out = formatDiff(updated, "markdown", { color: false });
+			const out = formatDiff(updated, "markdown");
 			expect(out).toMatchInlineSnapshot(`
 				## Artifact sizes
 
@@ -272,7 +272,7 @@ describe("formatDiff()", () => {
 		});
 
 		it("formats added artifact", () => {
-			const outMd = formatDiff(added, "markdown", { color: false });
+			const outMd = formatDiff(added, "markdown");
 			expect(outMd).toMatchInlineSnapshot(`
 				## Artifact sizes
 
@@ -283,7 +283,7 @@ describe("formatDiff()", () => {
 		});
 
 		it("formats removed artifact", () => {
-			const outMd = formatDiff(removed, "markdown", { color: false });
+			const outMd = formatDiff(removed, "markdown");
 			expect(outMd).toMatchInlineSnapshot(`
 				## Artifact sizes
 
@@ -294,7 +294,7 @@ describe("formatDiff()", () => {
 		});
 
 		it("formats artifacts with only one algorithm enabled", () => {
-			const out = formatDiff(updatedOneAlgorithm, "markdown", { color: false });
+			const out = formatDiff(updatedOneAlgorithm, "markdown");
 			expect(out).toMatchInlineSnapshot(`
 				## Artifact sizes
 
@@ -306,7 +306,7 @@ describe("formatDiff()", () => {
 		});
 
 		it("formats artifacts with all algorithms disabled", () => {
-			const out = formatDiff(updatedBothDisabled, "markdown", { color: false });
+			const out = formatDiff(updatedBothDisabled, "markdown");
 			expect(out).toMatchInlineSnapshot(`
 				## Artifact sizes
 
@@ -318,7 +318,7 @@ describe("formatDiff()", () => {
 		});
 
 		it("formats artifacts with mixed algorithms", () => {
-			const out = formatDiff(updatedMixedAlgorithms, "markdown", { color: false });
+			const out = formatDiff(updatedMixedAlgorithms, "markdown");
 			expect(out).toMatchInlineSnapshot(`
 				## Artifact sizes
 
@@ -331,7 +331,7 @@ describe("formatDiff()", () => {
 		});
 
 		it("formats artifact with removed file", () => {
-			const out = formatDiff(removedFiles, "markdown", { color: false });
+			const out = formatDiff(removedFiles, "markdown");
 			expect(out).toMatchInlineSnapshot(`
 				## Artifact sizes
 
@@ -342,7 +342,7 @@ describe("formatDiff()", () => {
 		});
 
 		it("formats added artifact with no compression (no compressed column)", () => {
-			const outMd = formatDiff(addedNoCompress, "markdown", { color: false });
+			const outMd = formatDiff(addedNoCompress, "markdown");
 			expect(outMd).toMatchInlineSnapshot(`
 				## Artifact sizes
 
@@ -353,7 +353,7 @@ describe("formatDiff()", () => {
 		});
 
 		it("formats removed artifact with no compression (no compressed column)", () => {
-			const outMd = formatDiff(removedNoCompress, "markdown", { color: false });
+			const outMd = formatDiff(removedNoCompress, "markdown");
 			expect(outMd).toMatchInlineSnapshot(`
 				## Artifact sizes
 
@@ -362,11 +362,21 @@ describe("formatDiff()", () => {
 				| old-nc (removed) | N/A | 200B → N/A | N/A |
 			`);
 		});
+
+		it("should include header when header is true", () => {
+			const out = formatDiff(updated, "markdown", { header: true });
+			expect(out).toContain("## Artifact sizes");
+		});
+
+		it("should omit header when header is false", () => {
+			const out = formatDiff(updated, "markdown", { color: false, header: false });
+			expect(out).not.toContain("## Artifact sizes");
+		});
 	});
 
 	describe("text", () => {
 		it("formats updated artifacts", () => {
-			const out = formatDiff(updated, "text", { color: false });
+			const out = formatDiff(updated, "text");
 			expect(out).toMatchInlineSnapshot(`
 				app: files=2 (+0), size=100B (+10B), gzip=80B (+5B), brotli=70B (-2B)
 				lib: files=1 (+0), size=200B (+0B), gzip=150B (+0B), brotli=120B (+0B)
@@ -375,21 +385,21 @@ describe("formatDiff()", () => {
 		});
 
 		it("formats added artifact", () => {
-			const outText = formatDiff(added, "text", { color: false });
+			const outText = formatDiff(added, "text", { color: false, header: true });
 			expect(outText).toMatchInlineSnapshot(`
 				new: files=1 (+1), size=150B (+150B), gzip=100B (+100B), brotli=80B (+80B)
 			`);
 		});
 
 		it("formats removed artifact", () => {
-			const outText = formatDiff(removed, "text", { color: false });
+			const outText = formatDiff(removed, "text", { color: false, header: true });
 			expect(outText).toMatchInlineSnapshot(`
 				old: removed
 			`);
 		});
 
 		it("formats artifacts with only one algorithm enabled", () => {
-			const out = formatDiff(updatedOneAlgorithm, "text", { color: false });
+			const out = formatDiff(updatedOneAlgorithm, "text", { color: false, header: true });
 			expect(out).toMatchInlineSnapshot(`
 				one-a: files=0 (+0), size=100B (+10B), gzip=80B (+5B)
 				one-b: files=0 (+0), size=60B (+10B), gzip=45B (+5B)
@@ -397,7 +407,7 @@ describe("formatDiff()", () => {
 		});
 
 		it("formats artifacts with all algorithms disabled", () => {
-			const out = formatDiff(updatedBothDisabled, "text", { color: false });
+			const out = formatDiff(updatedBothDisabled, "text", { color: false, header: true });
 			expect(out).toMatchInlineSnapshot(`
 				none-a: files=0 (+0), size=100B (+10B)
 				none-b: files=0 (+0), size=60B (+10B)
@@ -405,7 +415,7 @@ describe("formatDiff()", () => {
 		});
 
 		it("formats artifacts with mixed algorithms", () => {
-			const out = formatDiff(updatedMixedAlgorithms, "text", { color: false });
+			const out = formatDiff(updatedMixedAlgorithms, "text", { color: false, header: true });
 			expect(out).toMatchInlineSnapshot(`
 				all-enabled: files=0 (+0), size=130B (+10B), gzip=95B (+5B), brotli=85B (+5B)
 				brotli-only: files=0 (+0), size=75B (+5B), brotli=62B (+2B)
@@ -414,26 +424,26 @@ describe("formatDiff()", () => {
 		});
 
 		it("formats artifact with removed file", () => {
-			const out = formatDiff(removedFiles, "text", { color: false });
+			const out = formatDiff(removedFiles, "text", { color: false, header: true });
 			expect(out).toMatchInlineSnapshot(`removed-files: files=1 (-1), size=110B (-10B)`);
 		});
 
 		it("formats added artifact with no compression (text)", () => {
-			const out = formatDiff(addedNoCompress, "text", { color: false });
+			const out = formatDiff(addedNoCompress, "text", { color: false, header: true });
 			expect(out).toMatchInlineSnapshot(`
 				new-nc: files=1 (+1), size=150B (+150B)
 			`);
 		});
 
 		it("formats removed artifact with no compression (text)", () => {
-			const out = formatDiff(removedNoCompress, "text", { color: false });
+			const out = formatDiff(removedNoCompress, "text", { color: false, header: true });
 			expect(out).toMatchInlineSnapshot(`
 				old-nc: removed
 			`);
 		});
 
 		it("colorize output", () => {
-			const out = formatDiff(updated, "text", { color: true });
+			const out = formatDiff(updated, "text", { color: true, header: true });
 			expect(out).toMatchInlineSnapshot(`
 				app: files=<cyan>2</cyan> (+0), size=<cyan>100B</cyan> (+10B), gzip=<cyan>80B</cyan> (+5B), brotli=<cyan>70B</cyan> (-2B)
 				lib: files=<cyan>1</cyan> (+0), size=<cyan>200B</cyan> (+0B), gzip=<cyan>150B</cyan> (+0B), brotli=<cyan>120B</cyan> (+0B)

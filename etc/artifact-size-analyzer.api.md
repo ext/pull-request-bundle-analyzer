@@ -90,19 +90,21 @@ export interface FileResult {
 export type Format = (typeof formats)[number];
 
 // @public
-export function formatArtifact(artifacts: ArtifactSize[], format: Format, options: FormatArtifactOptions): string;
+export function formatArtifact(artifacts: ArtifactSize[], format: Format, options?: Partial<FormatArtifactOptions>): string;
 
 // @public
 export interface FormatArtifactOptions {
     color: boolean;
+    header: boolean;
 }
 
 // @public
-export function formatDiff(results: ArtifactDiff[], format: Format, options: FormatDiffOptions): string;
+export function formatDiff(results: ArtifactDiff[], format: Format, options?: Partial<FormatDiffOptions>): string;
 
 // @public
 export interface FormatDiffOptions {
     color: boolean;
+    header: boolean;
 }
 
 // @public

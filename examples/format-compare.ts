@@ -9,5 +9,5 @@ const current = JSON.parse(await fs.readFile("current.json", "utf8")) as Artifac
 const result = compareArtifact(base, current);
 
 /* format the result */
-const out = formatDiff([result], "markdown", { color: false });
+const out = formatDiff([result], "markdown");
 console.log(out);

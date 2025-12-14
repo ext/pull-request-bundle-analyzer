@@ -12,6 +12,10 @@ import { type Format } from "./formats.ts";
 export interface FormatDiffOptions {
 	/** Whether output should be colorized */
 	color: boolean;
+	/**
+	 * When `true` include the header for formats with headers.
+	 */
+	header: boolean;
 }
 
 /**
@@ -26,14 +30,20 @@ export interface FormatDiffOptions {
 export function formatDiff(
 	results: ArtifactDiff[],
 	format: Format,
-	options: FormatDiffOptions,
+	options?: Partial<FormatDiffOptions>,
 ): string {
+	const opts: FormatDiffOptions = {
+		color: false,
+		header: true,
+		...options,
+	};
+
 	switch (format) {
 		case "json":
 			return jsonFormat(results);
 		case "markdown":
-			return markdownFormat(results);
+			return markdownFormat(results, opts);
 		case "text":
-			return textFormat(results, options);
+			return textFormat(results, opts);
 	}
 }

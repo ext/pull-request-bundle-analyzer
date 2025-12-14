@@ -28,6 +28,11 @@ inputs:
     description: "When set to 'true', run the local ./bin/artifact-size-analyzer from the repository instead of using npx. Caller must checkout the repository when using this option."
     required: false
     default: "false"
+  no-header:
+    description: "When set to 'true', disable the header in output for formats with headers."
+    required: false
+    type: boolean
+    default: false
 
 outputs:
   markdown:
@@ -91,4 +96,5 @@ runs:
           --format markdown \
           --output-github markdown:markdown \
           --output-github text:text \
-          --output-github json:json
+          --output-github json:json \
+          ${{ (inputs.no-header == true || inputs.no-header == 'true') && format('--no-header') || '' }}

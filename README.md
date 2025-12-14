@@ -269,6 +269,16 @@ Can optionally specify the format as a prefix `format:filename`, where `format` 
 
 To use the `compare` action the format must be `json`.
 
+#### `no-header`
+
+Type: `boolean`  
+Required: no  
+Default: `false`
+
+When set to `true`, disables the header in output for formats with headers such as Markdown.
+
+Use this when you want to prepend your own heading or other content before the size table.
+
 #### `version`
 
 Type: `string`  
@@ -326,6 +336,16 @@ Optional npm package version (e.g. `1.2.3`).
 When provided, the action runs `npx artifact-size-analyzer@<version>`.
 
 By default it uses the installed version.
+
+#### `no-header`
+
+Type: `boolean`  
+Required: no  
+Default: `false`
+
+When set to `true`, disables the header in output for formats with headers such as Markdown.
+
+Use this when you want to prepend your own heading or other content before the size table.
 
 ### Compare outputs
 
@@ -460,7 +480,7 @@ You can format the output of `analyzeArtifact` and `compareArtifact()` using `fo
 ```ts
 import { formatDiff } from "artifact-size-analyzer";
 
-const output = formatDiff([result], "markdown", { color: false });
+const output = formatDiff([result], "markdown");
 console.log(output);
 ```
 

@@ -75,8 +75,8 @@ function renderUpdatedRow(it: ArtifactDiff, showCompressed: boolean): string {
 	return `| ${name} | ${String(it.newFiles.length)} file(s) | ${sizeCol} | ${compressedCol} | ${percent} |`;
 }
 
-export function markdownFormat(results: ArtifactDiff[]): string {
-	const header = "## Artifact sizes\n\n";
+export function markdownFormat(results: ArtifactDiff[], options: { header: boolean }): string {
+	const header = options.header ? "## Artifact sizes\n\n" : "";
 	const showCompressed = results.some((it) => Boolean(it.gzip) || Boolean(it.brotli));
 
 	const tableHeader = showCompressed

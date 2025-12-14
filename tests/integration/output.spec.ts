@@ -38,6 +38,7 @@ it("should write to GitHub Actions output when --output-github is provided", asy
 		format: "json",
 		outputFile: [],
 		outputGithub: [{ format: "json", key: "foo" }],
+		formatOptions: { header: true },
 		fs,
 		console,
 	});
@@ -90,6 +91,7 @@ it("should write multiple GitHub outputs when multiple --output-github are provi
 			{ format: "json", key: "foo" },
 			{ format: "markdown", key: "bar" },
 		],
+		formatOptions: { header: true },
 		fs,
 		console,
 	});
@@ -139,6 +141,7 @@ it("should silently do nothing when --output-github is provided but GITHUB_OUTPU
 			format: "json",
 			outputFile: [],
 			outputGithub: [{ format: "json", key: "foo" }],
+			formatOptions: { header: true },
 			fs,
 			console,
 		}),

@@ -54,6 +54,7 @@ it("reports no differences for identical artifacts", async () => {
 		outputFile: [{ format: "json", key: "temp/base.json" }],
 		outputGithub: [],
 		format: "json",
+		formatOptions: { header: true },
 		fs,
 		console,
 	});
@@ -67,6 +68,7 @@ it("reports no differences for identical artifacts", async () => {
 		outputFile: [{ format: "json", key: "temp/current.json" }],
 		outputGithub: [],
 		format: "json",
+		formatOptions: { header: true },
 		fs,
 	});
 
@@ -79,6 +81,7 @@ it("reports no differences for identical artifacts", async () => {
 		outputFile: [{ format: "json", key: "temp/diff.json" }],
 		outputGithub: [],
 		format: "json",
+		formatOptions: { header: true },
 		fs,
 	});
 
@@ -130,6 +133,7 @@ it("detects added artifact via config change", async () => {
 		outputFile: [{ format: "json", key: "temp/base.json" }],
 		outputGithub: [],
 		format: "json",
+		formatOptions: { header: true },
 		fs,
 		console,
 	});
@@ -156,6 +160,7 @@ it("detects added artifact via config change", async () => {
 		outputFile: [{ format: "json", key: "temp/current.json" }],
 		outputGithub: [],
 		format: "json",
+		formatOptions: { header: true },
 		fs,
 		console,
 	});
@@ -169,6 +174,7 @@ it("detects added artifact via config change", async () => {
 		outputFile: [{ format: "json", key: "temp/diff.json" }],
 		outputGithub: [],
 		format: "json",
+		formatOptions: { header: true },
 		fs,
 		console,
 	});
@@ -229,6 +235,7 @@ it("detects removed artifact via config change", async () => {
 		outputFile: [{ format: "json", key: "temp/base.json" }],
 		outputGithub: [],
 		format: "json",
+		formatOptions: { header: true },
 		fs,
 		console,
 	});
@@ -248,6 +255,7 @@ it("detects removed artifact via config change", async () => {
 		outputFile: [{ format: "json", key: "temp/current.json" }],
 		outputGithub: [],
 		format: "json",
+		formatOptions: { header: true },
 		fs,
 		console,
 	});
@@ -261,6 +269,7 @@ it("detects removed artifact via config change", async () => {
 		outputFile: [{ format: "json", key: "temp/diff.json" }],
 		outputGithub: [],
 		format: "json",
+		formatOptions: { header: true },
 		fs,
 		console,
 	});
@@ -302,6 +311,7 @@ it("reports size increase when file grows", async () => {
 		outputFile: [{ format: "json", key: "temp/base.json" }],
 		outputGithub: [],
 		format: "json",
+		formatOptions: { header: true },
 		fs,
 		env: {},
 		console,
@@ -316,6 +326,7 @@ it("reports size increase when file grows", async () => {
 		outputFile: [{ format: "json", key: "temp/current.json" }],
 		outputGithub: [],
 		format: "json",
+		formatOptions: { header: true },
 		fs,
 		console,
 	});
@@ -329,6 +340,7 @@ it("reports size increase when file grows", async () => {
 		outputFile: [{ format: "json", key: "temp/diff.json" }],
 		outputGithub: [],
 		format: "json",
+		formatOptions: { header: true },
 		fs,
 		console,
 	});
@@ -378,6 +390,7 @@ it("detects added file between baseline and current", async () => {
 		outputFile: [{ format: "json", key: "temp/base.json" }],
 		outputGithub: [],
 		format: "json",
+		formatOptions: { header: true },
 		fs,
 		console,
 	});
@@ -392,6 +405,7 @@ it("detects added file between baseline and current", async () => {
 		outputFile: [{ format: "json", key: "temp/current.json" }],
 		outputGithub: [],
 		format: "json",
+		formatOptions: { header: true },
 		fs,
 		console,
 	});
@@ -405,6 +419,7 @@ it("detects added file between baseline and current", async () => {
 		outputFile: [{ format: "json", key: "temp/diff.json" }],
 		outputGithub: [],
 		format: "json",
+		formatOptions: { header: true },
 		fs,
 		console,
 	});
@@ -461,6 +476,7 @@ it("detects removed file between baseline and current", async () => {
 		outputFile: [{ format: "json", key: "temp/base.json" }],
 		outputGithub: [],
 		format: "json",
+		formatOptions: { header: true },
 		fs,
 		console,
 	});
@@ -475,6 +491,7 @@ it("detects removed file between baseline and current", async () => {
 		outputFile: [{ format: "json", key: "temp/current.json" }],
 		outputGithub: [],
 		format: "json",
+		formatOptions: { header: true },
 		fs,
 		console,
 	});
@@ -488,6 +505,7 @@ it("detects removed file between baseline and current", async () => {
 		outputFile: [{ format: "json", key: "temp/diff.json" }],
 		outputGithub: [],
 		format: "json",
+		formatOptions: { header: true },
 		fs,
 		console,
 	});
@@ -551,6 +569,7 @@ it("compares multiple artifacts", async () => {
 		outputFile: [{ format: "json", key: "temp/base.json" }],
 		outputGithub: [],
 		format: "json",
+		formatOptions: { header: true },
 		fs,
 		console,
 	});
@@ -565,6 +584,7 @@ it("compares multiple artifacts", async () => {
 		outputFile: [{ format: "json", key: "temp/current.json" }],
 		outputGithub: [],
 		format: "json",
+		formatOptions: { header: true },
 		fs,
 		console,
 	});
@@ -578,6 +598,7 @@ it("compares multiple artifacts", async () => {
 		outputFile: [{ format: "json", key: "temp/diff.json" }],
 		outputGithub: [],
 		format: "json",
+		formatOptions: { header: true },
 		fs,
 		console,
 	});
@@ -648,6 +669,7 @@ it("respects exclude patterns in config", async () => {
 		outputFile: [{ format: "json", key: "temp/base.json" }],
 		outputGithub: [],
 		format: "json",
+		formatOptions: { header: true },
 		fs,
 		console,
 	});
@@ -662,6 +684,7 @@ it("respects exclude patterns in config", async () => {
 		outputFile: [{ format: "json", key: "temp/current.json" }],
 		outputGithub: [],
 		format: "json",
+		formatOptions: { header: true },
 		fs,
 		console,
 	});
@@ -675,6 +698,7 @@ it("respects exclude patterns in config", async () => {
 		outputFile: [{ format: "json", key: "temp/diff.json" }],
 		outputGithub: [],
 		format: "json",
+		formatOptions: { header: true },
 		fs,
 		console,
 	});
@@ -726,6 +750,7 @@ it("handles empty artifacts gracefully", async () => {
 		outputFile: [{ format: "json", key: "temp/base.json" }],
 		outputGithub: [],
 		format: "json",
+		formatOptions: { header: true },
 		fs,
 		console,
 	});
@@ -738,6 +763,7 @@ it("handles empty artifacts gracefully", async () => {
 		outputFile: [{ format: "json", key: "temp/current.json" }],
 		outputGithub: [],
 		format: "json",
+		formatOptions: { header: true },
 		fs,
 		console,
 	});
@@ -751,6 +777,7 @@ it("handles empty artifacts gracefully", async () => {
 		outputFile: [{ format: "json", key: "temp/diff.json" }],
 		outputGithub: [],
 		format: "json",
+		formatOptions: { header: true },
 		fs,
 		console,
 	});
