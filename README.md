@@ -395,8 +395,7 @@ npx artifact-size-analyzer <command> [options]
 
 where `command` is one of:
 
--- `analyze`: Analyze artifacts defined in a config file.
-
+- `analyze`: Analyze artifacts defined in a config file.
 - `compare`: Compare two previously saved analysis outputs.
 
 ### Analyze
