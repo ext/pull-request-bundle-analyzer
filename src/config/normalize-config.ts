@@ -1,12 +1,6 @@
+import { toArray } from "../utils/index.ts";
 import { type ArtifactConfig, type CompressionAlgorithm, type Config } from "./config.ts";
 import { type NormalizedConfig } from "./index.ts";
-
-function toArray<T>(value: T | T[] | undefined): T[] {
-	if (Array.isArray(value)) {
-		return value;
-	}
-	return value ? [value] : [];
-}
 
 function normalizeCompression(value: ArtifactConfig["compression"]): CompressionAlgorithm[] {
 	if (value === undefined) {
@@ -28,8 +22,8 @@ export function normalizeConfig(config: Config): NormalizedConfig {
 			return {
 				id: entry.id,
 				name: entry.name,
-				include: toArray(entry.include),
-				exclude: toArray(entry.exclude),
+				include: toArray(entry.include ?? []),
+				exclude: toArray(entry.exclude ?? []),
 				compression: normalizeCompression(entry.compression),
 			};
 		}),

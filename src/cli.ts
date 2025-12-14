@@ -7,20 +7,10 @@ import { compareArtifacts } from "./compare/index.ts";
 import { type Format, formatArtifact, formatDiff, formats } from "./format/index.ts";
 import { readConfigFile } from "./read-config-file.ts";
 import { readJsonFile } from "./read-json-file.ts";
-import { type ParsedOutput, parseOutput } from "./utils/index.ts";
+import { type ParsedOutput, parseOutput, toArray } from "./utils/index.ts";
 
 function resolve(cwd: string, p: string): string {
 	return path.isAbsolute(p) ? p : path.join(cwd, p);
-}
-
-function toArray<T>(value: T | T[]): T[];
-function toArray<T, U>(value: T | T[], transform: (v: T) => U): U[];
-function toArray<T, U>(value: T | T[], transform?: (v: T) => U): T[] | U[] {
-	const arr = Array.isArray(value) ? value : [value];
-	if (transform) {
-		return arr.map(transform);
-	}
-	return arr;
 }
 
 interface CliOptions {
