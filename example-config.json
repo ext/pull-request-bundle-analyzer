@@ -10,8 +10,8 @@
     {
       "id": "npm-package",
       "name": "npm package",
-      "include": ["*.tgz"],
-      "compression": false
+      "include": ["bin/**", "dist/**", "schema.json", "README.md"],
+      "compression": "gzip"
     }
   ]
 }
