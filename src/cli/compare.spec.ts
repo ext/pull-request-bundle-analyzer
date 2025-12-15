@@ -669,3 +669,133 @@ it("handles empty artifacts gracefully", async () => {
 	const stdout = stream.getContentsAsString("utf8");
 	expect(stdout).toMatchInlineSnapshot(`false`);
 });
+
+it("outputs to console when no --output-file is provided", async () => {
+	const { stream, console } = createConsole();
+	const { fs } = await createVolume({
+		"/project/artifact-config.json": JSON.stringify(makeConfig()),
+	});
+
+	const parser = createParser({ cwd: "/project", env: {}, console, fs });
+
+	/* baseline */
+	await fs.writeFile("/project/dist/app.js", "a".repeat(50));
+	await parser.parseAsync([
+		"analyze",
+		"--config-file=artifact-config.json",
+		"--format=json",
+		"--output-file=temp/base.json",
+	]);
+
+	/* current */
+	await fs.writeFile("/project/dist/app.js", "a".repeat(100));
+	await parser.parseAsync([
+		"analyze",
+		"--config-file=artifact-config.json",
+		"--format=json",
+		"--output-file=temp/current.json",
+	]);
+
+	/* compare without output file */
+	await parser.parseAsync([
+		"compare",
+		"--base=temp/base.json",
+		"--current=temp/current.json",
+		"--format=text",
+	]);
+
+	/* should have console output */
+	const stdout = stream.getContentsAsString("utf8");
+	expect(stdout).toMatchInlineSnapshot(`
+		"app: files=1 (+0), size=100B (+50B), gzip=24B (+0B), brotli=11B (+0B)
+		"
+	`);
+});
+
+it("outputs to GitHub Actions when --output-github is provided", async () => {
+	const { console } = createConsole();
+	const { fs } = await createVolume({
+		"/project/artifact-config.json": JSON.stringify(makeConfig()),
+	});
+
+	const parser = createParser({
+		cwd: "/project",
+		env: { GITHUB_OUTPUT: "/gha_out.txt" },
+		console,
+		fs,
+	});
+
+	/* baseline */
+	await fs.writeFile("/project/dist/app.js", "a".repeat(50));
+	await parser.parseAsync([
+		"analyze",
+		"--config-file=artifact-config.json",
+		"--format=json",
+		"--output-file=temp/base.json",
+	]);
+
+	/* current */
+	await fs.writeFile("/project/dist/app.js", "a".repeat(100));
+	await parser.parseAsync([
+		"analyze",
+		"--config-file=artifact-config.json",
+		"--format=json",
+		"--output-file=temp/current.json",
+	]);
+
+	await fs.writeFile("/gha_out.txt", "", "utf8");
+
+	/* compare with GitHub output */
+	await parser.parseAsync([
+		"compare",
+		"--base=temp/base.json",
+		"--current=temp/current.json",
+		"--format=json",
+		"--output-github=json:diff-result",
+	]);
+
+	const content = await fs.readFile("/gha_out.txt", "utf8");
+	expect(content).toMatchInlineSnapshot(`
+		"diff-result<<EOF
+		[
+		  {
+		    "status": "updated",
+		    "id": "app",
+		    "name": "app",
+		    "raw": {
+		      "oldSize": 50,
+		      "newSize": 100,
+		      "difference": 50
+		    },
+		    "gzip": {
+		      "oldSize": 24,
+		      "newSize": 24,
+		      "difference": 0
+		    },
+		    "brotli": {
+		      "oldSize": 11,
+		      "newSize": 11,
+		      "difference": 0
+		    },
+		    "oldFiles": [
+		      {
+		        "filename": "dist/app.js",
+		        "size": 50,
+		        "gzip": 24,
+		        "brotli": 11
+		      }
+		    ],
+		    "newFiles": [
+		      {
+		        "filename": "dist/app.js",
+		        "size": 100,
+		        "gzip": 24,
+		        "brotli": 11
+		      }
+		    ]
+		  }
+		]
+		EOF
+		"
+	`);
+});

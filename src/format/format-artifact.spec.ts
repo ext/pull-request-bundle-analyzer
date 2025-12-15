@@ -192,4 +192,46 @@ describe("formatArtifact()", () => {
 			 └ dist/lib.js size=<cyan>200B</cyan>, gzip=<cyan>150B</cyan>, brotli=<cyan>120B</cyan>
 		`);
 	});
+
+	it("should handle files with mixed compression in text format", () => {
+		const mixedData: ArtifactSize[] = [
+			{
+				id: "mixed",
+				artifact: "mixed",
+				files: [
+					{ filename: "a.js", size: 100, gzip: 80, brotli: null },
+					{ filename: "b.js", size: 50, gzip: null, brotli: 40 },
+				],
+				size: 150,
+				gzip: 80,
+				brotli: 40,
+			},
+		];
+
+		const out = formatArtifact(mixedData, "text");
+		expect(out).toMatchInlineSnapshot(`
+			mixed: files=2, size=150B, gzip=80B, brotli=40B
+			 ├ a.js size=100B, gzip=80B, brotli=-
+			 └ b.js size=50B, gzip=-, brotli=40B
+		`);
+	});
+
+	it("should format text with no compression algorithms", () => {
+		const noCompressionData: ArtifactSize[] = [
+			{
+				id: "no-compression",
+				artifact: "no-compression",
+				files: [{ filename: "test.js", size: 100, gzip: null, brotli: null }],
+				size: 100,
+				gzip: null,
+				brotli: null,
+			},
+		];
+
+		const out = formatArtifact(noCompressionData, "text");
+		expect(out).toMatchInlineSnapshot(`
+			no-compression: files=1, size=100B
+			 └ test.js size=100B
+		`);
+	});
 });

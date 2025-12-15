@@ -61,4 +61,15 @@ describe("getFiles", () => {
 		const files = await getFiles({ artifact, cwd, fs });
 		expect(files).toEqual(["dist/foo.js", "dist/index.js"]);
 	});
+
+	it("should ignore directories and only return files", async () => {
+		const vol = Volume.fromJSON({ "/dist/index.js": "", "/dist/subdir/": null });
+		const fs = vol.promises as unknown as typeof nodefs;
+		const artifact: Pick<NormalizedArtifactConfig, "include" | "exclude"> = {
+			include: ["dist/*"],
+			exclude: [],
+		};
+		const files = await getFiles({ artifact, cwd, fs });
+		expect(files).toEqual(["dist/index.js"]);
+	});
 });
