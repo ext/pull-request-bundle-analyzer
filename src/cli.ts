@@ -241,8 +241,8 @@ export async function compare(options: CompareOptions): Promise<void> {
 	const { header } = formatOptions;
 	const basePath = resolve(options.cwd, options.base);
 	const currentPath = resolve(options.cwd, options.current);
-	const base = (await readJsonFile(basePath, options.fs)) as ArtifactSize[];
-	const current = (await readJsonFile(currentPath, options.fs)) as ArtifactSize[];
+	const base = await readJsonFile<ArtifactSize[]>(basePath, { fs });
+	const current = await readJsonFile<ArtifactSize[]>(currentPath, { fs });
 	const diff = compareArtifacts(base, current);
 
 	if (options.outputFile.length > 0) {
