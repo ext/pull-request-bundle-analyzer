@@ -1,5 +1,6 @@
 import nodefs from "node:fs/promises";
 import { type NormalizedArtifactConfig } from "./config/index.ts";
+import { resolve } from "./utils/index.ts";
 
 interface GetFilesOptions {
 	artifact: Pick<NormalizedArtifactConfig, "include" | "exclude">;
@@ -19,7 +20,10 @@ export async function getFiles(options: GetFilesOptions): Promise<string[]> {
 	for (const pattern of include) {
 		/* eslint-disable-next-line @typescript-eslint/await-thenable -- memfs incorrectly types this */
 		for await (const filePath of await fs.glob(pattern, { cwd })) {
-			result.add(filePath);
+			const st = await fs.stat(resolve(cwd, filePath));
+			if (st.isFile()) {
+				result.add(filePath);
+			}
 		}
 	}
 
