@@ -3,8 +3,8 @@ import yargs from "yargs";
 import { analyzeArtifact } from "../analyze-artifact.ts";
 import { type ArtifactSize } from "../artifact-size.ts";
 import { compareArtifacts } from "../compare/index.ts";
+import { readConfigFile } from "../config/index.ts";
 import { type Format, formatArtifact, formatDiff, formats } from "../format/index.ts";
-import { readConfigFile } from "../read-config-file.ts";
 import {
 	type ParsedOutput,
 	parseOutput,

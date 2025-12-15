@@ -4,8 +4,9 @@ export {
 	type Config,
 	type NormalizedArtifactConfig,
 	type NormalizedConfig,
+	type ReadConfigFileOptions,
+	readConfigFile,
 } from "./config/index.ts";
-export { type ReadConfigFileOptions, readConfigFile } from "./read-config-file.ts";
 export { type AnalyzeArtifactOptions, analyzeArtifact } from "./analyze-artifact.ts";
 export { type FileResult } from "./file-result.ts";
 export { compareArtifact, compareArtifacts } from "./compare/index.ts";

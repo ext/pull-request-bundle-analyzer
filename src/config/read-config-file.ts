@@ -1,8 +1,8 @@
 import nodefs from "node:fs/promises";
 import { Ajv } from "ajv";
-import schema from "../schema.json" with { type: "json" };
-import { type Config, type NormalizedConfig, normalizeConfig } from "./config/index.ts";
-import { readJsonFile } from "./utils/index.ts";
+import schema from "../../schema.json" with { type: "json" };
+import { readJsonFile } from "../utils/index.ts";
+import { type Config, type NormalizedConfig, normalizeConfig } from "./index.ts";
 
 /**
  * Options for `readConfigFile`.
