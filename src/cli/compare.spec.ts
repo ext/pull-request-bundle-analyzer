@@ -3,10 +3,10 @@ import type nodefs from "node:fs/promises";
 import { Volume } from "memfs";
 import { WritableStreamBuffer } from "stream-buffers";
 import { expect, it } from "vitest";
-import { ArtifactDiff } from "../../src/artifact-diff.ts";
-import { type ArtifactSize } from "../../src/artifact-size.ts";
-import { analyze, compare } from "../../src/cli/cli.ts";
-import { type Config } from "../../src/config/index.ts";
+import { ArtifactDiff } from "../artifact-diff.ts";
+import { type ArtifactSize } from "../artifact-size.ts";
+import { type Config } from "../config/index.ts";
+import { createParser } from "./cli.ts";
 
 async function createVolume(json: Record<string, string> = {}): Promise<{ fs: typeof nodefs }> {
 	const vol = Volume.fromJSON(json);
@@ -16,7 +16,7 @@ async function createVolume(json: Record<string, string> = {}): Promise<{ fs: ty
 	return { fs };
 }
 
-export function createConsole(): { stream: WritableStreamBuffer; console: Console } {
+function createConsole(): { stream: WritableStreamBuffer; console: Console } {
 	const stream = new WritableStreamBuffer();
 	const bufConsole = new Console(stream, stream);
 	return { stream, console: bufConsole };
@@ -45,45 +45,34 @@ it("reports no differences for identical artifacts", async () => {
 		"/project/artifact-config.json": JSON.stringify(makeConfig()),
 	});
 
+	const parser = createParser({ cwd: "/project", env: {}, console, fs });
+
 	/* baseline */
 	await fs.writeFile("/project/dist/app.js", "a".repeat(100));
-	await analyze({
-		cwd: "/project",
-		env: {},
-		configFile: "artifact-config.json",
-		outputFile: [{ format: "json", key: "temp/base.json" }],
-		outputGithub: [],
-		format: "json",
-		formatOptions: { header: true },
-		fs,
-		console,
-	});
+	await parser.parseAsync([
+		"analyze",
+		"--config-file=artifact-config.json",
+		"--format=json",
+		"--output-file=temp/base.json",
+	]);
 
 	/* current (identical) */
 	await fs.writeFile("/project/dist/app.js", "a".repeat(100));
-	await analyze({
-		cwd: "/project",
-		env: {},
-		configFile: "artifact-config.json",
-		outputFile: [{ format: "json", key: "temp/current.json" }],
-		outputGithub: [],
-		format: "json",
-		formatOptions: { header: true },
-		fs,
-	});
+	await parser.parseAsync([
+		"analyze",
+		"--config-file=artifact-config.json",
+		"--format=json",
+		"--output-file=temp/current.json",
+	]);
 
 	/* compare */
-	await compare({
-		cwd: "/project",
-		env: {},
-		base: "temp/base.json",
-		current: "temp/current.json",
-		outputFile: [{ format: "json", key: "temp/diff.json" }],
-		outputGithub: [],
-		format: "json",
-		formatOptions: { header: true },
-		fs,
-	});
+	await parser.parseAsync([
+		"compare",
+		"--base=temp/base.json",
+		"--current=temp/current.json",
+		"--format=json",
+		"--output-file=temp/diff.json",
+	]);
 
 	const base = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/base.json");
 	const current = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/current.json");
@@ -110,7 +99,7 @@ it("reports no differences for identical artifacts", async () => {
 	expect(current).toMatchSnapshot("current");
 	expect(diff).toMatchSnapshot("compare");
 
-	/* console output */
+	/* should have no console output */
 	const stdout = stream.getContentsAsString("utf8");
 	expect(stdout).toMatchInlineSnapshot(`false`);
 });
@@ -123,20 +112,17 @@ it("detects added artifact via config change", async () => {
 		}),
 	});
 
+	const parser = createParser({ cwd: "/project", env: {}, console, fs });
+
 	/* baseline with single artifact (app) */
 	await fs.mkdir("/project/dist/app", { recursive: true });
 	await fs.writeFile("/project/dist/app/app.js", "a".repeat(100));
-	await analyze({
-		cwd: "/project",
-		env: {},
-		configFile: "artifact-config.json",
-		outputFile: [{ format: "json", key: "temp/base.json" }],
-		outputGithub: [],
-		format: "json",
-		formatOptions: { header: true },
-		fs,
-		console,
-	});
+	await parser.parseAsync([
+		"analyze",
+		"--config-file=artifact-config.json",
+		"--format=json",
+		"--output-file=temp/base.json",
+	]);
 
 	/* update config to add a second artifact (lib) and write files */
 	await fs.mkdir("/project/dist/lib", { recursive: true });
@@ -153,36 +139,27 @@ it("detects added artifact via config change", async () => {
 
 	/* current with added artifact */
 	await fs.writeFile("/project/dist/app/app.js", "a".repeat(100));
-	await analyze({
-		cwd: "/project",
-		env: {},
-		configFile: "artifact-config.json",
-		outputFile: [{ format: "json", key: "temp/current.json" }],
-		outputGithub: [],
-		format: "json",
-		formatOptions: { header: true },
-		fs,
-		console,
-	});
+	await parser.parseAsync([
+		"analyze",
+		"--config-file=artifact-config.json",
+		"--format=json",
+		"--output-file=temp/current.json",
+	]);
 
 	/* compare */
-	await compare({
-		cwd: "/project",
-		env: {},
-		base: "temp/base.json",
-		current: "temp/current.json",
-		outputFile: [{ format: "json", key: "temp/diff.json" }],
-		outputGithub: [],
-		format: "json",
-		formatOptions: { header: true },
-		fs,
-		console,
-	});
+	await parser.parseAsync([
+		"compare",
+		"--base=temp/base.json",
+		"--current=temp/current.json",
+		"--format=json",
+		"--output-file=temp/diff.json",
+	]);
 
 	const base = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/base.json");
 	const current = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/current.json");
 	const diff = await readJsonFile<ArtifactDiff[]>(fs, "/project/temp/diff.json");
 
+	/* assert returned artifact counts are correct */
 	expect(base).toHaveLength(1);
 	expect(current).toHaveLength(2);
 	expect(diff).toHaveLength(2);
@@ -204,12 +181,12 @@ it("detects added artifact via config change", async () => {
 	expect(libDiff.raw.oldSize).toBe(0);
 	expect(libDiff.raw.newSize).toBeGreaterThan(0);
 
-	/* snapshots */
+	/* snapshot results for regression checks */
 	expect(base).toMatchSnapshot("base");
 	expect(current).toMatchSnapshot("current");
 	expect(diff).toMatchSnapshot("compare");
 
-	/* console output */
+	/* should have no console output */
 	const stdout = stream.getContentsAsString("utf8");
 	expect(stdout).toMatchInlineSnapshot(`false`);
 });
@@ -225,22 +202,19 @@ it("detects removed artifact via config change", async () => {
 		}),
 	});
 
+	const parser = createParser({ cwd: "/project", env: {}, console, fs });
+
 	/* baseline with two artifacts */
 	await fs.mkdir("/project/dist/app", { recursive: true });
 	await fs.mkdir("/project/dist/lib", { recursive: true });
 	await fs.writeFile("/project/dist/app/app.js", "a".repeat(100));
 	await fs.writeFile("/project/dist/lib/lib.js", "l".repeat(200));
-	await analyze({
-		cwd: "/project",
-		env: {},
-		configFile: "artifact-config.json",
-		outputFile: [{ format: "json", key: "temp/base.json" }],
-		outputGithub: [],
-		format: "json",
-		formatOptions: { header: true },
-		fs,
-		console,
-	});
+	await parser.parseAsync([
+		"analyze",
+		"--config-file=artifact-config.json",
+		"--format=json",
+		"--output-file=temp/base.json",
+	]);
 
 	/* update config to remove lib artifact */
 	await fs.writeFile(
@@ -248,38 +222,29 @@ it("detects removed artifact via config change", async () => {
 		JSON.stringify({ artifacts: [{ id: "app", name: "app", include: "dist/app/**/*.js" }] }),
 	);
 
-	/* current with only app present */
+	/* current with removed artifact */
 	await fs.writeFile("/project/dist/app/app.js", "a".repeat(100));
-	await analyze({
-		cwd: "/project",
-		env: {},
-		configFile: "artifact-config.json",
-		outputFile: [{ format: "json", key: "temp/current.json" }],
-		outputGithub: [],
-		format: "json",
-		formatOptions: { header: true },
-		fs,
-		console,
-	});
+	await parser.parseAsync([
+		"analyze",
+		"--config-file=artifact-config.json",
+		"--format=json",
+		"--output-file=temp/current.json",
+	]);
 
 	/* compare */
-	await compare({
-		cwd: "/project",
-		env: {},
-		base: "temp/base.json",
-		current: "temp/current.json",
-		outputFile: [{ format: "json", key: "temp/diff.json" }],
-		outputGithub: [],
-		format: "json",
-		formatOptions: { header: true },
-		fs,
-		console,
-	});
+	await parser.parseAsync([
+		"compare",
+		"--base=temp/base.json",
+		"--current=temp/current.json",
+		"--format=json",
+		"--output-file=temp/diff.json",
+	]);
 
 	const base = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/base.json");
 	const current = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/current.json");
 	const diff = await readJsonFile<ArtifactDiff[]>(fs, "/project/temp/diff.json");
 
+	/* assert returned artifact counts are correct */
 	expect(base).toHaveLength(2);
 	expect(current).toHaveLength(1);
 	expect(diff).toHaveLength(2);
@@ -291,12 +256,12 @@ it("detects removed artifact via config change", async () => {
 	expect(libDiff.status).toBe("removed");
 	expect(libDiff.raw.newSize).toBe(0);
 
-	/* snapshots */
+	/* snapshot results for regression checks */
 	expect(base).toMatchSnapshot("base");
 	expect(current).toMatchSnapshot("current");
 	expect(diff).toMatchSnapshot("compare");
 
-	/* console output */
+	/* should have no console output */
 	const stdout = stream.getContentsAsString("utf8");
 	expect(stdout).toMatchInlineSnapshot(`false`);
 });
@@ -307,47 +272,34 @@ it("reports size increase when file grows", async () => {
 		"/project/artifact-config.json": JSON.stringify(makeConfig()),
 	});
 
+	const parser = createParser({ cwd: "/project", env: {}, console, fs });
+
 	/* baseline */
 	await fs.writeFile("/project/dist/app.js", "x".repeat(100));
-	await analyze({
-		cwd: "/project",
-		configFile: "artifact-config.json",
-		outputFile: [{ format: "json", key: "temp/base.json" }],
-		outputGithub: [],
-		format: "json",
-		formatOptions: { header: true },
-		fs,
-		env: {},
-		console,
-	});
+	await parser.parseAsync([
+		"analyze",
+		"--config-file=artifact-config.json",
+		"--format=json",
+		"--output-file=temp/base.json",
+	]);
 
-	/* current (bigger) */
+	/* current (larger) */
 	await fs.writeFile("/project/dist/app.js", "x".repeat(160));
-	await analyze({
-		cwd: "/project",
-		env: {},
-		configFile: "artifact-config.json",
-		outputFile: [{ format: "json", key: "temp/current.json" }],
-		outputGithub: [],
-		format: "json",
-		formatOptions: { header: true },
-		fs,
-		console,
-	});
+	await parser.parseAsync([
+		"analyze",
+		"--config-file=artifact-config.json",
+		"--format=json",
+		"--output-file=temp/current.json",
+	]);
 
 	/* compare */
-	await compare({
-		cwd: "/project",
-		env: {},
-		base: "temp/base.json",
-		current: "temp/current.json",
-		outputFile: [{ format: "json", key: "temp/diff.json" }],
-		outputGithub: [],
-		format: "json",
-		formatOptions: { header: true },
-		fs,
-		console,
-	});
+	await parser.parseAsync([
+		"compare",
+		"--base=temp/base.json",
+		"--current=temp/current.json",
+		"--format=json",
+		"--output-file=temp/diff.json",
+	]);
 
 	const base = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/base.json");
 	const current = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/current.json");
@@ -374,7 +326,7 @@ it("reports size increase when file grows", async () => {
 	expect(current).toMatchSnapshot("current");
 	expect(diff).toMatchSnapshot("compare");
 
-	/* console output */
+	/* should have no console output */
 	const stdout = stream.getContentsAsString("utf8");
 	expect(stdout).toMatchInlineSnapshot(`false`);
 });
@@ -385,48 +337,35 @@ it("detects added file between baseline and current", async () => {
 		"/project/artifact-config.json": JSON.stringify(makeConfig()),
 	});
 
+	const parser = createParser({ cwd: "/project", env: {}, console, fs });
+
 	/* baseline (single file) */
 	await fs.writeFile("/project/dist/app.js", "1".repeat(50));
-	await analyze({
-		cwd: "/project",
-		env: {},
-		configFile: "artifact-config.json",
-		outputFile: [{ format: "json", key: "temp/base.json" }],
-		outputGithub: [],
-		format: "json",
-		formatOptions: { header: true },
-		fs,
-		console,
-	});
+	await parser.parseAsync([
+		"analyze",
+		"--config-file=artifact-config.json",
+		"--format=json",
+		"--output-file=temp/base.json",
+	]);
 
-	/* current (added vendor.js) */
+	/* current (with added file) */
 	await fs.writeFile("/project/dist/app.js", "1".repeat(50));
 	await fs.writeFile("/project/dist/vendor.js", "v".repeat(30));
-	await analyze({
-		cwd: "/project",
-		env: {},
-		configFile: "artifact-config.json",
-		outputFile: [{ format: "json", key: "temp/current.json" }],
-		outputGithub: [],
-		format: "json",
-		formatOptions: { header: true },
-		fs,
-		console,
-	});
+	await parser.parseAsync([
+		"analyze",
+		"--config-file=artifact-config.json",
+		"--format=json",
+		"--output-file=temp/current.json",
+	]);
 
 	/* compare */
-	await compare({
-		cwd: "/project",
-		env: {},
-		base: "temp/base.json",
-		current: "temp/current.json",
-		outputFile: [{ format: "json", key: "temp/diff.json" }],
-		outputGithub: [],
-		format: "json",
-		formatOptions: { header: true },
-		fs,
-		console,
-	});
+	await parser.parseAsync([
+		"compare",
+		"--base=temp/base.json",
+		"--current=temp/current.json",
+		"--format=json",
+		"--output-file=temp/diff.json",
+	]);
 
 	const base = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/base.json");
 	const current = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/current.json");
@@ -459,7 +398,7 @@ it("detects added file between baseline and current", async () => {
 	expect(current).toMatchSnapshot("current");
 	expect(diff).toMatchSnapshot("compare");
 
-	/* console output */
+	/* should have no console output */
 	const stdout = stream.getContentsAsString("utf8");
 	expect(stdout).toMatchInlineSnapshot(`false`);
 });
@@ -470,49 +409,36 @@ it("detects removed file between baseline and current", async () => {
 		"/project/artifact-config.json": JSON.stringify(makeConfig()),
 	});
 
-	/* baseline (app + vendor) */
+	const parser = createParser({ cwd: "/project", env: {}, console, fs });
+
+	/* baseline (two files) */
 	await fs.writeFile("/project/dist/app.js", "1".repeat(50));
 	await fs.writeFile("/project/dist/vendor.js", "v".repeat(30));
-	await analyze({
-		cwd: "/project",
-		env: {},
-		configFile: "artifact-config.json",
-		outputFile: [{ format: "json", key: "temp/base.json" }],
-		outputGithub: [],
-		format: "json",
-		formatOptions: { header: true },
-		fs,
-		console,
-	});
+	await parser.parseAsync([
+		"analyze",
+		"--config-file=artifact-config.json",
+		"--format=json",
+		"--output-file=temp/base.json",
+	]);
 
-	/* current (vendor removed) */
+	/* current (file removed) */
 	await fs.unlink("/project/dist/vendor.js");
 	await fs.writeFile("/project/dist/app.js", "1".repeat(50));
-	await analyze({
-		cwd: "/project",
-		env: {},
-		configFile: "artifact-config.json",
-		outputFile: [{ format: "json", key: "temp/current.json" }],
-		outputGithub: [],
-		format: "json",
-		formatOptions: { header: true },
-		fs,
-		console,
-	});
+	await parser.parseAsync([
+		"analyze",
+		"--config-file=artifact-config.json",
+		"--format=json",
+		"--output-file=temp/current.json",
+	]);
 
 	/* compare */
-	await compare({
-		cwd: "/project",
-		env: {},
-		base: "temp/base.json",
-		current: "temp/current.json",
-		outputFile: [{ format: "json", key: "temp/diff.json" }],
-		outputGithub: [],
-		format: "json",
-		formatOptions: { header: true },
-		fs,
-		console,
-	});
+	await parser.parseAsync([
+		"compare",
+		"--base=temp/base.json",
+		"--current=temp/current.json",
+		"--format=json",
+		"--output-file=temp/diff.json",
+	]);
 
 	const base = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/base.json");
 	const current = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/current.json");
@@ -545,7 +471,7 @@ it("detects removed file between baseline and current", async () => {
 	expect(current).toMatchSnapshot("current");
 	expect(diff).toMatchSnapshot("compare");
 
-	/* console output */
+	/* should have no console output */
 	const stdout = stream.getContentsAsString("utf8");
 	expect(stdout).toMatchInlineSnapshot(`false`);
 });
@@ -561,51 +487,38 @@ it("compares multiple artifacts", async () => {
 		}),
 	});
 
+	const parser = createParser({ cwd: "/project", env: {}, console, fs });
+
 	/* baseline */
 	await fs.mkdir("/project/dist/app", { recursive: true });
 	await fs.mkdir("/project/dist/lib", { recursive: true });
 	await fs.writeFile("/project/dist/app/app.js", "a".repeat(100));
 	await fs.writeFile("/project/dist/lib/lib.js", "l".repeat(200));
-	await analyze({
-		cwd: "/project",
-		env: {},
-		configFile: "artifact-config.json",
-		outputFile: [{ format: "json", key: "temp/base.json" }],
-		outputGithub: [],
-		format: "json",
-		formatOptions: { header: true },
-		fs,
-		console,
-	});
+	await parser.parseAsync([
+		"analyze",
+		"--config-file=artifact-config.json",
+		"--format=json",
+		"--output-file=temp/base.json",
+	]);
 
 	/* current (app +10 bytes, lib -20 bytes) */
 	await fs.writeFile("/project/dist/app/app.js", "a".repeat(110));
 	await fs.writeFile("/project/dist/lib/lib.js", "l".repeat(180));
-	await analyze({
-		cwd: "/project",
-		env: {},
-		configFile: "artifact-config.json",
-		outputFile: [{ format: "json", key: "temp/current.json" }],
-		outputGithub: [],
-		format: "json",
-		formatOptions: { header: true },
-		fs,
-		console,
-	});
+	await parser.parseAsync([
+		"analyze",
+		"--config-file=artifact-config.json",
+		"--format=json",
+		"--output-file=temp/current.json",
+	]);
 
 	/* compare */
-	await compare({
-		cwd: "/project",
-		env: {},
-		base: "temp/base.json",
-		current: "temp/current.json",
-		outputFile: [{ format: "json", key: "temp/diff.json" }],
-		outputGithub: [],
-		format: "json",
-		formatOptions: { header: true },
-		fs,
-		console,
-	});
+	await parser.parseAsync([
+		"compare",
+		"--base=temp/base.json",
+		"--current=temp/current.json",
+		"--format=json",
+		"--output-file=temp/diff.json",
+	]);
 
 	const base = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/base.json");
 	const current = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/current.json");
@@ -622,15 +535,16 @@ it("compares multiple artifacts", async () => {
 	expect(diff[0].oldFiles).toEqual([expect.objectContaining({ filename: "dist/app/app.js" })]);
 	expect(diff[0].newFiles).toEqual([expect.objectContaining({ filename: "dist/app/app.js" })]);
 
-	/* size diffs */
+	/* helper to find specific artifacts by name */
 	function findDiff(arr: ArtifactDiff[], name: string): ArtifactDiff {
-		const d = arr.find((x) => x.name === name);
+		const d = arr.find((diff) => diff.name === name);
 		if (!d) {
 			throw new Error(`diff not found: ${name}`);
 		}
 		return d;
 	}
 
+	/* size diffs */
 	const appDiff = findDiff(diff, "app");
 	const libDiff = findDiff(diff, "lib");
 	expect(appDiff.raw.difference).toBe(10);
@@ -640,12 +554,12 @@ it("compares multiple artifacts", async () => {
 	expect(libDiff.raw.oldSize).toBe(200);
 	expect(libDiff.raw.newSize).toBe(180);
 
-	/* snapshots */
+	/* snapshot results for regression checks */
 	expect(base).toMatchSnapshot("base");
 	expect(current).toMatchSnapshot("current");
 	expect(diff).toMatchSnapshot("compare");
 
-	/* console output */
+	/* should have no console output */
 	const stdout = stream.getContentsAsString("utf8");
 	expect(stdout).toMatchInlineSnapshot(`false`);
 });
@@ -665,49 +579,36 @@ it("respects exclude patterns in config", async () => {
 		}),
 	});
 
+	const parser = createParser({ cwd: "/project", env: {}, console, fs });
+
 	/* baseline */
 	await fs.writeFile("/project/dist/app.js", "1".repeat(50));
 	await fs.writeFile("/project/dist/vendor.js", "v".repeat(30));
-	await analyze({
-		cwd: "/project",
-		env: {},
-		configFile: "artifact-config.json",
-		outputFile: [{ format: "json", key: "temp/base.json" }],
-		outputGithub: [],
-		format: "json",
-		formatOptions: { header: true },
-		fs,
-		console,
-	});
+	await parser.parseAsync([
+		"analyze",
+		"--config-file=artifact-config.json",
+		"--format=json",
+		"--output-file=temp/base.json",
+	]);
 
 	/* current */
 	await fs.writeFile("/project/dist/app.js", "1".repeat(50));
 	await fs.writeFile("/project/dist/vendor.js", "v".repeat(30));
-	await analyze({
-		cwd: "/project",
-		env: {},
-		configFile: "artifact-config.json",
-		outputFile: [{ format: "json", key: "temp/current.json" }],
-		outputGithub: [],
-		format: "json",
-		formatOptions: { header: true },
-		fs,
-		console,
-	});
+	await parser.parseAsync([
+		"analyze",
+		"--config-file=artifact-config.json",
+		"--format=json",
+		"--output-file=temp/current.json",
+	]);
 
 	/* compare */
-	await compare({
-		cwd: "/project",
-		env: {},
-		base: "temp/base.json",
-		current: "temp/current.json",
-		outputFile: [{ format: "json", key: "temp/diff.json" }],
-		outputGithub: [],
-		format: "json",
-		formatOptions: { header: true },
-		fs,
-		console,
-	});
+	await parser.parseAsync([
+		"compare",
+		"--base=temp/base.json",
+		"--current=temp/current.json",
+		"--format=json",
+		"--output-file=temp/diff.json",
+	]);
 
 	const base = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/base.json");
 	const current = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/current.json");
@@ -729,7 +630,7 @@ it("respects exclude patterns in config", async () => {
 	expect(current).toMatchSnapshot("current");
 	expect(diff).toMatchSnapshot("compare");
 
-	/* console output */
+	/* should have no console output */
 	const stdout = stream.getContentsAsString("utf8");
 	expect(stdout).toMatchInlineSnapshot(`false`);
 });
@@ -742,57 +643,44 @@ it("handles empty artifacts gracefully", async () => {
 				{
 					id: "empty",
 					name: "empty",
-					include: "dist/**/*.js",
+					include: "nonexistent/**/*.js",
 				},
 			],
 		}),
 	});
 
-	/* baseline (no files) */
-	await analyze({
-		cwd: "/project",
-		env: {},
-		configFile: "artifact-config.json",
-		outputFile: [{ format: "json", key: "temp/base.json" }],
-		outputGithub: [],
-		format: "json",
-		formatOptions: { header: true },
-		fs,
-		console,
-	});
+	const parser = createParser({ cwd: "/project", env: {}, console, fs });
 
-	/* current (no files) */
-	await analyze({
-		cwd: "/project",
-		env: {},
-		configFile: "artifact-config.json",
-		outputFile: [{ format: "json", key: "temp/current.json" }],
-		outputGithub: [],
-		format: "json",
-		formatOptions: { header: true },
-		fs,
-		console,
-	});
+	/* baseline (no matching files) */
+	await parser.parseAsync([
+		"analyze",
+		"--config-file=artifact-config.json",
+		"--format=json",
+		"--output-file=temp/base.json",
+	]);
+
+	/* current (no matching files) */
+	await parser.parseAsync([
+		"analyze",
+		"--config-file=artifact-config.json",
+		"--format=json",
+		"--output-file=temp/current.json",
+	]);
 
 	/* compare */
-	await compare({
-		cwd: "/project",
-		env: {},
-		base: "temp/base.json",
-		current: "temp/current.json",
-		outputFile: [{ format: "json", key: "temp/diff.json" }],
-		outputGithub: [],
-		format: "json",
-		formatOptions: { header: true },
-		fs,
-		console,
-	});
+	await parser.parseAsync([
+		"compare",
+		"--base=temp/base.json",
+		"--current=temp/current.json",
+		"--format=json",
+		"--output-file=temp/diff.json",
+	]);
 
 	const base = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/base.json");
 	const current = await readJsonFile<ArtifactSize[]>(fs, "/project/temp/current.json");
 	const diff = await readJsonFile<ArtifactDiff[]>(fs, "/project/temp/diff.json");
 
-	/* assert empty artifact handled */
+	/* assert empty artifacts are handled correctly */
 	expect(base).toHaveLength(1);
 	expect(current).toHaveLength(1);
 	expect(diff).toHaveLength(1);
@@ -806,12 +694,12 @@ it("handles empty artifacts gracefully", async () => {
 	expect(diff[0].raw.oldSize).toBe(0);
 	expect(diff[0].raw.newSize).toBe(0);
 
-	/* snapshots */
+	/* snapshot results for regression checks */
 	expect(base).toMatchSnapshot("base");
 	expect(current).toMatchSnapshot("current");
 	expect(diff).toMatchSnapshot("compare");
 
-	/* console output */
+	/* should have no console output */
 	const stdout = stream.getContentsAsString("utf8");
 	expect(stdout).toMatchInlineSnapshot(`false`);
 });

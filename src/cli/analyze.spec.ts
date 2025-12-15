@@ -3,7 +3,7 @@ import type nodefs from "node:fs/promises";
 import { Volume } from "memfs";
 import { WritableStreamBuffer } from "stream-buffers";
 import { expect, it } from "vitest";
-import { analyze } from "../../src/cli/cli.ts";
+import { createParser } from "./cli.ts";
 
 async function createVolume(json: Record<string, string> = {}): Promise<{ fs: typeof nodefs }> {
 	const vol = Volume.fromJSON(json);
@@ -26,22 +26,23 @@ it("should write to GitHub Actions output when --output-github is provided", asy
 			artifacts: [{ id: "app", name: "app", include: "dist/**/*.js" }],
 		}),
 	});
+
+	const parser = createParser({
+		cwd: "/project",
+		env: { GITHUB_OUTPUT: "/gha_out.txt" },
+		console,
+		fs,
+	});
+
 	await fs.writeFile("/project/dist/app.js", "a".repeat(50));
 	await fs.writeFile("/gha_out.txt", "", "utf8");
 
-	await analyze({
-		cwd: "/project",
-		env: {
-			GITHUB_OUTPUT: "/gha_out.txt",
-		},
-		configFile: "artifact-config.json",
-		format: "json",
-		outputFile: [],
-		outputGithub: [{ format: "json", key: "foo" }],
-		formatOptions: { header: true },
-		fs,
-		console,
-	});
+	await parser.parseAsync([
+		"analyze",
+		"--config-file=artifact-config.json",
+		"--format=json",
+		"--output-github=json:foo",
+	]);
 
 	const content = await fs.readFile("/gha_out.txt", "utf8");
 	expect(content).toMatch(/^foo<<EOF\n[\s\S]*\nEOF\n$/);
@@ -76,31 +77,29 @@ it("should write multiple GitHub outputs when multiple --output-github are provi
 			artifacts: [{ id: "app", name: "app", include: "dist/**/*.js" }],
 		}),
 	});
+
+	const parser = createParser({
+		cwd: "/project",
+		env: { GITHUB_OUTPUT: "/gha_out.txt" },
+		console,
+		fs,
+	});
+
 	await fs.writeFile("/project/dist/app.js", "c".repeat(40));
 	await fs.writeFile("/gha_out.txt", "", "utf8");
 
-	await analyze({
-		cwd: "/project",
-		env: {
-			GITHUB_OUTPUT: "/gha_out.txt",
-		},
-		configFile: "artifact-config.json",
-		format: "json",
-		outputFile: [],
-		outputGithub: [
-			{ format: "json", key: "foo" },
-			{ format: "markdown", key: "bar" },
-		],
-		formatOptions: { header: true },
-		fs,
-		console,
-	});
+	await parser.parseAsync([
+		"analyze",
+		"--config-file=artifact-config.json",
+		"--format=json",
+		"--output-github=json:foo",
+		"--output-github=markdown:bar",
+	]);
 
 	const content = await fs.readFile("/gha_out.txt", "utf8");
 	expect(content).toMatch(/^foo<<EOF[\s\S]*?\nEOF\n/);
 	expect(content).toMatch(/bar<<EOF[\s\S]*?\nEOF\n$/);
 
-	/* console output */
 	const stdout = stream.getContentsAsString("utf8");
 	expect(stdout).toMatchInlineSnapshot(`
 		"[
@@ -131,23 +130,18 @@ it("should silently do nothing when --output-github is provided but GITHUB_OUTPU
 			artifacts: [{ id: "app", name: "app", include: "dist/**/*.js" }],
 		}),
 	});
+
+	const parser = createParser({ cwd: "/project", env: {}, console, fs });
+
 	await fs.writeFile("/project/dist/app.js", "b".repeat(30));
 
-	await expect(
-		analyze({
-			cwd: "/project",
-			env: {},
-			configFile: "artifact-config.json",
-			format: "json",
-			outputFile: [],
-			outputGithub: [{ format: "json", key: "foo" }],
-			formatOptions: { header: true },
-			fs,
-			console,
-		}),
-	).resolves.toBeUndefined();
+	await parser.parseAsync([
+		"analyze",
+		"--config-file=artifact-config.json",
+		"--format=json",
+		"--output-github=json:foo",
+	]);
 
-	/* console output */
 	const stdout = stream.getContentsAsString("utf8");
 	expect(stdout).toMatchInlineSnapshot(`
 		"[

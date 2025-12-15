@@ -1,0 +1,48 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should display analyze command help 1`] = `
+artifact-size-analyzer analyze
+
+Analyze artifacts from a config file
+
+Options:
+      --version      Show version number                               [boolean]
+      --help         Show help                                         [boolean]
+  -c, --config-file  Configuration file                      [string] [required]
+  -o, --output-file  Write output to file instead of stdout (format:filename or
+                     filename)                             [array] [default: []]
+  -f, --format       Output format
+                         [choices: "json", "markdown", "text"] [default: "text"]
+      --no-header    Disable header in output for formats with headers
+                                                      [boolean] [default: false]
+`;
+
+exports[`should display compare command help 1`] = `
+artifact-size-analyzer compare
+
+Compare two previously saved analysis results
+
+Options:
+      --version      Show version number                               [boolean]
+      --help         Show help                                         [boolean]
+  -b, --base         Path to baseline JSON file              [string] [required]
+  -c, --current      Path to current JSON file               [string] [required]
+  -f, --format       Output format
+                         [choices: "json", "markdown", "text"] [default: "text"]
+      --no-header    Disable header in output for formats with headers
+                                                      [boolean] [default: false]
+  -o, --output-file  Write output to file instead of stdout (format:filename or
+                     filename)                             [array] [default: []]
+`;
+
+exports[`should display help message 1`] = `
+artifact-size-analyzer <command> [options]
+
+Commands:
+  artifact-size-analyzer analyze  Analyze artifacts from a config file
+  artifact-size-analyzer compare  Compare two previously saved analysis results
+
+Options:
+  --version  Show version number                                       [boolean]
+  --help     Show help                                                 [boolean]
+`;
