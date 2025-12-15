@@ -1,4 +1,8 @@
-import nodefs from "node:fs/promises";
+import type nodefs from "node:fs/promises";
+
+interface ReadJsonFileOptions {
+	fs: typeof nodefs;
+}
 
 /**
  * @internal
@@ -6,7 +10,8 @@ import nodefs from "node:fs/promises";
  * @param fs - Optional fs promises-like API to use (for testing)
  * @returns Parsed JSON content
  */
-export async function readJsonFile(filePath: string, fs: typeof nodefs = nodefs): Promise<unknown> {
+export async function readJsonFile<T>(filePath: string, options: ReadJsonFileOptions): Promise<T> {
+	const { fs } = options;
 	const content = await fs.readFile(filePath, "utf-8");
-	return JSON.parse(content);
+	return JSON.parse(content) as T;
 }

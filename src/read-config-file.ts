@@ -19,7 +19,7 @@ export async function readConfigFile(
 	filePath: string,
 	fs: typeof nodefs = nodefs,
 ): Promise<NormalizedConfig> {
-	const config = (await readJsonFile(filePath, fs)) as Config;
+	const config = await readJsonFile<Config>(filePath, { fs });
 
 	if (!validate(config)) {
 		const errText = ajv.errorsText(validate.errors, { separator: "\n" });
