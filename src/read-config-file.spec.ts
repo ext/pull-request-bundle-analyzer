@@ -16,7 +16,7 @@ describe("readConfigFile()", () => {
 		const { fs, path } = createVolume({
 			artifacts: [{ id: "app", name: "app", include: "dist/*.js" }],
 		});
-		const result = await readConfigFile(path, fs);
+		const result = await readConfigFile(path, { fs });
 		expect(result).toEqual({
 			artifacts: [
 				{
@@ -32,7 +32,7 @@ describe("readConfigFile()", () => {
 
 	it("should return empty artifacts when omitted", async () => {
 		const { fs, path } = createVolume({});
-		const result = await readConfigFile(path, fs);
+		const result = await readConfigFile(path, { fs });
 		expect(result).toEqual({ artifacts: [] });
 	});
 
@@ -40,7 +40,7 @@ describe("readConfigFile()", () => {
 		const { fs, path } = createVolume({
 			artifacts: [{ id: "a", name: "a", include: "dist/*.js" }],
 		});
-		const result = await readConfigFile(path, fs);
+		const result = await readConfigFile(path, { fs });
 		expect(result.artifacts[0].include).toEqual(["dist/*.js"]);
 	});
 
@@ -48,7 +48,7 @@ describe("readConfigFile()", () => {
 		const { fs, path } = createVolume({
 			artifacts: [{ id: "b", name: "b", include: ["a", "b"] }],
 		});
-		const result = await readConfigFile(path, fs);
+		const result = await readConfigFile(path, { fs });
 		expect(result.artifacts[0].include).toEqual(["a", "b"]);
 	});
 
@@ -56,7 +56,7 @@ describe("readConfigFile()", () => {
 		const { fs, path } = createVolume({
 			artifacts: [{ id: "c", name: "c", include: "dist/*.js" }],
 		});
-		const result = await readConfigFile(path, fs);
+		const result = await readConfigFile(path, { fs });
 		expect(result.artifacts[0].exclude).toEqual([]);
 	});
 
@@ -67,7 +67,7 @@ describe("readConfigFile()", () => {
 				{ id: "none", name: "none", include: "dist/*.js", compression: [] },
 			],
 		});
-		const result = await readConfigFile(path, fs);
+		const result = await readConfigFile(path, { fs });
 		expect(result.artifacts[0].compression).toEqual(["gzip"]);
 		expect(result.artifacts[1].compression).toEqual([]);
 	});
@@ -78,7 +78,7 @@ describe("readConfigFile()", () => {
 				{ id: "single-str", name: "single-str", include: "dist/*.js", compression: "gzip" },
 			],
 		});
-		const result = await readConfigFile(path, fs);
+		const result = await readConfigFile(path, { fs });
 		expect(result.artifacts[0].compression).toEqual(["gzip"]);
 	});
 
@@ -86,7 +86,7 @@ describe("readConfigFile()", () => {
 		const { fs, path } = createVolume({
 			artifacts: [{ id: "disabled", name: "disabled", include: "dist/*.js", compression: false }],
 		});
-		const result = await readConfigFile(path, fs);
+		const result = await readConfigFile(path, { fs });
 		expect(result.artifacts[0].compression).toEqual([]);
 	});
 
@@ -94,7 +94,7 @@ describe("readConfigFile()", () => {
 		const { fs, path } = createVolume({
 			artifacts: [{ id: "bad", name: "bad", include: "x", compression: ["invalid"] }],
 		});
-		await expect(readConfigFile(path, fs)).rejects.toThrowErrorMatchingInlineSnapshot(
+		await expect(readConfigFile(path, { fs })).rejects.toThrowErrorMatchingInlineSnapshot(
 			`
 			[Error: Config schema validation failed: data/artifacts/0/compression must be boolean
 			data/artifacts/0/compression must be equal to constant
@@ -110,7 +110,7 @@ describe("readConfigFile()", () => {
 		const { fs, path } = createVolume({
 			artifacts: [{ id: "bad-true", name: "bad-true", include: "x", compression: true }],
 		});
-		await expect(readConfigFile(path, fs)).rejects.toThrowErrorMatchingInlineSnapshot(
+		await expect(readConfigFile(path, { fs })).rejects.toThrowErrorMatchingInlineSnapshot(
 			`
 			[Error: Config schema validation failed: data/artifacts/0/compression must be equal to constant
 			data/artifacts/0/compression must be string
@@ -127,7 +127,7 @@ describe("readConfigFile()", () => {
 				{ id: "bad-mix", name: "bad-mix", include: "x", compression: ["gzip", "invalid"] },
 			],
 		});
-		await expect(readConfigFile(path, fs)).rejects.toThrowErrorMatchingInlineSnapshot(
+		await expect(readConfigFile(path, { fs })).rejects.toThrowErrorMatchingInlineSnapshot(
 			`
 			[Error: Config schema validation failed: data/artifacts/0/compression must be boolean
 			data/artifacts/0/compression must be equal to constant
@@ -141,7 +141,7 @@ describe("readConfigFile()", () => {
 
 	it("should throw when an artifact is missing id", async () => {
 		const { fs, path } = createVolume({ artifacts: [{ name: "no-id", include: "dist/*.js" }] });
-		const p = readConfigFile(path, fs);
+		const p = readConfigFile(path, { fs });
 		await expect(p).rejects.toThrowErrorMatchingInlineSnapshot(
 			`[Error: Config schema validation failed: data/artifacts/0 must have required property 'id']`,
 		);
@@ -154,14 +154,14 @@ describe("readConfigFile()", () => {
 				{ id: "dup", name: "two", include: "dist/*.js" },
 			],
 		});
-		await expect(readConfigFile(path, fs)).rejects.toThrowErrorMatchingInlineSnapshot(
+		await expect(readConfigFile(path, { fs })).rejects.toThrowErrorMatchingInlineSnapshot(
 			`[Error: Duplicate artifact id "dup" found in config]`,
 		);
 	});
 
 	it("should throw when name is missing", async () => {
 		const { fs, path } = createVolume({ artifacts: [{ id: "no-name", include: "dist/*.js" }] });
-		const p = readConfigFile(path, fs);
+		const p = readConfigFile(path, { fs });
 		await expect(p).rejects.toThrowErrorMatchingInlineSnapshot(
 			`[Error: Config schema validation failed: data/artifacts/0 must have required property 'name']`,
 		);
@@ -169,20 +169,20 @@ describe("readConfigFile()", () => {
 
 	it("should fail for empty id or name", async () => {
 		const { fs, path } = createVolume({ artifacts: [{ id: "", name: "nm", include: "x" }] });
-		await expect(readConfigFile(path, fs)).rejects.toThrowErrorMatchingInlineSnapshot(
+		await expect(readConfigFile(path, { fs })).rejects.toThrowErrorMatchingInlineSnapshot(
 			`[Error: Config schema validation failed: data/artifacts/0/id must NOT have fewer than 1 characters]`,
 		);
 		const { fs: fs2, path: path2 } = createVolume({
 			artifacts: [{ id: "ok", name: "", include: "x" }],
 		});
-		await expect(readConfigFile(path2, fs2)).rejects.toThrowErrorMatchingInlineSnapshot(
+		await expect(readConfigFile(path2, { fs: fs2 })).rejects.toThrowErrorMatchingInlineSnapshot(
 			`[Error: Config schema validation failed: data/artifacts/0/name must NOT have fewer than 1 characters]`,
 		);
 	});
 
 	it("should reject unknown top-level properties", async () => {
 		const { fs, path } = createVolume({ artifacts: [], extra: true });
-		await expect(readConfigFile(path, fs)).rejects.toThrowErrorMatchingInlineSnapshot(
+		await expect(readConfigFile(path, { fs })).rejects.toThrowErrorMatchingInlineSnapshot(
 			`[Error: Config schema validation failed: data must NOT have additional properties]`,
 		);
 	});
@@ -191,7 +191,7 @@ describe("readConfigFile()", () => {
 		const vol = Volume.fromJSON({ "/project/config.json": "{ invalid-json" });
 		const fs = vol.promises as unknown as typeof nodefs;
 		await expect(
-			readConfigFile("/project/config.json", fs),
+			readConfigFile("/project/config.json", { fs }),
 		).rejects.toThrowErrorMatchingInlineSnapshot(
 			`[SyntaxError: Expected property name or '}' in JSON at position 2 (line 1 column 3)]`,
 		);
@@ -204,7 +204,7 @@ describe("readConfigFile()", () => {
 			},
 		} as unknown as typeof nodefs;
 		await expect(
-			readConfigFile("does-not-exist.json", fakeFs),
+			readConfigFile("does-not-exist.json", { fs: fakeFs }),
 		).rejects.toThrowErrorMatchingInlineSnapshot(`[Error: ENOENT: no such file]`);
 	});
 });

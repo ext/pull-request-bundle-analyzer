@@ -201,7 +201,7 @@ export async function analyze(options: AnalyzeOptions): Promise<void> {
 	const { cwd, env, fs = nodefs, formatOptions } = options;
 	const { header } = formatOptions;
 	const configPath = resolve(options.cwd, options.configFile);
-	const config = await readConfigFile(configPath, options.fs);
+	const config = await readConfigFile(configPath, { fs });
 	const results = await Promise.all(
 		config.artifacts.map((artifact) => {
 			const compression = {

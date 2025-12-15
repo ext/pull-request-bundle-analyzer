@@ -129,7 +129,13 @@ export interface NormalizedConfig {
 }
 
 // @public
-export function readConfigFile(filePath: string, fs?: typeof nodefs): Promise<NormalizedConfig>;
+export function readConfigFile(filePath: string, options?: ReadConfigFileOptions): Promise<NormalizedConfig>;
+
+// @public
+export interface ReadConfigFileOptions {
+    // (undocumented)
+    fs?: typeof nodefs | undefined;
+}
 
 // (No @packageDocumentation comment for this package)
 

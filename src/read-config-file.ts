@@ -4,6 +4,16 @@ import schema from "../schema.json" with { type: "json" };
 import { type Config, type NormalizedConfig, normalizeConfig } from "./config/index.ts";
 import { readJsonFile } from "./utils/index.ts";
 
+/**
+ * Options for `readConfigFile`.
+ *
+ * @public
+ */
+export interface ReadConfigFileOptions {
+	/* Optional fs promises-like API to use */
+	fs?: typeof nodefs | undefined;
+}
+
 const ajv = new Ajv({ allErrors: true, strict: false });
 const validate = ajv.compile(schema as object);
 
@@ -12,13 +22,14 @@ const validate = ajv.compile(schema as object);
  *
  * @public
  * @param filePath - Path to config file
- * @param fs - Optional fs promises-like API to use (for testing)
+ * @param options - Optional options
  * @returns Parsed and normalized config
  */
 export async function readConfigFile(
 	filePath: string,
-	fs: typeof nodefs = nodefs,
+	options: ReadConfigFileOptions = {},
 ): Promise<NormalizedConfig> {
+	const { fs = nodefs } = options;
 	const config = await readJsonFile<Config>(filePath, { fs });
 
 	if (!validate(config)) {
