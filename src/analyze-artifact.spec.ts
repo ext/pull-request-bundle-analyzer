@@ -7,7 +7,7 @@ import { type NormalizedArtifactConfig } from "./config/index.ts";
 const cwd = "/";
 
 describe("analyzeArtifact()", () => {
-	it("aggregates sizes from single files", async () => {
+	it("should aggregate sizes from single files", async () => {
 		const a = "a".repeat(2000);
 		const vol = Volume.fromJSON({ "/dist/a.js": a });
 		const fs = vol.promises as unknown as typeof nodefs;
@@ -38,7 +38,7 @@ describe("analyzeArtifact()", () => {
 		expect(result.files[0].brotli).toBeLessThan(2000);
 	});
 
-	it("supports disabling gzip (brotli only)", async () => {
+	it("should support disabling gzip (brotli only)", async () => {
 		const a = "a".repeat(2000);
 		const vol = Volume.fromJSON({ "/dist/a.js": a });
 		const fs = vol.promises as unknown as typeof nodefs;
@@ -63,7 +63,7 @@ describe("analyzeArtifact()", () => {
 		expect(result.files[0].brotli).toBeGreaterThan(0);
 	});
 
-	it("supports disabling brotli (gzip only)", async () => {
+	it("should support disabling brotli (gzip only)", async () => {
 		const a = "a".repeat(2000);
 		const vol = Volume.fromJSON({ "/dist/a.js": a });
 		const fs = vol.promises as unknown as typeof nodefs;
@@ -88,7 +88,7 @@ describe("analyzeArtifact()", () => {
 		expect(result.files[0].brotli).toBeNull();
 	});
 
-	it("supports disabling both gzip and brotli", async () => {
+	it("should support disabling both gzip and brotli", async () => {
 		const a = "a".repeat(2000);
 		const vol = Volume.fromJSON({ "/dist/a.js": a });
 		const fs = vol.promises as unknown as typeof nodefs;
@@ -113,7 +113,7 @@ describe("analyzeArtifact()", () => {
 		expect(result.files[0].brotli).toBeNull();
 	});
 
-	it("aggregates sizes from multiple files", async () => {
+	it("should aggregate sizes from multiple files", async () => {
 		const a = "a".repeat(2000);
 		const b = "b".repeat(3000);
 		const vol = Volume.fromJSON({ "/dist/a.js": a, "/dist/b.js": b });
@@ -150,7 +150,7 @@ describe("analyzeArtifact()", () => {
 		expect(result.files[1].brotli).toBeLessThan(3000);
 	});
 
-	it("returns zeros when there are no files", async () => {
+	it("should return zeros when there are no files", async () => {
 		const vol = Volume.fromJSON({});
 		const fs = vol.promises as unknown as typeof nodefs;
 

@@ -37,7 +37,7 @@ const data = [
 ] satisfies ArtifactSize[];
 
 describe("formatArtifact()", () => {
-	it("formats json", () => {
+	it("should format json", () => {
 		const out = formatArtifact(data, "json");
 		const parsed = JSON.parse(out);
 		expect(parsed).toEqual([
@@ -80,7 +80,7 @@ describe("formatArtifact()", () => {
 		]);
 	});
 
-	it("formats artifacts with no files and no compression", () => {
+	it("should format artifacts with no files and no compression", () => {
 		const empty: ArtifactSize[] = [
 			{
 				id: "empty",
@@ -112,7 +112,7 @@ describe("formatArtifact()", () => {
 		expect(outText).toMatchInlineSnapshot(`empty: files=0, size=0B`);
 	});
 
-	it("formats artifact with only one algorithm enabled", () => {
+	it("should format artifact with only one algorithm enabled", () => {
 		const single: ArtifactSize[] = [
 			{
 				id: "single",
@@ -147,7 +147,7 @@ describe("formatArtifact()", () => {
 		`);
 	});
 
-	it("formats markdown", () => {
+	it("should format markdown", () => {
 		const out = formatArtifact(data, "markdown");
 		expect(out).toMatchInlineSnapshot(`
 			## Artifact sizes
@@ -169,7 +169,7 @@ describe("formatArtifact()", () => {
 		expect(out).not.toContain("## Artifact sizes");
 	});
 
-	it("formats text", () => {
+	it("should format text", () => {
 		const out = formatArtifact(data, "text");
 		expect(out).toMatchInlineSnapshot(`
 			app: files=2, size=100B, gzip=80B, brotli=70B

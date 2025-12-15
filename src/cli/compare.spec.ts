@@ -5,7 +5,7 @@ import { readJsonFile } from "../utils/index.ts";
 import { createParser } from "./cli.ts";
 import { createConsole, createVolume, makeConfig } from "./test-helpers.ts";
 
-it("reports no differences for identical artifacts", async () => {
+it("should report no differences for identical artifacts", async () => {
 	const { stream, console } = createConsole();
 	const { fs } = await createVolume({
 		"/project/artifact-config.json": JSON.stringify(makeConfig()),
@@ -70,7 +70,7 @@ it("reports no differences for identical artifacts", async () => {
 	expect(stdout).toMatchInlineSnapshot(`false`);
 });
 
-it("detects added artifact via config change", async () => {
+it("should detect added artifact via config change", async () => {
 	const { stream, console } = createConsole();
 	const { fs } = await createVolume({
 		"/project/artifact-config.json": JSON.stringify({
@@ -157,7 +157,7 @@ it("detects added artifact via config change", async () => {
 	expect(stdout).toMatchInlineSnapshot(`false`);
 });
 
-it("detects removed artifact via config change", async () => {
+it("should detect removed artifact via config change", async () => {
 	const { stream, console } = createConsole();
 	const { fs } = await createVolume({
 		"/project/artifact-config.json": JSON.stringify({
@@ -232,7 +232,7 @@ it("detects removed artifact via config change", async () => {
 	expect(stdout).toMatchInlineSnapshot(`false`);
 });
 
-it("reports size increase when file grows", async () => {
+it("should report size increase when file grows", async () => {
 	const { stream, console } = createConsole();
 	const { fs } = await createVolume({
 		"/project/artifact-config.json": JSON.stringify(makeConfig()),
@@ -297,7 +297,7 @@ it("reports size increase when file grows", async () => {
 	expect(stdout).toMatchInlineSnapshot(`false`);
 });
 
-it("detects added file between baseline and current", async () => {
+it("should detect added file between baseline and current", async () => {
 	const { stream, console } = createConsole();
 	const { fs } = await createVolume({
 		"/project/artifact-config.json": JSON.stringify(makeConfig()),
@@ -369,7 +369,7 @@ it("detects added file between baseline and current", async () => {
 	expect(stdout).toMatchInlineSnapshot(`false`);
 });
 
-it("detects removed file between baseline and current", async () => {
+it("should detect removed file between baseline and current", async () => {
 	const { stream, console } = createConsole();
 	const { fs } = await createVolume({
 		"/project/artifact-config.json": JSON.stringify(makeConfig()),
@@ -442,7 +442,7 @@ it("detects removed file between baseline and current", async () => {
 	expect(stdout).toMatchInlineSnapshot(`false`);
 });
 
-it("compares multiple artifacts", async () => {
+it("should compare multiple artifacts", async () => {
 	const { stream, console } = createConsole();
 	const { fs } = await createVolume({
 		"/project/artifact-config.json": JSON.stringify({
@@ -530,7 +530,7 @@ it("compares multiple artifacts", async () => {
 	expect(stdout).toMatchInlineSnapshot(`false`);
 });
 
-it("respects exclude patterns in config", async () => {
+it("should respect exclude patterns in config", async () => {
 	const { stream, console } = createConsole();
 	const { fs } = await createVolume({
 		"/project/artifact-config.json": JSON.stringify({
@@ -601,7 +601,7 @@ it("respects exclude patterns in config", async () => {
 	expect(stdout).toMatchInlineSnapshot(`false`);
 });
 
-it("handles empty artifacts gracefully", async () => {
+it("should handle empty artifacts gracefully", async () => {
 	const { stream, console } = createConsole();
 	const { fs } = await createVolume({
 		"/project/artifact-config.json": JSON.stringify({
@@ -670,7 +670,7 @@ it("handles empty artifacts gracefully", async () => {
 	expect(stdout).toMatchInlineSnapshot(`false`);
 });
 
-it("outputs to console when no --output-file is provided", async () => {
+it("should output to console when no --output-file is provided", async () => {
 	const { stream, console } = createConsole();
 	const { fs } = await createVolume({
 		"/project/artifact-config.json": JSON.stringify(makeConfig()),
@@ -712,7 +712,7 @@ it("outputs to console when no --output-file is provided", async () => {
 	`);
 });
 
-it("outputs to GitHub Actions when --output-github is provided", async () => {
+it("should output to GitHub Actions when --output-github is provided", async () => {
 	const { console } = createConsole();
 	const { fs } = await createVolume({
 		"/project/artifact-config.json": JSON.stringify(makeConfig()),

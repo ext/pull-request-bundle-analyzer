@@ -6,7 +6,7 @@ import { getFileSize } from "./get-file-size.ts";
 const cwd = "/";
 
 describe("getFileSize", () => {
-	it("returns size, gzip and brotli for an existing file", async () => {
+	it("should return size, gzip and brotli for an existing file", async () => {
 		const content = "a".repeat(2000);
 		const vol = Volume.fromJSON({ "/dist/foo.js": content });
 		const fs = vol.promises as unknown as typeof nodefs;
@@ -20,7 +20,7 @@ describe("getFileSize", () => {
 		expect(res.brotli).toBeLessThan(res.size);
 	});
 
-	it("throws when file does not exist", async () => {
+	it("should throw when file does not exist", async () => {
 		const vol = Volume.fromJSON({});
 		const fs = vol.promises as unknown as typeof nodefs;
 		const compression = { gzip: true, brotli: true };
@@ -31,7 +31,7 @@ describe("getFileSize", () => {
 		);
 	});
 
-	it("returns null for disabled gzip compression", async () => {
+	it("should return null for disabled gzip compression", async () => {
 		const content = "a".repeat(2000);
 		const vol = Volume.fromJSON({ "/dist/foo.js": content });
 		const fs = vol.promises as unknown as typeof nodefs;
@@ -43,7 +43,7 @@ describe("getFileSize", () => {
 		expect(res.brotli).toBeGreaterThan(0);
 	});
 
-	it("returns null for disabled brotli compression", async () => {
+	it("should return null for disabled brotli compression", async () => {
 		const content = "a".repeat(2000);
 		const vol = Volume.fromJSON({ "/dist/foo.js": content });
 		const fs = vol.promises as unknown as typeof nodefs;
@@ -55,7 +55,7 @@ describe("getFileSize", () => {
 		expect(res.brotli).toBeNull();
 	});
 
-	it("returns null for both disabled compression", async () => {
+	it("should return null for both disabled compression", async () => {
 		const content = "a".repeat(2000);
 		const vol = Volume.fromJSON({ "/dist/foo.js": content });
 		const fs = vol.promises as unknown as typeof nodefs;

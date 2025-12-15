@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`compares multiple artifacts > base 1`] = `
+exports[`should compare multiple artifacts > base 1`] = `
 [
   {
     "artifact": "app",
@@ -35,7 +35,7 @@ exports[`compares multiple artifacts > base 1`] = `
 ]
 `;
 
-exports[`compares multiple artifacts > compare 1`] = `
+exports[`should compare multiple artifacts > compare 1`] = `
 [
   {
     "brotli": {
@@ -112,7 +112,7 @@ exports[`compares multiple artifacts > compare 1`] = `
 ]
 `;
 
-exports[`compares multiple artifacts > current 1`] = `
+exports[`should compare multiple artifacts > current 1`] = `
 [
   {
     "artifact": "app",
@@ -147,7 +147,7 @@ exports[`compares multiple artifacts > current 1`] = `
 ]
 `;
 
-exports[`detects added artifact via config change > base 1`] = `
+exports[`should detect added artifact via config change > base 1`] = `
 [
   {
     "artifact": "app",
@@ -167,7 +167,7 @@ exports[`detects added artifact via config change > base 1`] = `
 ]
 `;
 
-exports[`detects added artifact via config change > compare 1`] = `
+exports[`should detect added artifact via config change > compare 1`] = `
 [
   {
     "brotli": {
@@ -237,7 +237,7 @@ exports[`detects added artifact via config change > compare 1`] = `
 ]
 `;
 
-exports[`detects added artifact via config change > current 1`] = `
+exports[`should detect added artifact via config change > current 1`] = `
 [
   {
     "artifact": "app",
@@ -272,7 +272,7 @@ exports[`detects added artifact via config change > current 1`] = `
 ]
 `;
 
-exports[`detects added file between baseline and current > base 1`] = `
+exports[`should detect added file between baseline and current > base 1`] = `
 [
   {
     "artifact": "app",
@@ -292,7 +292,7 @@ exports[`detects added file between baseline and current > base 1`] = `
 ]
 `;
 
-exports[`detects added file between baseline and current > compare 1`] = `
+exports[`should detect added file between baseline and current > compare 1`] = `
 [
   {
     "brotli": {
@@ -339,7 +339,7 @@ exports[`detects added file between baseline and current > compare 1`] = `
 ]
 `;
 
-exports[`detects added file between baseline and current > current 1`] = `
+exports[`should detect added file between baseline and current > current 1`] = `
 [
   {
     "artifact": "app",
@@ -365,7 +365,7 @@ exports[`detects added file between baseline and current > current 1`] = `
 ]
 `;
 
-exports[`detects removed artifact via config change > base 1`] = `
+exports[`should detect removed artifact via config change > base 1`] = `
 [
   {
     "artifact": "app",
@@ -400,7 +400,7 @@ exports[`detects removed artifact via config change > base 1`] = `
 ]
 `;
 
-exports[`detects removed artifact via config change > compare 1`] = `
+exports[`should detect removed artifact via config change > compare 1`] = `
 [
   {
     "brotli": {
@@ -470,7 +470,7 @@ exports[`detects removed artifact via config change > compare 1`] = `
 ]
 `;
 
-exports[`detects removed artifact via config change > current 1`] = `
+exports[`should detect removed artifact via config change > current 1`] = `
 [
   {
     "artifact": "app",
@@ -490,7 +490,7 @@ exports[`detects removed artifact via config change > current 1`] = `
 ]
 `;
 
-exports[`detects removed file between baseline and current > base 1`] = `
+exports[`should detect removed file between baseline and current > base 1`] = `
 [
   {
     "artifact": "app",
@@ -516,7 +516,7 @@ exports[`detects removed file between baseline and current > base 1`] = `
 ]
 `;
 
-exports[`detects removed file between baseline and current > compare 1`] = `
+exports[`should detect removed file between baseline and current > compare 1`] = `
 [
   {
     "brotli": {
@@ -563,7 +563,7 @@ exports[`detects removed file between baseline and current > compare 1`] = `
 ]
 `;
 
-exports[`detects removed file between baseline and current > current 1`] = `
+exports[`should detect removed file between baseline and current > current 1`] = `
 [
   {
     "artifact": "app",
@@ -583,7 +583,7 @@ exports[`detects removed file between baseline and current > current 1`] = `
 ]
 `;
 
-exports[`handles empty artifacts gracefully > base 1`] = `
+exports[`should handle empty artifacts gracefully > base 1`] = `
 [
   {
     "artifact": "empty",
@@ -596,7 +596,7 @@ exports[`handles empty artifacts gracefully > base 1`] = `
 ]
 `;
 
-exports[`handles empty artifacts gracefully > compare 1`] = `
+exports[`should handle empty artifacts gracefully > compare 1`] = `
 [
   {
     "brotli": {
@@ -623,7 +623,7 @@ exports[`handles empty artifacts gracefully > compare 1`] = `
 ]
 `;
 
-exports[`handles empty artifacts gracefully > current 1`] = `
+exports[`should handle empty artifacts gracefully > current 1`] = `
 [
   {
     "artifact": "empty",
@@ -636,7 +636,7 @@ exports[`handles empty artifacts gracefully > current 1`] = `
 ]
 `;
 
-exports[`reports no differences for identical artifacts > base 1`] = `
+exports[`should report no differences for identical artifacts > base 1`] = `
 [
   {
     "artifact": "app",
@@ -656,7 +656,7 @@ exports[`reports no differences for identical artifacts > base 1`] = `
 ]
 `;
 
-exports[`reports no differences for identical artifacts > compare 1`] = `
+exports[`should report no differences for identical artifacts > compare 1`] = `
 [
   {
     "brotli": {
@@ -697,7 +697,7 @@ exports[`reports no differences for identical artifacts > compare 1`] = `
 ]
 `;
 
-exports[`reports no differences for identical artifacts > current 1`] = `
+exports[`should report no differences for identical artifacts > current 1`] = `
 [
   {
     "artifact": "app",
@@ -717,7 +717,7 @@ exports[`reports no differences for identical artifacts > current 1`] = `
 ]
 `;
 
-exports[`reports size increase when file grows > base 1`] = `
+exports[`should report size increase when file grows > base 1`] = `
 [
   {
     "artifact": "app",
@@ -737,7 +737,7 @@ exports[`reports size increase when file grows > base 1`] = `
 ]
 `;
 
-exports[`reports size increase when file grows > compare 1`] = `
+exports[`should report size increase when file grows > compare 1`] = `
 [
   {
     "brotli": {
@@ -778,7 +778,7 @@ exports[`reports size increase when file grows > compare 1`] = `
 ]
 `;
 
-exports[`reports size increase when file grows > current 1`] = `
+exports[`should report size increase when file grows > current 1`] = `
 [
   {
     "artifact": "app",
@@ -798,7 +798,7 @@ exports[`reports size increase when file grows > current 1`] = `
 ]
 `;
 
-exports[`respects exclude patterns in config > base 1`] = `
+exports[`should respect exclude patterns in config > base 1`] = `
 [
   {
     "artifact": "app",
@@ -818,7 +818,7 @@ exports[`respects exclude patterns in config > base 1`] = `
 ]
 `;
 
-exports[`respects exclude patterns in config > compare 1`] = `
+exports[`should respect exclude patterns in config > compare 1`] = `
 [
   {
     "brotli": {
@@ -859,7 +859,7 @@ exports[`respects exclude patterns in config > compare 1`] = `
 ]
 `;
 
-exports[`respects exclude patterns in config > current 1`] = `
+exports[`should respect exclude patterns in config > current 1`] = `
 [
   {
     "artifact": "app",
