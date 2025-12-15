@@ -200,7 +200,7 @@ export async function cli(options: CliOptions): Promise<void> {
 export async function analyze(options: AnalyzeOptions): Promise<void> {
 	const { cwd, env, fs = nodefs, formatOptions } = options;
 	const { header } = formatOptions;
-	const configPath = resolve(options.cwd, options.configFile);
+	const configPath = resolve(cwd, options.configFile);
 	const config = await readConfigFile(configPath, { fs });
 	const results = await Promise.all(
 		config.artifacts.map((artifact) => {
@@ -208,11 +208,7 @@ export async function analyze(options: AnalyzeOptions): Promise<void> {
 				gzip: artifact.compression.includes("gzip"),
 				brotli: artifact.compression.includes("brotli"),
 			};
-			return analyzeArtifact(artifact, {
-				cwd: options.cwd,
-				fs: options.fs,
-				compression,
-			});
+			return analyzeArtifact(artifact, { cwd, fs, compression });
 		}),
 	);
 
@@ -239,8 +235,8 @@ export async function analyze(options: AnalyzeOptions): Promise<void> {
 export async function compare(options: CompareOptions): Promise<void> {
 	const { cwd, env, fs = nodefs, formatOptions } = options;
 	const { header } = formatOptions;
-	const basePath = resolve(options.cwd, options.base);
-	const currentPath = resolve(options.cwd, options.current);
+	const basePath = resolve(cwd, options.base);
+	const currentPath = resolve(cwd, options.current);
 	const base = await readJsonFile<ArtifactSize[]>(basePath, { fs });
 	const current = await readJsonFile<ArtifactSize[]>(currentPath, { fs });
 	const diff = compareArtifacts(base, current);
