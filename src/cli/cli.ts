@@ -1,10 +1,10 @@
 import nodefs from "node:fs/promises";
 import yargs from "yargs";
-import { analyzeArtifact } from "./analyze-artifact.ts";
-import { type ArtifactSize } from "./artifact-size.ts";
-import { compareArtifacts } from "./compare/index.ts";
-import { type Format, formatArtifact, formatDiff, formats } from "./format/index.ts";
-import { readConfigFile } from "./read-config-file.ts";
+import { analyzeArtifact } from "../analyze-artifact.ts";
+import { type ArtifactSize } from "../artifact-size.ts";
+import { compareArtifacts } from "../compare/index.ts";
+import { type Format, formatArtifact, formatDiff, formats } from "../format/index.ts";
+import { readConfigFile } from "../read-config-file.ts";
 import {
 	type ParsedOutput,
 	parseOutput,
@@ -13,7 +13,7 @@ import {
 	toArray,
 	writeFile,
 	writeGithub,
-} from "./utils/index.ts";
+} from "../utils/index.ts";
 
 interface CliOptions {
 	cwd: string;

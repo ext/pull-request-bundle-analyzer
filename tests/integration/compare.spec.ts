@@ -5,7 +5,7 @@ import { WritableStreamBuffer } from "stream-buffers";
 import { expect, it } from "vitest";
 import { ArtifactDiff } from "../../src/artifact-diff.ts";
 import { type ArtifactSize } from "../../src/artifact-size.ts";
-import { analyze, compare } from "../../src/cli.ts";
+import { analyze, compare } from "../../src/cli/cli.ts";
 import { type Config } from "../../src/config/index.ts";
 
 async function createVolume(json: Record<string, string> = {}): Promise<{ fs: typeof nodefs }> {

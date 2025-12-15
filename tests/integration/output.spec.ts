@@ -3,7 +3,7 @@ import type nodefs from "node:fs/promises";
 import { Volume } from "memfs";
 import { WritableStreamBuffer } from "stream-buffers";
 import { expect, it } from "vitest";
-import { analyze } from "../../src/cli.ts";
+import { analyze } from "../../src/cli/cli.ts";
 
 async function createVolume(json: Record<string, string> = {}): Promise<{ fs: typeof nodefs }> {
 	const vol = Volume.fromJSON(json);

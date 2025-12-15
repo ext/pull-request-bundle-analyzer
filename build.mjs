@@ -12,7 +12,7 @@ const { external = [] } = await readJsonFile(new URL("./package.json", import.me
 
 async function build() {
 	const result = await esbuild.build({
-		entryPoints: ["src/index.ts", "src/cli.ts"],
+		entryPoints: ["src/index.ts", { in: "src/cli/cli.ts", out: "cli" }],
 		bundle: true,
 		metafile: true,
 		splitting: true,
