@@ -32,7 +32,7 @@ export default [
 
 	{
 		name: "@html-validate/eslint-config-typeinfo",
-		files: ["src/**/*.ts"],
+		files: ["src/**/*.ts", "analyze/**/*.ts", "compare/**/*.ts"],
 		ignores: ["src/**/*.spec.ts"],
 		languageOptions: {
 			parserOptions: {
@@ -57,6 +57,14 @@ export default [
 		rules: {
 			"no-console": "off",
 			"import/no-unresolved": "off",
+		},
+	},
+
+	{
+		name: "local/actions",
+		files: ["{analyze,compare}/**/*.ts"],
+		rules: {
+			"no-console": "off",
 		},
 	},
 ];

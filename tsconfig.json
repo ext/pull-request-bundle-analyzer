@@ -1,7 +1,7 @@
 {
   "extends": ["@tsconfig/recommended", "@tsconfig/strictest", "@tsconfig/node22"],
   "compilerOptions": {
-    "rootDirs": ["src"],
+    "rootDirs": ["src", "analyze", "compare"],
     "outDir": "dist",
     "declarationDir": "temp/types",
 
@@ -14,5 +14,5 @@
 
     "skipLibCheck": false
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "analyze/**/*.ts", "compare/**/*.ts"]
 }
