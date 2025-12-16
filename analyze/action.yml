@@ -29,10 +29,25 @@ inputs:
     description: "When set to 'true', run the local ./bin/artifact-size-analyzer from the repository instead of using npx. Caller must checkout the repository when using this option."
     required: false
     default: "false"
+  config-from:
+    description: "Which branch to use for the configuration file. 'head' uses the PR head branch (default), 'target' uses the PR target branch, 'local' uses the currently checked out branch."
+    required: false
+    default: "head"
 
 runs:
   using: "composite"
   steps:
+    - id: fetch-config
+      name: Fetch config file from specified branch
+      shell: bash
+      env:
+        GITHUB_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        GITHUB_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        GITHUB_OUTPUT: ${{ env.GITHUB_OUTPUT }}
+        INPUT_CONFIG_FILE: ${{ inputs.config-file }}
+        INPUT_CONFIG_FROM: ${{ inputs.config-from }}
+      run: node --experimental-strip-types ${{ github.action_path }}/fetch-config.ts
+
     - id: pick-cmd
       name: Decide command
       shell: bash
@@ -52,7 +67,7 @@ runs:
       shell: bash
       run: |
         ${{ steps.pick-cmd.outputs.cmd }} analyze \
-          --config-file "${{ inputs.config-file }}" \
+          --config-file "${{ steps.fetch-config.outputs.config-file }}" \
           --output-file "${{ inputs.output-file }}" \
           --format json \
           ${{ (inputs.no-header == true || inputs.no-header == 'true') && format('--no-header') || '' }}

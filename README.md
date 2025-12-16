@@ -282,6 +282,18 @@ When provided, the action runs `npx artifact-size-analyzer@<version>`.
 
 By default it uses the installed version.
 
+#### `config-from`
+
+Type: `string`  
+Required: no  
+Default: `head`
+
+Which branch to use for the configuration file:
+
+- `head`: Uses the PR head branch (default)
+- `target`: Uses the PR target branch
+- `local`: Uses the currently checked out branch
+
 ### Compare inputs
 
 #### `base-artifact`
