@@ -1,6 +1,7 @@
-import { expect, it } from "vitest";
+import { expect, it, vi } from "vitest";
 import { createParser } from "./cli.ts";
 import { createConsole, createVolume } from "./test-helpers.ts";
+import { UserError } from "./user-error.ts";
 
 it("should write to GitHub Actions output when --output-github is provided", async () => {
 	const { stream, console } = createConsole();
@@ -146,4 +147,31 @@ it("should silently do nothing when --output-github is provided but GITHUB_OUTPU
 		]
 		"
 	`);
+});
+
+it("should show friendly error message when config file does not exist", async () => {
+	const { console } = createConsole();
+	const { fs } = await createVolume({});
+
+	const spy = vi.fn();
+	const parser = createParser({ cwd: "/project", env: {}, console, fs }).fail(spy);
+
+	try {
+		await parser.parseAsync(["analyze", "--config-file=missing-config.json"]);
+	} catch {
+		/* do nothing */
+	}
+
+	expect(spy).toHaveBeenCalledWith(null, expect.any(UserError), expect.anything());
+
+	const [, error] = spy.mock.calls[0];
+
+	expect(error).toEqual(
+		expect.objectContaining({
+			message:
+				'Configuration file not found: "missing-config.json". Please check the `--config-file` path.',
+			code: "ENOCONFIG",
+			exitCode: 1,
+		}),
+	);
 });

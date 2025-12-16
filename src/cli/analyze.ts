@@ -8,6 +8,7 @@ import { resolve } from "../utils/resolve.ts";
 import { toArray } from "../utils/to-array.ts";
 import { writeFile } from "../utils/write-file.ts";
 import { writeGithub } from "../utils/write-github.ts";
+import { UserError } from "./user-error.ts";
 
 /**
  * @internal
@@ -128,10 +129,23 @@ export function createAnalyzeCommand(options: AnalyzeCommandFactoryOptions): Com
 				});
 		},
 		async handler(args) {
+			const configFile = args["config-file"] as string;
+			const configPath = resolve(cwd, configFile);
+
+			/* ensure config file exists before running analyze */
+			try {
+				await fs.access(configPath);
+			} catch {
+				throw new UserError({
+					message: `Configuration file not found: "${configFile}". Please check the \`--config-file\` path.`,
+					code: "ENOCONFIG",
+				});
+			}
+
 			await analyze({
 				cwd,
 				env,
-				configFile: args["config-file"] as string,
+				configFile,
 				format: args["format"] as Format,
 				formatOptions: { header: !args["no-header"] },
 				outputFile: (args["output-file"] as ParsedOutputMaybeFormat[]).map((it) => ({
