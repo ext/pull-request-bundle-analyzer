@@ -89,7 +89,7 @@ runs:
       shell: bash
       run: |
         tree temp/current
-        cat "temp/base/${{ inputs.current-name }}"
+        cat "temp/current/${{ inputs.current-name }}"
 
     - id: compare
       name: Compare results and set output
