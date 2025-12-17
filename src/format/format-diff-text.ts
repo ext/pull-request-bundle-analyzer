@@ -2,6 +2,7 @@
 
 import util from "node:util";
 import { type ArtifactDiff } from "../artifact-diff.ts";
+import { filterUnchangedArtifacts } from "./filter-unchanged.ts";
 import { type FormatDiffOptions } from "./format-diff.ts";
 import { formatSize } from "./format-size.ts";
 
@@ -37,7 +38,9 @@ export function textFormat(results: ArtifactDiff[], options: FormatDiffOptions):
 		return options.color ? util.styleText("cyan", text) : text;
 	};
 
-	return results
+	const filteredResults = filterUnchangedArtifacts(results, options.unchanged);
+
+	return filteredResults
 		.map((it) => {
 			switch (it.status) {
 				case "removed":

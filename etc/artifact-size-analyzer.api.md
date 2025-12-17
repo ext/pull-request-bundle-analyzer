@@ -105,6 +105,7 @@ export function formatDiff(results: ArtifactDiff[], format: Format, options?: Pa
 export interface FormatDiffOptions {
     color: boolean;
     header: boolean;
+    unchanged: "show" | "hide" | "collapse";
 }
 
 // @public

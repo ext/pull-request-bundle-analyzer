@@ -16,6 +16,8 @@ export interface FormatDiffOptions {
 	 * When `true` include the header for formats with headers.
 	 */
 	header: boolean;
+	/** How to handle artifacts with no size changes */
+	unchanged: "show" | "hide" | "collapse";
 }
 
 /**
@@ -35,6 +37,7 @@ export function formatDiff(
 	const opts: FormatDiffOptions = {
 		color: false,
 		header: true,
+		unchanged: "show",
 		...options,
 	};
 
@@ -45,5 +48,11 @@ export function formatDiff(
 			return markdownFormat(results, opts);
 		case "text":
 			return textFormat(results, opts);
+		/* istanbul ignore next */
+		/* v8 ignore next -- exhaustive switch, should never come here */
+		default: {
+			const _exhaustive: never = format;
+			return _exhaustive;
+		}
 	}
 }

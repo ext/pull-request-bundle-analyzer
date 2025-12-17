@@ -23,16 +23,22 @@ artifact-size-analyzer compare
 Compare two previously saved analysis results
 
 Options:
-      --version      Show version number                               [boolean]
-      --help         Show help                                         [boolean]
-  -b, --base         Path to baseline JSON file              [string] [required]
-  -c, --current      Path to current JSON file               [string] [required]
-  -f, --format       Output format
+      --version       Show version number                              [boolean]
+      --help          Show help                                        [boolean]
+  -b, --base          Path to baseline JSON file             [string] [required]
+  -c, --current       Path to current JSON file              [string] [required]
+  -f, --format        Output format
                          [choices: "json", "markdown", "text"] [default: "text"]
-      --no-header    Disable header in output for formats with headers
+      --no-header     Disable header in output for formats with headers
                                                       [boolean] [default: false]
-  -o, --output-file  Write output to file instead of stdout (format:filename or
-                     filename)                             [array] [default: []]
+      --unchanged     Control how artifacts with unchanged sizes are handled.
+                      'show' displays all artifacts, 'hide' omits unchanged
+                      ones, 'collapse' shows them in a collapsible section
+                [string] [choices: "show", "hide", "collapse"] [default: "show"]
+      --no-unchanged  Hide artifacts with unchanged sizes from output
+                      (equivalent to --unchanged=hide)[boolean] [default: false]
+  -o, --output-file   Write output to file instead of stdout (format:filename or
+                      filename)                            [array] [default: []]
 `;
 
 exports[`should display help message 1`] = `

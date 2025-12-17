@@ -799,3 +799,173 @@ it("should output to GitHub Actions when --output-github is provided", async () 
 		"
 	`);
 });
+
+it("should hide unchanged artifacts when --no-unchanged is used", async () => {
+	const { stream, console } = createConsole();
+	const { fs } = await createVolume({
+		"/project/artifact-config.json": JSON.stringify({
+			artifacts: [
+				{ id: "app", name: "app", include: "dist/app.js" },
+				{ id: "lib", name: "lib", include: "dist/lib.js" },
+			],
+		}),
+	});
+
+	const parser = createParser({ cwd: "/project", env: {}, console, fs });
+
+	/* baseline */
+	await fs.writeFile("/project/dist/app.js", "a".repeat(50));
+	await fs.writeFile("/project/dist/lib.js", "l".repeat(100));
+	await parser.parseAsync([
+		"analyze",
+		"--config-file=artifact-config.json",
+		"--format=json",
+		"--output-file=temp/base.json",
+	]);
+
+	/* current: app grows, lib stays same */
+	await fs.writeFile("/project/dist/app.js", "a".repeat(75)); // +25
+	await fs.writeFile("/project/dist/lib.js", "l".repeat(100)); // unchanged
+	await parser.parseAsync([
+		"analyze",
+		"--config-file=artifact-config.json",
+		"--format=json",
+		"--output-file=temp/current.json",
+	]);
+
+	/* compare with no-unchanged */
+	await parser.parseAsync([
+		"compare",
+		"--base=temp/base.json",
+		"--current=temp/current.json",
+		"--format=text",
+		"--no-unchanged=true",
+	]);
+
+	/* should only show app (not lib which is unchanged) */
+	const stdout = stream.getContentsAsString("utf8");
+	expect(stdout).toMatchInlineSnapshot(
+		`
+		"app: files=1 (+0), size=75B (+25B), gzip=24B (+0B), brotli=11B (+0B)
+		"
+	`,
+	);
+});
+
+it("should show all artifacts when --no-unchanged is not used", async () => {
+	const { stream, console } = createConsole();
+	const { fs } = await createVolume({
+		"/project/artifact-config.json": JSON.stringify({
+			artifacts: [
+				{ id: "app", name: "app", include: "dist/app.js" },
+				{ id: "lib", name: "lib", include: "dist/lib.js" },
+			],
+		}),
+	});
+
+	const parser = createParser({ cwd: "/project", env: {}, console, fs });
+
+	/* baseline */
+	await fs.writeFile("/project/dist/app.js", "a".repeat(50));
+	await fs.writeFile("/project/dist/lib.js", "l".repeat(100));
+	await parser.parseAsync([
+		"analyze",
+		"--config-file=artifact-config.json",
+		"--format=json",
+		"--output-file=temp/base.json",
+	]);
+
+	/* current: only app changes */
+	await fs.writeFile("/project/dist/app.js", "a".repeat(75));
+	await fs.writeFile("/project/dist/lib.js", "l".repeat(100)); // unchanged
+	await parser.parseAsync([
+		"analyze",
+		"--config-file=artifact-config.json",
+		"--format=json",
+		"--output-file=temp/current.json",
+	]);
+
+	/* compare without no-unchanged (default) */
+	await parser.parseAsync([
+		"compare",
+		"--base=temp/base.json",
+		"--current=temp/current.json",
+		"--format=text",
+	]);
+
+	/* should show both app and lib */
+	const stdout = stream.getContentsAsString("utf8");
+	expect(stdout).toMatchInlineSnapshot(`
+		"app: files=1 (+0), size=75B (+25B), gzip=24B (+0B), brotli=11B (+0B)
+
+		lib: files=1 (+0), size=100B (+0B), gzip=24B (+0B), brotli=11B (+0B)
+		"
+	`);
+});
+
+it("should show unchanged artifacts in details when --unchanged=collapse is used", async () => {
+	const { stream, console } = createConsole();
+	const { fs } = await createVolume({
+		"/project/artifact-config.json": JSON.stringify({
+			artifacts: [
+				{ id: "app", name: "app", include: "dist/app.js" },
+				{ id: "lib", name: "lib", include: "dist/lib.js" },
+			],
+		}),
+	});
+
+	const parser = createParser({ cwd: "/project", fs, console, env: {} });
+
+	/* baseline: app 50, lib 100 */
+	await fs.writeFile("/project/dist/app.js", "a".repeat(50));
+	await fs.writeFile("/project/dist/lib.js", "l".repeat(100));
+	await parser.parseAsync([
+		"analyze",
+		"--config-file=artifact-config.json",
+		"--format=json",
+		"--output-file=temp/base.json",
+	]);
+
+	/* current: app grows, lib stays same */
+	await fs.writeFile("/project/dist/app.js", "a".repeat(75)); // +25
+	await fs.writeFile("/project/dist/lib.js", "l".repeat(100)); // unchanged
+	await parser.parseAsync([
+		"analyze",
+		"--config-file=artifact-config.json",
+		"--format=json",
+		"--output-file=temp/current.json",
+	]);
+
+	await parser.parseAsync([
+		"compare",
+		"--base=temp/base.json",
+		"--current=temp/current.json",
+		"--format=markdown",
+		"--unchanged=collapse",
+	]);
+
+	/* should show app in main table and lib in details section */
+	const stdout = stream.getContentsAsString("utf8");
+	expect(stdout).toMatchInlineSnapshot(`
+		"## Artifact sizes
+
+		Artifact sizes in this build (unchanged artifacts collapsed below).
+
+		| Artifact | Files | Size | Compressed | Change |
+		|---|---|---:|---:|---:|
+		| app | 1 file(s) | 50B → **75B** (+25B) | gzip: 24B<br>brotli: 11B | +50.00% |
+
+		*1 artifact collapsed*
+
+		<details>
+		<summary>1 unchanged artifact</summary>
+
+		| Artifact | Files | Size | Compressed |
+		|---|---|---:|---:|
+		| lib | 1 file(s) | 100B | gzip: 24B<br>brotli: 11B |
+
+		</details>
+
+		"
+	`);
+});

@@ -25,7 +25,7 @@ export interface CompareOptions {
 	outputGithub: ParsedOutput[];
 	base: string;
 	current: string;
-	formatOptions: { header: boolean };
+	formatOptions: { header: boolean; unchanged: "show" | "hide" | "collapse" };
 	console: Console;
 	fs: typeof nodefs;
 }
@@ -35,7 +35,6 @@ export interface CompareOptions {
  */
 export async function compare(options: CompareOptions): Promise<void> {
 	const { console, cwd, env, fs, formatOptions } = options;
-	const { header } = formatOptions;
 	const basePath = resolve(cwd, options.base);
 	const currentPath = resolve(cwd, options.current);
 	const base = await readJsonFile<ArtifactSize[]>(basePath, { fs });
@@ -45,18 +44,18 @@ export async function compare(options: CompareOptions): Promise<void> {
 	if (options.outputFile.length > 0) {
 		for (const spec of options.outputFile) {
 			const { format, key: filename } = spec;
-			const output = formatDiff(diff, format, { header });
+			const output = formatDiff(diff, format, { color: false, ...formatOptions });
 			await writeFile(output, { fs, cwd, filename });
 		}
 	} else {
 		const color = process.stdout.isTTY;
-		const output = formatDiff(diff, options.format, { color, header });
+		const output = formatDiff(diff, options.format, { color, ...formatOptions });
 		console.log(output);
 	}
 
 	for (const spec of options.outputGithub) {
 		const { format: fmt, key } = spec;
-		const output = formatDiff(diff, fmt, { header });
+		const output = formatDiff(diff, fmt, { color: false, ...formatOptions });
 		await writeGithub(output, { fs, env, key });
 	}
 }
@@ -107,6 +106,19 @@ export function createCompareCommand(options: CompareCommandFactoryOptions): Com
 					type: "boolean",
 					default: false,
 				})
+				.option("unchanged", {
+					describe:
+						"Control how artifacts with unchanged sizes are handled. 'show' displays all artifacts, 'hide' omits unchanged ones, 'collapse' shows them in a collapsible section",
+					type: "string",
+					choices: ["show", "hide", "collapse"],
+					default: "show",
+				})
+				.option("no-unchanged", {
+					describe:
+						"Hide artifacts with unchanged sizes from output (equivalent to --unchanged=hide)",
+					type: "boolean",
+					default: false,
+				})
 				.option("output-file", {
 					alias: "o",
 					describe: "Write output to file instead of stdout (format:filename or filename)",
@@ -135,13 +147,21 @@ export function createCompareCommand(options: CompareCommandFactoryOptions): Com
 				});
 		},
 		async handler(args) {
+			let unchanged = args["unchanged"] as "show" | "hide" | "collapse";
+			if (args["no-unchanged"]) {
+				unchanged = "hide";
+			}
+
 			await compare({
 				cwd,
 				env,
 				base: args["base"] as string,
 				current: args["current"] as string,
 				format: args["format"] as Format,
-				formatOptions: { header: !args["no-header"] },
+				formatOptions: {
+					header: !args["no-header"],
+					unchanged,
+				},
 				outputFile: (args["output-file"] as ParsedOutputMaybeFormat[]).map((it) => ({
 					format: it.format ?? (args["format"] as Format),
 					key: it.key,

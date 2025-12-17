@@ -263,6 +263,8 @@ describe("formatDiff()", () => {
 			expect(out).toMatchInlineSnapshot(`
 				## Artifact sizes
 
+				Artifact sizes in this build.
+
 				| Artifact | Files | Size | Compressed | Change |
 				|---|---|---:|---:|---:|
 				| app | 2 file(s) | 90B → **100B** (+10B) | gzip: 80B<br>brotli: 70B | +11.11% |
@@ -276,6 +278,8 @@ describe("formatDiff()", () => {
 			expect(outMd).toMatchInlineSnapshot(`
 				## Artifact sizes
 
+				Artifact sizes in this build.
+
 				| Artifact | Files | Size | Compressed | Change |
 				|---|---|---:|---:|---:|
 				| new (added) | 1 file(s) | N/A → **150B** | gzip: 100B<br>brotli: 80B | +0.00% |
@@ -287,6 +291,8 @@ describe("formatDiff()", () => {
 			expect(outMd).toMatchInlineSnapshot(`
 				## Artifact sizes
 
+				Artifact sizes in this build.
+
 				| Artifact | Files | Size | Compressed | Change |
 				|---|---|---:|---:|---:|
 				| old (removed) | N/A | 200B → N/A | N/A | N/A |
@@ -297,6 +303,8 @@ describe("formatDiff()", () => {
 			const out = formatDiff(updatedOneAlgorithm, "markdown");
 			expect(out).toMatchInlineSnapshot(`
 				## Artifact sizes
+
+				Artifact sizes in this build.
 
 				| Artifact | Files | Size | Compressed | Change |
 				|---|---|---:|---:|---:|
@@ -310,6 +318,8 @@ describe("formatDiff()", () => {
 			expect(out).toMatchInlineSnapshot(`
 				## Artifact sizes
 
+				Artifact sizes in this build.
+
 				| Artifact | Files | Size | Change |
 				|---|---|---:|---:|
 				| none-a | 0 file(s) | 90B → **100B** (+10B) | +11.11% |
@@ -321,6 +331,8 @@ describe("formatDiff()", () => {
 			const out = formatDiff(updatedMixedAlgorithms, "markdown");
 			expect(out).toMatchInlineSnapshot(`
 				## Artifact sizes
+
+				Artifact sizes in this build.
 
 				| Artifact | Files | Size | Compressed | Change |
 				|---|---|---:|---:|---:|
@@ -335,6 +347,8 @@ describe("formatDiff()", () => {
 			expect(out).toMatchInlineSnapshot(`
 				## Artifact sizes
 
+				Artifact sizes in this build.
+
 				| Artifact | Files | Size | Change |
 				|---|---|---:|---:|
 				| removed-files | 1 file(s) | 120B → **110B** (-10B) | -8.33% |
@@ -345,6 +359,8 @@ describe("formatDiff()", () => {
 			const out = formatDiff(addedNoCompress, "markdown");
 			expect(out).toMatchInlineSnapshot(`
 				## Artifact sizes
+
+				Artifact sizes in this build.
 
 				| Artifact | Files | Size | Change |
 				|---|---|---:|---:|
@@ -357,6 +373,8 @@ describe("formatDiff()", () => {
 			expect(out).toMatchInlineSnapshot(`
 				## Artifact sizes
 
+				Artifact sizes in this build.
+
 				| Artifact | Files | Size | Change |
 				|---|---|---:|---:|
 				| old-nc (removed) | N/A | 200B → N/A | N/A |
@@ -364,12 +382,20 @@ describe("formatDiff()", () => {
 		});
 
 		it("should include header when header is true", () => {
-			const out = formatDiff(updated, "markdown", { header: true });
+			const out = formatDiff(updated, "markdown", {
+				color: false,
+				header: true,
+				unchanged: "show",
+			});
 			expect(out).toContain("## Artifact sizes");
 		});
 
 		it("should omit header when header is false", () => {
-			const out = formatDiff(updated, "markdown", { color: false, header: false });
+			const out = formatDiff(updated, "markdown", {
+				color: false,
+				header: false,
+				unchanged: "show",
+			});
 			expect(out).not.toContain("## Artifact sizes");
 		});
 	});
@@ -457,6 +483,373 @@ describe("formatDiff()", () => {
 
 				vendor: files=<cyan>1</cyan> (+0), size=<cyan>250B</cyan> (-50B), gzip=<cyan>210B</cyan> (-40B), brotli=<cyan>200B</cyan> (-30B)
 			`);
+		});
+	});
+
+	describe("unchanged option", () => {
+		it("should hide unchanged artifacts in markdown format", () => {
+			const disabled = formatDiff(updated, "markdown", { unchanged: "show" });
+			const enabled = formatDiff(updated, "markdown", { unchanged: "hide" });
+			expect(disabled).toMatchInlineSnapshot(`
+				## Artifact sizes
+
+				Artifact sizes in this build.
+
+				| Artifact | Files | Size | Compressed | Change |
+				|---|---|---:|---:|---:|
+				| app | 2 file(s) | 90B → **100B** (+10B) | gzip: 80B<br>brotli: 70B | +11.11% |
+				| lib | 1 file(s) | 200B | gzip: 150B<br>brotli: 120B | - |
+				| vendor | 1 file(s) | 300B → **250B** (-50B) | gzip: 210B<br>brotli: 200B | -16.67% |
+			`);
+			expect(enabled).toMatchInlineSnapshot(`
+				## Artifact sizes
+
+				Artifact sizes in this build (artifacts with unchanged sizes omitted).
+
+				| Artifact | Files | Size | Compressed | Change |
+				|---|---|---:|---:|---:|
+				| app | 2 file(s) | 90B → **100B** (+10B) | gzip: 80B<br>brotli: 70B | +11.11% |
+				| vendor | 1 file(s) | 300B → **250B** (-50B) | gzip: 210B<br>brotli: 200B | -16.67% |
+
+				*1 artifact omitted*
+			`);
+		});
+
+		it("should hide unchanged artifacts in text format", () => {
+			const disabled = formatDiff(updated, "text", { unchanged: "show" });
+			const enabled = formatDiff(updated, "text", { unchanged: "hide" });
+			expect(disabled).toMatchInlineSnapshot(`
+				app: files=2 (+0), size=100B (+10B), gzip=80B (+5B), brotli=70B (-2B)
+
+				lib: files=1 (+0), size=200B (+0B), gzip=150B (+0B), brotli=120B (+0B)
+
+				vendor: files=1 (+0), size=250B (-50B), gzip=210B (-40B), brotli=200B (-30B)
+			`);
+			expect(enabled).toMatchInlineSnapshot(`
+				app: files=2 (+0), size=100B (+10B), gzip=80B (+5B), brotli=70B (-2B)
+
+				vendor: files=1 (+0), size=250B (-50B), gzip=210B (-40B), brotli=200B (-30B)
+			`);
+		});
+
+		it("should not affect JSON format", () => {
+			const disabled = formatDiff(updated, "json", { unchanged: "show" });
+			const enabled = formatDiff(updated, "json", { unchanged: "hide" });
+			expect(enabled).toBe(disabled);
+		});
+
+		it("should show message when no artifacts are changed", () => {
+			/* Create test data with only unchanged artifacts */
+			const unchangedOnly: ArtifactDiff[] = [
+				{
+					id: "lib",
+					name: "lib",
+					status: "updated",
+					raw: {
+						oldSize: 200,
+						newSize: 200,
+						difference: 0,
+					},
+					gzip: { oldSize: 150, newSize: 150, difference: 0 },
+					brotli: { oldSize: 120, newSize: 120, difference: 0 },
+					oldFiles: [{ filename: "dist/lib.js", size: 200, gzip: 150, brotli: 120 }],
+					newFiles: [{ filename: "dist/lib.js", size: 200, gzip: 150, brotli: 120 }],
+				},
+			];
+
+			const result = formatDiff(unchangedOnly, "markdown", { unchanged: "hide" });
+			expect(result).toMatchInlineSnapshot(`
+				## Artifact sizes
+
+				No artifact size changes in this build.
+			`);
+		});
+
+		it("should not show trailer when no artifacts are omitted", () => {
+			const allChanged: ArtifactDiff[] = [
+				{
+					id: "app",
+					name: "app",
+					status: "updated",
+					raw: { oldSize: 90, newSize: 100, difference: 10 },
+					gzip: { oldSize: 75, newSize: 80, difference: 5 },
+					brotli: { oldSize: 72, newSize: 70, difference: -2 },
+					oldFiles: [
+						{ filename: "dist/a.js", size: 65, gzip: 55, brotli: 45 },
+						{ filename: "dist/b.js", size: 25, gzip: 15, brotli: 18 },
+					],
+					newFiles: [
+						{ filename: "dist/a.js", size: 70, gzip: 60, brotli: 50 },
+						{ filename: "dist/b.js", size: 30, gzip: 20, brotli: 20 },
+					],
+				},
+				{
+					id: "vendor",
+					name: "vendor",
+					status: "updated",
+					raw: { oldSize: 300, newSize: 250, difference: -50 },
+					gzip: { oldSize: 250, newSize: 210, difference: -40 },
+					brotli: { oldSize: 230, newSize: 200, difference: -30 },
+					oldFiles: [{ filename: "dist/vendor.js", size: 300, gzip: 250, brotli: 230 }],
+					newFiles: [{ filename: "dist/vendor.js", size: 250, gzip: 210, brotli: 200 }],
+				},
+			];
+
+			const result = formatDiff(allChanged, "markdown", { unchanged: "hide" });
+			expect(result).toMatchInlineSnapshot(`
+				## Artifact sizes
+
+				Artifact sizes in this build.
+
+				| Artifact | Files | Size | Compressed | Change |
+				|---|---|---:|---:|---:|
+				| app | 2 file(s) | 90B → **100B** (+10B) | gzip: 80B<br>brotli: 70B | +11.11% |
+				| vendor | 1 file(s) | 300B → **250B** (-50B) | gzip: 210B<br>brotli: 200B | -16.67% |
+			`);
+		});
+
+		it("should show plural message when multiple artifacts are omitted", () => {
+			const multipleUnchanged: ArtifactDiff[] = [
+				{
+					id: "app",
+					name: "app",
+					status: "updated",
+					raw: { oldSize: 90, newSize: 100, difference: 10 },
+					gzip: { oldSize: 75, newSize: 80, difference: 5 },
+					brotli: { oldSize: 72, newSize: 70, difference: -2 },
+					oldFiles: [
+						{ filename: "dist/a.js", size: 65, gzip: 55, brotli: 45 },
+						{ filename: "dist/b.js", size: 25, gzip: 15, brotli: 18 },
+					],
+					newFiles: [
+						{ filename: "dist/a.js", size: 70, gzip: 60, brotli: 50 },
+						{ filename: "dist/b.js", size: 30, gzip: 20, brotli: 20 },
+					],
+				},
+				{
+					id: "lib",
+					name: "lib",
+					status: "updated",
+					raw: { oldSize: 200, newSize: 200, difference: 0 },
+					gzip: { oldSize: 150, newSize: 150, difference: 0 },
+					brotli: { oldSize: 120, newSize: 120, difference: 0 },
+					oldFiles: [{ filename: "dist/lib.js", size: 200, gzip: 150, brotli: 120 }],
+					newFiles: [{ filename: "dist/lib.js", size: 200, gzip: 150, brotli: 120 }],
+				},
+				{
+					id: "vendor",
+					name: "vendor",
+					status: "updated",
+					raw: { oldSize: 300, newSize: 300, difference: 0 },
+					gzip: { oldSize: 250, newSize: 250, difference: 0 },
+					brotli: { oldSize: 230, newSize: 230, difference: 0 },
+					oldFiles: [{ filename: "dist/vendor.js", size: 300, gzip: 250, brotli: 230 }],
+					newFiles: [{ filename: "dist/vendor.js", size: 300, gzip: 250, brotli: 230 }],
+				},
+			];
+
+			const result = formatDiff(multipleUnchanged, "markdown", { unchanged: "hide" });
+			expect(result).toMatchInlineSnapshot(`
+				## Artifact sizes
+
+				Artifact sizes in this build (artifacts with unchanged sizes omitted).
+
+				| Artifact | Files | Size | Compressed | Change |
+				|---|---|---:|---:|---:|
+				| app | 2 file(s) | 90B → **100B** (+10B) | gzip: 80B<br>brotli: 70B | +11.11% |
+
+				*2 artifacts omitted*
+			`);
+		});
+
+		it("should show unchanged artifacts in details section when unchanged is 'collapse'", () => {
+			const result = formatDiff(updated, "markdown", { unchanged: "collapse" });
+			expect(result).toMatchInlineSnapshot(`
+				## Artifact sizes
+
+				Artifact sizes in this build (unchanged artifacts collapsed below).
+
+				| Artifact | Files | Size | Compressed | Change |
+				|---|---|---:|---:|---:|
+				| app | 2 file(s) | 90B → **100B** (+10B) | gzip: 80B<br>brotli: 70B | +11.11% |
+				| vendor | 1 file(s) | 300B → **250B** (-50B) | gzip: 210B<br>brotli: 200B | -16.67% |
+
+				*1 artifact collapsed*
+
+				<details>
+				<summary>1 unchanged artifact</summary>
+
+				| Artifact | Files | Size | Compressed |
+				|---|---|---:|---:|
+				| lib | 1 file(s) | 200B | gzip: 150B<br>brotli: 120B |
+
+				</details>
+			`);
+		});
+
+		it("should show multiple unchanged artifacts in details section", () => {
+			const multipleUnchanged: ArtifactDiff[] = [
+				{
+					id: "app",
+					name: "app",
+					status: "updated",
+					raw: { oldSize: 90, newSize: 100, difference: 10 },
+					gzip: { oldSize: 75, newSize: 80, difference: 5 },
+					brotli: { oldSize: 72, newSize: 70, difference: -2 },
+					oldFiles: [
+						{ filename: "dist/a.js", size: 65, gzip: 55, brotli: 45 },
+						{ filename: "dist/b.js", size: 25, gzip: 15, brotli: 18 },
+					],
+					newFiles: [
+						{ filename: "dist/a.js", size: 70, gzip: 60, brotli: 50 },
+						{ filename: "dist/b.js", size: 30, gzip: 20, brotli: 20 },
+					],
+				},
+				{
+					id: "lib",
+					name: "lib",
+					status: "updated",
+					raw: { oldSize: 200, newSize: 200, difference: 0 },
+					gzip: { oldSize: 150, newSize: 150, difference: 0 },
+					brotli: { oldSize: 120, newSize: 120, difference: 0 },
+					oldFiles: [{ filename: "dist/lib.js", size: 200, gzip: 150, brotli: 120 }],
+					newFiles: [{ filename: "dist/lib.js", size: 200, gzip: 150, brotli: 120 }],
+				},
+				{
+					id: "vendor",
+					name: "vendor",
+					status: "updated",
+					raw: { oldSize: 300, newSize: 300, difference: 0 },
+					gzip: { oldSize: 250, newSize: 250, difference: 0 },
+					brotli: { oldSize: 230, newSize: 230, difference: 0 },
+					oldFiles: [{ filename: "dist/vendor.js", size: 300, gzip: 250, brotli: 230 }],
+					newFiles: [{ filename: "dist/vendor.js", size: 300, gzip: 250, brotli: 230 }],
+				},
+			];
+
+			const result = formatDiff(multipleUnchanged, "markdown", { unchanged: "collapse" });
+			expect(result).toMatchInlineSnapshot(`
+				## Artifact sizes
+
+				Artifact sizes in this build (unchanged artifacts collapsed below).
+
+				| Artifact | Files | Size | Compressed | Change |
+				|---|---|---:|---:|---:|
+				| app | 2 file(s) | 90B → **100B** (+10B) | gzip: 80B<br>brotli: 70B | +11.11% |
+
+				*2 artifacts collapsed*
+
+				<details>
+				<summary>2 unchanged artifacts</summary>
+
+				| Artifact | Files | Size | Compressed |
+				|---|---|---:|---:|
+				| lib | 1 file(s) | 200B | gzip: 150B<br>brotli: 120B |
+				| vendor | 1 file(s) | 300B | gzip: 250B<br>brotli: 230B |
+
+				</details>
+			`);
+		});
+
+		it("should show details without compression when unchanged artifacts have no compression", () => {
+			const unchangedNoCompress: ArtifactDiff[] = [
+				{
+					id: "app",
+					name: "app",
+					status: "updated",
+					raw: { oldSize: 90, newSize: 100, difference: 10 },
+					gzip: null,
+					brotli: null,
+					oldFiles: [{ filename: "dist/app.js", size: 90, gzip: null, brotli: null }],
+					newFiles: [{ filename: "dist/app.js", size: 100, gzip: null, brotli: null }],
+				},
+				{
+					id: "lib",
+					name: "lib",
+					status: "updated",
+					raw: { oldSize: 200, newSize: 200, difference: 0 },
+					gzip: null,
+					brotli: null,
+					oldFiles: [{ filename: "dist/lib.js", size: 200, gzip: null, brotli: null }],
+					newFiles: [{ filename: "dist/lib.js", size: 200, gzip: null, brotli: null }],
+				},
+			];
+
+			const result = formatDiff(unchangedNoCompress, "markdown", { unchanged: "collapse" });
+			expect(result).toMatchInlineSnapshot(`
+				## Artifact sizes
+
+				Artifact sizes in this build (unchanged artifacts collapsed below).
+
+				| Artifact | Files | Size | Change |
+				|---|---|---:|---:|
+				| app | 1 file(s) | 90B → **100B** (+10B) | +11.11% |
+
+				*1 artifact collapsed*
+
+				<details>
+				<summary>1 unchanged artifact</summary>
+
+				| Artifact | Files | Size |
+				|---|---|---:|
+				| lib | 1 file(s) | 200B |
+
+				</details>
+			`);
+		});
+
+		it("should not show details section when all artifacts are changed", () => {
+			const allChanged: ArtifactDiff[] = [
+				{
+					id: "app",
+					name: "app",
+					status: "updated",
+					raw: { oldSize: 90, newSize: 100, difference: 10 },
+					gzip: { oldSize: 75, newSize: 80, difference: 5 },
+					brotli: { oldSize: 72, newSize: 70, difference: -2 },
+					oldFiles: [
+						{ filename: "dist/a.js", size: 65, gzip: 55, brotli: 45 },
+						{ filename: "dist/b.js", size: 25, gzip: 15, brotli: 18 },
+					],
+					newFiles: [
+						{ filename: "dist/a.js", size: 70, gzip: 60, brotli: 50 },
+						{ filename: "dist/b.js", size: 30, gzip: 20, brotli: 20 },
+					],
+				},
+			];
+
+			const result = formatDiff(allChanged, "markdown", { unchanged: "collapse" });
+			expect(result).toMatchInlineSnapshot(`
+				## Artifact sizes
+
+				Artifact sizes in this build.
+
+				| Artifact | Files | Size | Compressed | Change |
+				|---|---|---:|---:|---:|
+				| app | 2 file(s) | 90B → **100B** (+10B) | gzip: 80B<br>brotli: 70B | +11.11% |
+			`);
+		});
+
+		it("should return empty string when no header and no artifacts to show", () => {
+			const unchangedOnly: ArtifactDiff[] = [
+				{
+					id: "lib",
+					name: "lib",
+					status: "updated",
+					raw: {
+						oldSize: 200,
+						newSize: 200,
+						difference: 0,
+					},
+					gzip: { oldSize: 150, newSize: 150, difference: 0 },
+					brotli: { oldSize: 120, newSize: 120, difference: 0 },
+					oldFiles: [{ filename: "dist/lib.js", size: 200, gzip: 150, brotli: 120 }],
+					newFiles: [{ filename: "dist/lib.js", size: 200, gzip: 150, brotli: 120 }],
+				},
+			];
+
+			const result = formatDiff(unchangedOnly, "markdown", { unchanged: "hide", header: false });
+			expect(result).toBe("");
 		});
 	});
 });

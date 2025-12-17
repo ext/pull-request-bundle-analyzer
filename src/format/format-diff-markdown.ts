@@ -1,5 +1,7 @@
 import { type ArtifactDiff } from "../artifact-diff.ts";
 import { prettySize } from "../utils/index.ts";
+import { filterUnchangedArtifacts } from "./filter-unchanged.ts";
+import { type FormatDiffOptions } from "./format-diff.ts";
 import { formatPercent } from "./format-percent.ts";
 import { formatSize } from "./format-size.ts";
 
@@ -76,15 +78,115 @@ function renderUpdatedRow(it: ArtifactDiff, showCompressed: boolean): string {
 	return `| ${name} | ${String(it.newFiles.length)} file(s) | ${sizeCol} | ${compressedCol} | ${percent} |`;
 }
 
-export function markdownFormat(results: ArtifactDiff[], options: { header: boolean }): string {
+function generateDescription(
+	hasHeader: boolean,
+	unchanged: "show" | "hide" | "collapse",
+	results: ArtifactDiff[],
+	filteredResults: ArtifactDiff[],
+): string {
+	if (!hasHeader) {
+		return "";
+	}
+
+	const omittedCount = results.length - filteredResults.length;
+	if (unchanged === "show" || omittedCount === 0) {
+		return "Artifact sizes in this build.\n\n";
+	}
+
+	switch (unchanged) {
+		case "hide":
+			return "Artifact sizes in this build (artifacts with unchanged sizes omitted).\n\n";
+		case "collapse": {
+			return "Artifact sizes in this build (unchanged artifacts collapsed below).\n\n";
+		}
+	}
+}
+
+function generateDetailsSection(results: ArtifactDiff[], showDetails: boolean): string {
+	if (!showDetails) {
+		return "";
+	}
+
+	const omittedArtifacts = results.filter((artifact) => {
+		return artifact.status === "updated" && artifact.raw.difference === 0;
+	});
+
+	if (omittedArtifacts.length === 0) {
+		return "";
+	}
+
+	const showCompressedInDetails = omittedArtifacts.some(
+		(it) => Boolean(it.gzip) || Boolean(it.brotli),
+	);
+
+	const detailsHeader = showCompressedInDetails
+		? "| Artifact | Files | Size | Compressed |\n|---|---|---:|---:|\n"
+		: "| Artifact | Files | Size |\n|---|---|---:|\n";
+
+	const detailsRows = omittedArtifacts
+		.map((it) => {
+			const name = it.name.replace(/ /g, "&nbsp;");
+			const sizeCol = num(it.raw.newSize);
+
+			if (!showCompressedInDetails) {
+				return `| ${name} | ${String(it.newFiles.length)} file(s) | ${sizeCol} |`;
+			}
+
+			const compressedCol = compressedColumn(it);
+			return `| ${name} | ${String(it.newFiles.length)} file(s) | ${sizeCol} | ${compressedCol} |`;
+		})
+		.join("\n");
+
+	const s = omittedArtifacts.length === 1 ? "" : "s";
+	return `\n\n<details>\n<summary>${String(omittedArtifacts.length)} unchanged artifact${s}</summary>\n\n${detailsHeader}${detailsRows}\n\n</details>`;
+}
+
+function generateTrailer(
+	results: ArtifactDiff[],
+	filteredResults: ArtifactDiff[],
+	shouldHide: boolean,
+	unchanged: "show" | "hide" | "collapse",
+): string {
+	if (!shouldHide) {
+		return "";
+	}
+
+	const omittedCount = results.length - filteredResults.length;
+	if (omittedCount > 0) {
+		const s = omittedCount === 1 ? "" : "s";
+		const action = unchanged === "collapse" ? "collapsed" : "omitted";
+		return `\n\n*${String(omittedCount)} artifact${s} ${action}*`;
+	}
+	return "";
+}
+
+export function markdownFormat(results: ArtifactDiff[], options: FormatDiffOptions): string {
 	const header = options.header ? "## Artifact sizes\n\n" : "";
-	const showCompressed = results.some((it) => Boolean(it.gzip) || Boolean(it.brotli));
+	const shouldHide = options.unchanged !== "show";
+	const showDetails = options.unchanged === "collapse";
+	const filteredResults = filterUnchangedArtifacts(results, options.unchanged);
+
+	if (filteredResults.length === 0) {
+		if (options.header) {
+			return `${header}No artifact size changes in this build.\n`;
+		}
+		return "";
+	}
+
+	const description = generateDescription(
+		options.header,
+		options.unchanged,
+		results,
+		filteredResults,
+	);
+
+	const showCompressed = filteredResults.some((it) => Boolean(it.gzip) || Boolean(it.brotli));
 
 	const tableHeader = showCompressed
 		? "| Artifact | Files | Size | Compressed | Change |\n|---|---|---:|---:|---:|\n"
 		: "| Artifact | Files | Size | Change |\n|---|---|---:|---:|\n";
 
-	const rows = results
+	const rows = filteredResults
 		.map((it) => {
 			switch (it.status) {
 				case "added":
@@ -103,5 +205,8 @@ export function markdownFormat(results: ArtifactDiff[], options: { header: boole
 		})
 		.join("\n");
 
-	return `${header}${tableHeader}${rows}\n`;
+	const trailer = generateTrailer(results, filteredResults, shouldHide, options.unchanged);
+	const details = generateDetailsSection(results, showDetails);
+
+	return `${header}${description}${tableHeader}${rows}${trailer}${details}\n`;
 }

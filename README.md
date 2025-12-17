@@ -432,6 +432,10 @@ Options:
 - `--base <path>`: Baseline JSON file produced by `analyze` (required)
 - `--current <path>`: Current JSON file produced by `analyze` (required)
 - `-f, --format <text|json|markdown>`: Output format (default: `text`)
+- `--unchanged <show|hide|collapse>`: Control how artifacts with unchanged sizes are handled (default: `show`)
+  - `show`: Display all artifacts
+  - `hide`: Hide unchanged artifacts from output
+  - `collapse`: Show unchanged artifacts in a collapsible `<details>` section
 - `-o, --output-file <path>`: Write output to file instead of stdout
 
 ## Using with API
