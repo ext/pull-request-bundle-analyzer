@@ -1,6 +1,20 @@
 import util, { stripVTControlCharacters } from "node:util";
 import { describe, expect, it, vi } from "vitest";
-import { type ArtifactDiff } from "../artifact-diff.ts";
+import {
+	allChanged,
+	fileChanges,
+	gzipOnly,
+	mixedChanges,
+	mixedCompression,
+	multipleUnchanged,
+	noCompression,
+	singleAdded,
+	singleAddedNoCompression,
+	singleRemoved,
+	singleRemovedNoCompression,
+	unchangedNoCompression,
+	unchangedOnly,
+} from "./__fixtures__/index.ts";
 import { formatDiff } from "./format-diff.ts";
 
 vi.spyOn(util, "styleText").mockImplementation((color, text) => `<${color}>${text}</${color}>`);
@@ -14,252 +28,66 @@ expect.addSnapshotSerializer({
 	},
 });
 
-const updated: ArtifactDiff[] = [
-	{
-		id: "app",
-		name: "app",
-		status: "updated",
-		raw: { oldSize: 90, newSize: 100, difference: 10 },
-		gzip: { oldSize: 75, newSize: 80, difference: 5 },
-		brotli: { oldSize: 72, newSize: 70, difference: -2 },
-		oldFiles: [
-			{ filename: "dist/a.js", size: 65, gzip: 55, brotli: 45 },
-			{ filename: "dist/b.js", size: 25, gzip: 15, brotli: 18 },
-		],
-		newFiles: [
-			{ filename: "dist/a.js", size: 70, gzip: 60, brotli: 50 },
-			{ filename: "dist/b.js", size: 30, gzip: 20, brotli: 20 },
-		],
-	},
-	{
-		id: "lib",
-		name: "lib",
-		status: "updated",
-		raw: { oldSize: 200, newSize: 200, difference: 0 },
-		gzip: { oldSize: 150, newSize: 150, difference: 0 },
-		brotli: { oldSize: 120, newSize: 120, difference: 0 },
-		oldFiles: [{ filename: "dist/lib.js", size: 200, gzip: 150, brotli: 120 }],
-		newFiles: [{ filename: "dist/lib.js", size: 200, gzip: 150, brotli: 120 }],
-	},
-	{
-		id: "vendor",
-		name: "vendor",
-		status: "updated",
-		raw: { oldSize: 300, newSize: 250, difference: -50 },
-		gzip: { oldSize: 250, newSize: 210, difference: -40 },
-		brotli: { oldSize: 230, newSize: 200, difference: -30 },
-		oldFiles: [{ filename: "dist/vendor.js", size: 300, gzip: 250, brotli: 230 }],
-		newFiles: [{ filename: "dist/vendor.js", size: 250, gzip: 210, brotli: 200 }],
-	},
-];
-
-const added: ArtifactDiff[] = [
-	{
-		id: "new",
-		name: "new",
-		status: "added",
-		raw: { oldSize: 0, newSize: 150, difference: 150 },
-		gzip: { oldSize: 0, newSize: 100, difference: 100 },
-		brotli: { oldSize: 0, newSize: 80, difference: 80 },
-		oldFiles: [],
-		newFiles: [{ filename: "dist/new.js", size: 150, gzip: 100, brotli: 80 }],
-	},
-];
-
-const removed: ArtifactDiff[] = [
-	{
-		id: "old",
-		name: "old",
-		status: "removed",
-		raw: { oldSize: 200, newSize: 0, difference: -200 },
-		gzip: { oldSize: 120, newSize: 0, difference: -120 },
-		brotli: { oldSize: 80, newSize: 0, difference: -80 },
-		oldFiles: [{ filename: "dist/old.js", size: 200, gzip: 120, brotli: 80 }],
-		newFiles: [],
-	},
-];
-
-const addedNoCompress: ArtifactDiff[] = [
-	{
-		id: "new-nc",
-		name: "new-nc",
-		status: "added",
-		raw: { oldSize: 0, newSize: 150, difference: 150 },
-		gzip: null,
-		brotli: null,
-		oldFiles: [],
-		newFiles: [{ filename: "dist/new-nc.js", size: 150, gzip: null, brotli: null }],
-	},
-];
-
-const removedNoCompress: ArtifactDiff[] = [
-	{
-		id: "old-nc",
-		name: "old-nc",
-		status: "removed",
-		raw: { oldSize: 200, newSize: 0, difference: -200 },
-		gzip: null,
-		brotli: null,
-		oldFiles: [{ filename: "dist/old-nc.js", size: 200, gzip: null, brotli: null }],
-		newFiles: [],
-	},
-];
-
-const updatedOneAlgorithm: ArtifactDiff[] = [
-	{
-		id: "one-a",
-		name: "one-a",
-		status: "updated",
-		raw: { oldSize: 90, newSize: 100, difference: 10 },
-		gzip: { oldSize: 75, newSize: 80, difference: 5 },
-		brotli: null,
-		oldFiles: [],
-		newFiles: [],
-	},
-	{
-		id: "one-b",
-		name: "one-b",
-		status: "updated",
-		raw: { oldSize: 50, newSize: 60, difference: 10 },
-		gzip: { oldSize: 40, newSize: 45, difference: 5 },
-		brotli: null,
-		oldFiles: [],
-		newFiles: [],
-	},
-];
-
-const updatedBothDisabled: ArtifactDiff[] = [
-	{
-		id: "none-a",
-		name: "none-a",
-		status: "updated",
-		raw: { oldSize: 90, newSize: 100, difference: 10 },
-		gzip: null,
-		brotli: null,
-		oldFiles: [],
-		newFiles: [],
-	},
-	{
-		id: "none-b",
-		name: "none-b",
-		status: "updated",
-		raw: { oldSize: 50, newSize: 60, difference: 10 },
-		gzip: null,
-		brotli: null,
-		oldFiles: [],
-		newFiles: [],
-	},
-];
-
-const updatedMixedAlgorithms: ArtifactDiff[] = [
-	{
-		id: "all-enabled",
-		name: "all-enabled",
-		status: "updated",
-		raw: { oldSize: 120, newSize: 130, difference: 10 },
-		gzip: { oldSize: 90, newSize: 95, difference: 5 },
-		brotli: { oldSize: 80, newSize: 85, difference: 5 },
-		oldFiles: [],
-		newFiles: [],
-	},
-	{
-		id: "brotli-only",
-		name: "brotli-only",
-		status: "updated",
-		raw: { oldSize: 70, newSize: 75, difference: 5 },
-		gzip: null,
-		brotli: { oldSize: 60, newSize: 62, difference: 2 },
-		oldFiles: [],
-		newFiles: [],
-	},
-	{
-		id: "all-disabled",
-		name: "all-disabled",
-		status: "updated",
-		raw: { oldSize: 30, newSize: 40, difference: 10 },
-		gzip: null,
-		brotli: null,
-		oldFiles: [],
-		newFiles: [],
-	},
-];
-
-const removedFiles: ArtifactDiff[] = [
-	{
-		id: "removed-files",
-		name: "removed-files",
-		status: "updated",
-		raw: { oldSize: 120, newSize: 110, difference: -10 },
-		gzip: null,
-		brotli: null,
-		oldFiles: [
-			{ filename: "dist/a.js", size: 60, gzip: null, brotli: null },
-			{ filename: "dist/b.js", size: 60, gzip: null, brotli: null },
-		],
-		newFiles: [{ filename: "dist/a.js", size: 110, gzip: null, brotli: null }],
-	},
-];
-
 describe("formatDiff()", () => {
 	describe("json", () => {
 		it("should format updated artifacts", () => {
-			const out = formatDiff(updated, "json");
+			const out = formatDiff(mixedChanges, "json");
 			const parsed = JSON.parse(out);
-			expect(parsed).toEqual(updated);
+			expect(parsed).toEqual(mixedChanges);
 		});
 
 		it("should format added artifact", () => {
-			const outJson = formatDiff(added, "json");
+			const outJson = formatDiff(singleAdded, "json");
 			const parsedJson = JSON.parse(outJson);
-			expect(parsedJson).toEqual(added);
+			expect(parsedJson).toEqual(singleAdded);
 		});
 
 		it("should format removed artifact", () => {
-			const outJson = formatDiff(removed, "json");
+			const outJson = formatDiff(singleRemoved, "json");
 			const parsedJson = JSON.parse(outJson);
-			expect(parsedJson).toEqual(removed);
+			expect(parsedJson).toEqual(singleRemoved);
 		});
 
 		it("should format artifacts with only one algorithm enabled", () => {
-			const out = formatDiff(updatedOneAlgorithm, "json");
+			const out = formatDiff(gzipOnly, "json");
 			const parsed = JSON.parse(out);
-			expect(parsed).toEqual(updatedOneAlgorithm);
+			expect(parsed).toEqual(gzipOnly);
 		});
 
 		it("should format artifacts with all algorithms disabled", () => {
-			const out = formatDiff(updatedBothDisabled, "json");
+			const out = formatDiff(noCompression, "json");
 			const parsed = JSON.parse(out);
-			expect(parsed).toEqual(updatedBothDisabled);
+			expect(parsed).toEqual(noCompression);
 		});
 
 		it("should format artifacts with mixed algorithms", () => {
-			const out = formatDiff(updatedMixedAlgorithms, "json");
+			const out = formatDiff(mixedCompression, "json");
 			const parsed = JSON.parse(out);
-			expect(parsed).toEqual(updatedMixedAlgorithms);
+			expect(parsed).toEqual(mixedCompression);
 		});
 
 		it("should format artifact with removed file", () => {
-			const out = formatDiff(removedFiles, "json");
+			const out = formatDiff(fileChanges, "json");
 			const parsed = JSON.parse(out);
-			expect(parsed).toEqual(removedFiles);
+			expect(parsed).toEqual(fileChanges);
 		});
 
 		it("should format added artifact with no compression", () => {
-			const out = formatDiff(addedNoCompress, "json");
+			const out = formatDiff(singleAddedNoCompression, "json");
 			const parsed = JSON.parse(out);
-			expect(parsed).toEqual(addedNoCompress);
+			expect(parsed).toEqual(singleAddedNoCompression);
 		});
 
 		it("should format removed artifact with no compression", () => {
-			const out = formatDiff(removedNoCompress, "json");
+			const out = formatDiff(singleRemovedNoCompression, "json");
 			const parsed = JSON.parse(out);
-			expect(parsed).toEqual(removedNoCompress);
+			expect(parsed).toEqual(singleRemovedNoCompression);
 		});
 	});
 
 	describe("markdown", () => {
 		it("should format updated artifacts", () => {
-			const out = formatDiff(updated, "markdown");
+			const out = formatDiff(mixedChanges, "markdown");
 			expect(out).toMatchInlineSnapshot(`
 				## Artifact sizes
 
@@ -274,7 +102,7 @@ describe("formatDiff()", () => {
 		});
 
 		it("should format added artifact", () => {
-			const outMd = formatDiff(added, "markdown");
+			const outMd = formatDiff(singleAdded, "markdown");
 			expect(outMd).toMatchInlineSnapshot(`
 				## Artifact sizes
 
@@ -287,7 +115,7 @@ describe("formatDiff()", () => {
 		});
 
 		it("should format removed artifact", () => {
-			const outMd = formatDiff(removed, "markdown");
+			const outMd = formatDiff(singleRemoved, "markdown");
 			expect(outMd).toMatchInlineSnapshot(`
 				## Artifact sizes
 
@@ -300,7 +128,7 @@ describe("formatDiff()", () => {
 		});
 
 		it("should format artifacts with only one algorithm enabled", () => {
-			const out = formatDiff(updatedOneAlgorithm, "markdown");
+			const out = formatDiff(gzipOnly, "markdown");
 			expect(out).toMatchInlineSnapshot(`
 				## Artifact sizes
 
@@ -314,7 +142,7 @@ describe("formatDiff()", () => {
 		});
 
 		it("should format artifacts with all algorithms disabled", () => {
-			const out = formatDiff(updatedBothDisabled, "markdown");
+			const out = formatDiff(noCompression, "markdown");
 			expect(out).toMatchInlineSnapshot(`
 				## Artifact sizes
 
@@ -328,7 +156,7 @@ describe("formatDiff()", () => {
 		});
 
 		it("should format artifacts with mixed algorithms", () => {
-			const out = formatDiff(updatedMixedAlgorithms, "markdown");
+			const out = formatDiff(mixedCompression, "markdown");
 			expect(out).toMatchInlineSnapshot(`
 				## Artifact sizes
 
@@ -343,7 +171,7 @@ describe("formatDiff()", () => {
 		});
 
 		it("should format artifact with removed file", () => {
-			const out = formatDiff(removedFiles, "markdown");
+			const out = formatDiff(fileChanges, "markdown");
 			expect(out).toMatchInlineSnapshot(`
 				## Artifact sizes
 
@@ -356,7 +184,7 @@ describe("formatDiff()", () => {
 		});
 
 		it("should format added artifact with no compression (no compressed column)", () => {
-			const out = formatDiff(addedNoCompress, "markdown");
+			const out = formatDiff(singleAddedNoCompression, "markdown");
 			expect(out).toMatchInlineSnapshot(`
 				## Artifact sizes
 
@@ -369,7 +197,7 @@ describe("formatDiff()", () => {
 		});
 
 		it("should format removed artifact with no compression (no compressed column)", () => {
-			const out = formatDiff(removedNoCompress, "markdown");
+			const out = formatDiff(singleRemovedNoCompression, "markdown");
 			expect(out).toMatchInlineSnapshot(`
 				## Artifact sizes
 
@@ -382,7 +210,7 @@ describe("formatDiff()", () => {
 		});
 
 		it("should include header when header is true", () => {
-			const out = formatDiff(updated, "markdown", {
+			const out = formatDiff(mixedChanges, "markdown", {
 				color: false,
 				header: true,
 				unchanged: "show",
@@ -391,7 +219,7 @@ describe("formatDiff()", () => {
 		});
 
 		it("should omit header when header is false", () => {
-			const out = formatDiff(updated, "markdown", {
+			const out = formatDiff(mixedChanges, "markdown", {
 				color: false,
 				header: false,
 				unchanged: "show",
@@ -402,7 +230,7 @@ describe("formatDiff()", () => {
 
 	describe("text", () => {
 		it("should format updated artifacts", () => {
-			const out = formatDiff(updated, "text");
+			const out = formatDiff(mixedChanges, "text");
 			expect(out).toMatchInlineSnapshot(`
 				app: files=2 (+0), size=100B (+10B), gzip=80B (+5B), brotli=70B (-2B)
 
@@ -413,21 +241,21 @@ describe("formatDiff()", () => {
 		});
 
 		it("should format added artifact", () => {
-			const outText = formatDiff(added, "text", { color: false, header: true });
+			const outText = formatDiff(singleAdded, "text", { color: false, header: true });
 			expect(outText).toMatchInlineSnapshot(`
 				new: files=1 (+1), size=150B (+150B), gzip=100B (+100B), brotli=80B (+80B)
 			`);
 		});
 
 		it("should format removed artifact", () => {
-			const outText = formatDiff(removed, "text", { color: false, header: true });
+			const outText = formatDiff(singleRemoved, "text", { color: false, header: true });
 			expect(outText).toMatchInlineSnapshot(`
 				old: removed
 			`);
 		});
 
 		it("should format artifacts with only one algorithm enabled", () => {
-			const out = formatDiff(updatedOneAlgorithm, "text", { color: false, header: true });
+			const out = formatDiff(gzipOnly, "text", { color: false, header: true });
 			expect(out).toMatchInlineSnapshot(`
 				one-a: files=0 (+0), size=100B (+10B), gzip=80B (+5B)
 
@@ -436,7 +264,7 @@ describe("formatDiff()", () => {
 		});
 
 		it("should format artifacts with all algorithms disabled", () => {
-			const out = formatDiff(updatedBothDisabled, "text", { color: false, header: true });
+			const out = formatDiff(noCompression, "text", { color: false, header: true });
 			expect(out).toMatchInlineSnapshot(`
 				none-a: files=0 (+0), size=100B (+10B)
 
@@ -445,7 +273,7 @@ describe("formatDiff()", () => {
 		});
 
 		it("should format artifacts with mixed algorithms", () => {
-			const out = formatDiff(updatedMixedAlgorithms, "text", { color: false, header: true });
+			const out = formatDiff(mixedCompression, "text", { color: false, header: true });
 			expect(out).toMatchInlineSnapshot(`
 				all-enabled: files=0 (+0), size=130B (+10B), gzip=95B (+5B), brotli=85B (+5B)
 
@@ -456,26 +284,26 @@ describe("formatDiff()", () => {
 		});
 
 		it("should format artifact with removed file", () => {
-			const out = formatDiff(removedFiles, "text", { color: false, header: true });
+			const out = formatDiff(fileChanges, "text", { color: false, header: true });
 			expect(out).toMatchInlineSnapshot(`removed-files: files=1 (-1), size=110B (-10B)`);
 		});
 
 		it("should format added artifact with no compression (text)", () => {
-			const out = formatDiff(addedNoCompress, "text", { color: false, header: true });
+			const out = formatDiff(singleAddedNoCompression, "text", { color: false, header: true });
 			expect(out).toMatchInlineSnapshot(`
 				new-nc: files=1 (+1), size=150B (+150B)
 			`);
 		});
 
 		it("should format removed artifact with no compression (text)", () => {
-			const out = formatDiff(removedNoCompress, "text", { color: false, header: true });
+			const out = formatDiff(singleRemovedNoCompression, "text", { color: false, header: true });
 			expect(out).toMatchInlineSnapshot(`
 				old-nc: removed
 			`);
 		});
 
 		it("should colorize output", () => {
-			const out = formatDiff(updated, "text", { color: true, header: true });
+			const out = formatDiff(mixedChanges, "text", { color: true, header: true });
 			expect(out).toMatchInlineSnapshot(`
 				app: files=<cyan>2</cyan> (+0), size=<cyan>100B</cyan> (+10B), gzip=<cyan>80B</cyan> (+5B), brotli=<cyan>70B</cyan> (-2B)
 
@@ -488,8 +316,8 @@ describe("formatDiff()", () => {
 
 	describe("unchanged option", () => {
 		it("should hide unchanged artifacts in markdown format", () => {
-			const disabled = formatDiff(updated, "markdown", { unchanged: "show" });
-			const enabled = formatDiff(updated, "markdown", { unchanged: "hide" });
+			const disabled = formatDiff(mixedChanges, "markdown", { unchanged: "show" });
+			const enabled = formatDiff(mixedChanges, "markdown", { unchanged: "hide" });
 			expect(disabled).toMatchInlineSnapshot(`
 				## Artifact sizes
 
@@ -516,8 +344,8 @@ describe("formatDiff()", () => {
 		});
 
 		it("should hide unchanged artifacts in text format", () => {
-			const disabled = formatDiff(updated, "text", { unchanged: "show" });
-			const enabled = formatDiff(updated, "text", { unchanged: "hide" });
+			const disabled = formatDiff(mixedChanges, "text", { unchanged: "show" });
+			const enabled = formatDiff(mixedChanges, "text", { unchanged: "hide" });
 			expect(disabled).toMatchInlineSnapshot(`
 				app: files=2 (+0), size=100B (+10B), gzip=80B (+5B), brotli=70B (-2B)
 
@@ -533,30 +361,12 @@ describe("formatDiff()", () => {
 		});
 
 		it("should not affect JSON format", () => {
-			const disabled = formatDiff(updated, "json", { unchanged: "show" });
-			const enabled = formatDiff(updated, "json", { unchanged: "hide" });
+			const disabled = formatDiff(mixedChanges, "json", { unchanged: "show" });
+			const enabled = formatDiff(mixedChanges, "json", { unchanged: "hide" });
 			expect(enabled).toBe(disabled);
 		});
 
 		it("should show message when no artifacts are changed", () => {
-			/* Create test data with only unchanged artifacts */
-			const unchangedOnly: ArtifactDiff[] = [
-				{
-					id: "lib",
-					name: "lib",
-					status: "updated",
-					raw: {
-						oldSize: 200,
-						newSize: 200,
-						difference: 0,
-					},
-					gzip: { oldSize: 150, newSize: 150, difference: 0 },
-					brotli: { oldSize: 120, newSize: 120, difference: 0 },
-					oldFiles: [{ filename: "dist/lib.js", size: 200, gzip: 150, brotli: 120 }],
-					newFiles: [{ filename: "dist/lib.js", size: 200, gzip: 150, brotli: 120 }],
-				},
-			];
-
 			const result = formatDiff(unchangedOnly, "markdown", { unchanged: "hide" });
 			expect(result).toMatchInlineSnapshot(`
 				## Artifact sizes
@@ -566,35 +376,6 @@ describe("formatDiff()", () => {
 		});
 
 		it("should not show trailer when no artifacts are omitted", () => {
-			const allChanged: ArtifactDiff[] = [
-				{
-					id: "app",
-					name: "app",
-					status: "updated",
-					raw: { oldSize: 90, newSize: 100, difference: 10 },
-					gzip: { oldSize: 75, newSize: 80, difference: 5 },
-					brotli: { oldSize: 72, newSize: 70, difference: -2 },
-					oldFiles: [
-						{ filename: "dist/a.js", size: 65, gzip: 55, brotli: 45 },
-						{ filename: "dist/b.js", size: 25, gzip: 15, brotli: 18 },
-					],
-					newFiles: [
-						{ filename: "dist/a.js", size: 70, gzip: 60, brotli: 50 },
-						{ filename: "dist/b.js", size: 30, gzip: 20, brotli: 20 },
-					],
-				},
-				{
-					id: "vendor",
-					name: "vendor",
-					status: "updated",
-					raw: { oldSize: 300, newSize: 250, difference: -50 },
-					gzip: { oldSize: 250, newSize: 210, difference: -40 },
-					brotli: { oldSize: 230, newSize: 200, difference: -30 },
-					oldFiles: [{ filename: "dist/vendor.js", size: 300, gzip: 250, brotli: 230 }],
-					newFiles: [{ filename: "dist/vendor.js", size: 250, gzip: 210, brotli: 200 }],
-				},
-			];
-
 			const result = formatDiff(allChanged, "markdown", { unchanged: "hide" });
 			expect(result).toMatchInlineSnapshot(`
 				## Artifact sizes
@@ -609,45 +390,6 @@ describe("formatDiff()", () => {
 		});
 
 		it("should show plural message when multiple artifacts are omitted", () => {
-			const multipleUnchanged: ArtifactDiff[] = [
-				{
-					id: "app",
-					name: "app",
-					status: "updated",
-					raw: { oldSize: 90, newSize: 100, difference: 10 },
-					gzip: { oldSize: 75, newSize: 80, difference: 5 },
-					brotli: { oldSize: 72, newSize: 70, difference: -2 },
-					oldFiles: [
-						{ filename: "dist/a.js", size: 65, gzip: 55, brotli: 45 },
-						{ filename: "dist/b.js", size: 25, gzip: 15, brotli: 18 },
-					],
-					newFiles: [
-						{ filename: "dist/a.js", size: 70, gzip: 60, brotli: 50 },
-						{ filename: "dist/b.js", size: 30, gzip: 20, brotli: 20 },
-					],
-				},
-				{
-					id: "lib",
-					name: "lib",
-					status: "updated",
-					raw: { oldSize: 200, newSize: 200, difference: 0 },
-					gzip: { oldSize: 150, newSize: 150, difference: 0 },
-					brotli: { oldSize: 120, newSize: 120, difference: 0 },
-					oldFiles: [{ filename: "dist/lib.js", size: 200, gzip: 150, brotli: 120 }],
-					newFiles: [{ filename: "dist/lib.js", size: 200, gzip: 150, brotli: 120 }],
-				},
-				{
-					id: "vendor",
-					name: "vendor",
-					status: "updated",
-					raw: { oldSize: 300, newSize: 300, difference: 0 },
-					gzip: { oldSize: 250, newSize: 250, difference: 0 },
-					brotli: { oldSize: 230, newSize: 230, difference: 0 },
-					oldFiles: [{ filename: "dist/vendor.js", size: 300, gzip: 250, brotli: 230 }],
-					newFiles: [{ filename: "dist/vendor.js", size: 300, gzip: 250, brotli: 230 }],
-				},
-			];
-
 			const result = formatDiff(multipleUnchanged, "markdown", { unchanged: "hide" });
 			expect(result).toMatchInlineSnapshot(`
 				## Artifact sizes
@@ -663,7 +405,7 @@ describe("formatDiff()", () => {
 		});
 
 		it("should show unchanged artifacts in details section when unchanged is 'collapse'", () => {
-			const result = formatDiff(updated, "markdown", { unchanged: "collapse" });
+			const result = formatDiff(mixedChanges, "markdown", { unchanged: "collapse" });
 			expect(result).toMatchInlineSnapshot(`
 				## Artifact sizes
 
@@ -688,45 +430,6 @@ describe("formatDiff()", () => {
 		});
 
 		it("should show multiple unchanged artifacts in details section", () => {
-			const multipleUnchanged: ArtifactDiff[] = [
-				{
-					id: "app",
-					name: "app",
-					status: "updated",
-					raw: { oldSize: 90, newSize: 100, difference: 10 },
-					gzip: { oldSize: 75, newSize: 80, difference: 5 },
-					brotli: { oldSize: 72, newSize: 70, difference: -2 },
-					oldFiles: [
-						{ filename: "dist/a.js", size: 65, gzip: 55, brotli: 45 },
-						{ filename: "dist/b.js", size: 25, gzip: 15, brotli: 18 },
-					],
-					newFiles: [
-						{ filename: "dist/a.js", size: 70, gzip: 60, brotli: 50 },
-						{ filename: "dist/b.js", size: 30, gzip: 20, brotli: 20 },
-					],
-				},
-				{
-					id: "lib",
-					name: "lib",
-					status: "updated",
-					raw: { oldSize: 200, newSize: 200, difference: 0 },
-					gzip: { oldSize: 150, newSize: 150, difference: 0 },
-					brotli: { oldSize: 120, newSize: 120, difference: 0 },
-					oldFiles: [{ filename: "dist/lib.js", size: 200, gzip: 150, brotli: 120 }],
-					newFiles: [{ filename: "dist/lib.js", size: 200, gzip: 150, brotli: 120 }],
-				},
-				{
-					id: "vendor",
-					name: "vendor",
-					status: "updated",
-					raw: { oldSize: 300, newSize: 300, difference: 0 },
-					gzip: { oldSize: 250, newSize: 250, difference: 0 },
-					brotli: { oldSize: 230, newSize: 230, difference: 0 },
-					oldFiles: [{ filename: "dist/vendor.js", size: 300, gzip: 250, brotli: 230 }],
-					newFiles: [{ filename: "dist/vendor.js", size: 300, gzip: 250, brotli: 230 }],
-				},
-			];
-
 			const result = formatDiff(multipleUnchanged, "markdown", { unchanged: "collapse" });
 			expect(result).toMatchInlineSnapshot(`
 				## Artifact sizes
@@ -752,30 +455,7 @@ describe("formatDiff()", () => {
 		});
 
 		it("should show details without compression when unchanged artifacts have no compression", () => {
-			const unchangedNoCompress: ArtifactDiff[] = [
-				{
-					id: "app",
-					name: "app",
-					status: "updated",
-					raw: { oldSize: 90, newSize: 100, difference: 10 },
-					gzip: null,
-					brotli: null,
-					oldFiles: [{ filename: "dist/app.js", size: 90, gzip: null, brotli: null }],
-					newFiles: [{ filename: "dist/app.js", size: 100, gzip: null, brotli: null }],
-				},
-				{
-					id: "lib",
-					name: "lib",
-					status: "updated",
-					raw: { oldSize: 200, newSize: 200, difference: 0 },
-					gzip: null,
-					brotli: null,
-					oldFiles: [{ filename: "dist/lib.js", size: 200, gzip: null, brotli: null }],
-					newFiles: [{ filename: "dist/lib.js", size: 200, gzip: null, brotli: null }],
-				},
-			];
-
-			const result = formatDiff(unchangedNoCompress, "markdown", { unchanged: "collapse" });
+			const result = formatDiff(unchangedNoCompression, "markdown", { unchanged: "collapse" });
 			expect(result).toMatchInlineSnapshot(`
 				## Artifact sizes
 
@@ -799,25 +479,6 @@ describe("formatDiff()", () => {
 		});
 
 		it("should not show details section when all artifacts are changed", () => {
-			const allChanged: ArtifactDiff[] = [
-				{
-					id: "app",
-					name: "app",
-					status: "updated",
-					raw: { oldSize: 90, newSize: 100, difference: 10 },
-					gzip: { oldSize: 75, newSize: 80, difference: 5 },
-					brotli: { oldSize: 72, newSize: 70, difference: -2 },
-					oldFiles: [
-						{ filename: "dist/a.js", size: 65, gzip: 55, brotli: 45 },
-						{ filename: "dist/b.js", size: 25, gzip: 15, brotli: 18 },
-					],
-					newFiles: [
-						{ filename: "dist/a.js", size: 70, gzip: 60, brotli: 50 },
-						{ filename: "dist/b.js", size: 30, gzip: 20, brotli: 20 },
-					],
-				},
-			];
-
 			const result = formatDiff(allChanged, "markdown", { unchanged: "collapse" });
 			expect(result).toMatchInlineSnapshot(`
 				## Artifact sizes
@@ -827,27 +488,11 @@ describe("formatDiff()", () => {
 				| Artifact | Files | Size | Compressed | Change |
 				|---|---|---:|---:|---:|
 				| app | 2 file(s) | 90B → **100B** (+10B) | gzip: 80B<br>brotli: 70B | +11.11% |
+				| vendor | 1 file(s) | 300B → **250B** (-50B) | gzip: 210B<br>brotli: 200B | -16.67% |
 			`);
 		});
 
 		it("should return empty string when no header and no artifacts to show", () => {
-			const unchangedOnly: ArtifactDiff[] = [
-				{
-					id: "lib",
-					name: "lib",
-					status: "updated",
-					raw: {
-						oldSize: 200,
-						newSize: 200,
-						difference: 0,
-					},
-					gzip: { oldSize: 150, newSize: 150, difference: 0 },
-					brotli: { oldSize: 120, newSize: 120, difference: 0 },
-					oldFiles: [{ filename: "dist/lib.js", size: 200, gzip: 150, brotli: 120 }],
-					newFiles: [{ filename: "dist/lib.js", size: 200, gzip: 150, brotli: 120 }],
-				},
-			];
-
 			const result = formatDiff(unchangedOnly, "markdown", { unchanged: "hide", header: false });
 			expect(result).toBe("");
 		});
