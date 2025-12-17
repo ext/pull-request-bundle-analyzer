@@ -61,9 +61,10 @@ function renderRemovedRow(it: ArtifactDiff, showCompressed: boolean): string {
 
 function renderUpdatedRow(it: ArtifactDiff, showCompressed: boolean): string {
 	const name = it.name.replace(/ /g, "&nbsp;");
-	const sizeCol = `${num(it.raw.oldSize)} → **${num(it.raw.newSize)}** (${diff(
-		it.raw.difference,
-	)})`;
+	const isChanged = it.raw.difference !== 0;
+	const sizeCol = isChanged
+		? `${num(it.raw.oldSize)} → **${num(it.raw.newSize)}** (${diff(it.raw.difference)})`
+		: num(it.raw.newSize);
 	const percent = formatPercent(it.raw);
 
 	if (!showCompressed) {
