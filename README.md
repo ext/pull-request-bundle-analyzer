@@ -352,6 +352,20 @@ When set to `true`, disables the header in output for formats with headers such 
 
 Use this when you want to prepend your own heading or other content before the size table.
 
+#### `unchanged`
+
+Type: `string`  
+Required: no  
+Default: `collapse`
+
+Controls how artifacts with unchanged sizes are handled:
+
+- `show`: Display all artifacts
+- `hide`: Hide unchanged artifacts from output
+- `collapse`: Show unchanged artifacts in a collapsible `<details>` section (default)
+
+Use `collapse` for pull request comments to keep the main table focused while still showing all artifacts in an expandable section.
+
 ### Compare outputs
 
 #### `json`

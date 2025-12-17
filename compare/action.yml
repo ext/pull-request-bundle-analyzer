@@ -33,6 +33,11 @@ inputs:
     required: false
     type: boolean
     default: false
+  unchanged:
+    description: "Control how artifacts with unchanged sizes are handled. 'show' displays all artifacts, 'hide' omits unchanged ones, 'collapse' shows them in a collapsible section."
+    required: false
+    type: string
+    default: collapse
 
 outputs:
   markdown:
@@ -97,4 +102,5 @@ runs:
           --output-github markdown:markdown \
           --output-github text:text \
           --output-github json:json \
+          ${{ format('--unchanged={0}', inputs.unchanged) }} \
           ${{ (inputs.no-header == true || inputs.no-header == 'true') && format('--no-header') || '' }}
