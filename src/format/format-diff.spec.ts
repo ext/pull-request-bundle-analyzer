@@ -266,7 +266,7 @@ describe("formatDiff()", () => {
 				| Artifact | Files | Size | Compressed | Change |
 				|---|---|---:|---:|---:|
 				| app | 2 file(s) | 90B → **100B** (+10B) | gzip: 80B<br>brotli: 70B | +11.11% |
-				| lib | 1 file(s) | 200B → **200B** (+0B) | gzip: 150B<br>brotli: 120B | - |
+				| lib | 1 file(s) | 200B | gzip: 150B<br>brotli: 120B | - |
 				| vendor | 1 file(s) | 300B → **250B** (-50B) | gzip: 210B<br>brotli: 200B | -16.67% |
 			`);
 		});
