@@ -1,5 +1,17 @@
 # artifact-size-analyzer changelog
 
+## 1.2.0 (2025-12-19)
+
+### Features
+
+- **cli:** add new `--unchanged` option to omit or collapse unchanged artifacts ([69c2fa7](https://github.com/ext/artifact-size-analyzer/commit/69c2fa7911098a22bce1af03e03bacbd864dc9b8))
+- **github:** add new `unchanged` input to omit or collapse unchanged artifacts ([66b1b7c](https://github.com/ext/artifact-size-analyzer/commit/66b1b7cb18481881030afad725b5d36b127ba4a9))
+
+### Bug Fixes
+
+- **github:** fix logging of the current result ([538e427](https://github.com/ext/artifact-size-analyzer/commit/538e4276efcab8dfd3bf7a40db606598ae23facd))
+- only show current size when there was no change ([6e7246e](https://github.com/ext/artifact-size-analyzer/commit/6e7246e3c949df17df68a7293b0942bc959083bb))
+
 ## 1.1.0 (2025-12-17)
 
 ### Features
